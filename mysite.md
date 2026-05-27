@@ -59,3 +59,8 @@
 - **Problem**: Site wasn't version-controlled or auto-deployed.
 - **Fix**: Initialized git, pushed to [github.com/mahirvelizade/mysite](https://github.com/mahirvelizade/mysite), enabled GitHub Pages. Site auto-deploys on every push to `main`.
 - **URL**: [https://mahirvelizade.github.io/mysite/](https://mahirvelizade.github.io/mysite/)
+
+### 10. Custom Domain — mahirvelizade.space
+- **Problem**: Wanted custom domain instead of GitHub Pages subdomain.
+- **Fix**: Set CNAME in repo, changed Namecheap DNS to BasicDNS, added 4 A records (`185.199.108.153` etc.) for root and CNAME for www. GitHub Pages configured with custom domain.
+- **Status**: DNS propagating (up to 24h)
