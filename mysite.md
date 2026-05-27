@@ -65,6 +65,10 @@
 - **Fix**: Set CNAME in repo, changed Namecheap DNS to BasicDNS, added 4 A records (`185.199.108.153` etc.) for root and CNAME for www. GitHub Pages configured with custom domain.
 - **Status**: ✅ Complete — SSL issued, HTTPS enforced
 
+### 12. Version Bump — v4.0 → v4.1
+- **Change**: Updated version display from `v4.0` to `v4.1` in home-meta.
+- **File**: `index.html:856`
+
 ### 11. SSL Certificate & HTTPS Enforcement
 - **Problem**: SSL cert not yet issued for custom domain; browser showed insecure warning.
 - **Fix**: DNS propagated to GitHub Pages IPs → Let's Encrypt SSL auto-issued → **Enforce HTTPS** enabled.
