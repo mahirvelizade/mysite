@@ -63,4 +63,9 @@
 ### 10. Custom Domain — mahirvelizade.space
 - **Problem**: Wanted custom domain instead of GitHub Pages subdomain.
 - **Fix**: Set CNAME in repo, changed Namecheap DNS to BasicDNS, added 4 A records (`185.199.108.153` etc.) for root and CNAME for www. GitHub Pages configured with custom domain.
-- **Status**: DNS propagating (up to 24h)
+- **Status**: ✅ Complete — SSL issued, HTTPS enforced
+
+### 11. SSL Certificate & HTTPS Enforcement
+- **Problem**: SSL cert not yet issued for custom domain; browser showed insecure warning.
+- **Fix**: DNS propagated to GitHub Pages IPs → Let's Encrypt SSL auto-issued → **Enforce HTTPS** enabled.
+- **URL**: [https://mahirvelizade.space/](https://mahirvelizade.space/) — fully secure, HTTP/2 from GitHub.com
