@@ -54,3 +54,8 @@
 - **Problem**: User wanted AI to auto-detect language from input instead of manual AZ/EN/RU selection.
 - **Fix**: Removed language buttons and `switchLang()`. Added `detectLang(text)` that detects language by character patterns (`əğııöüşç` → AZ, `а-яё` → RU, default → EN). TTS, speech recognition, and fallback messages all use auto-detected language.
 - **Files**: `index.html` (lines 1462-1480, 1537-1556), `mahir_qa.js` (line 543-558)
+
+### 9. GitHub Repo & Auto-Deploy
+- **Problem**: Site wasn't version-controlled or auto-deployed.
+- **Fix**: Initialized git, pushed to [github.com/mahirvelizade/mysite](https://github.com/mahirvelizade/mysite), enabled GitHub Pages. Site auto-deploys on every push to `main`.
+- **URL**: [https://mahirvelizade.github.io/mysite/](https://mahirvelizade.github.io/mysite/)
