@@ -64,7 +64,7 @@
         <button class="btn-outline" data-page="contact" onclick="switchPage('contact')">Get in Touch</button>
     </div>
     <div class="home-meta">
-        <div class="meta-item">Version <strong>v4.1</strong></div>
+        <div class="meta-item">Version <strong>v4.2</strong></div>
         <div class="meta-item">Stream <strong>Active</strong></div>
         <div class="meta-item">Views <strong>46K+</strong></div>
     </div>
@@ -365,7 +365,7 @@
 <!-- FOOTER BAR -->
 <div class="footer-bar">
     <span id="footer-time">--:--:--</span>
-    <span>v4.1 // Baku, AZ</span>
+    <span>v4.2 // Baku, AZ</span>
 </div>
 <div id="music-player">
   <div id="music-controls">
@@ -380,9 +380,9 @@
 </div>
 
 <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three@0.129.0/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
-    import { DRACOLoader } from 'https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/DRACOLoader.js';
+    import * as THREE from 'https://unpkg.com/three@0.129.0/build/three.module.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.129.0/examples/jsm/loaders/GLTFLoader.js';
+    import { DRACOLoader } from 'https://unpkg.com/three@0.129.0/examples/jsm/loaders/DRACOLoader.js';
 
     // --- MATRIX BACKGROUND ---
     const mc = document.getElementById('bg-matrix');
@@ -473,7 +473,7 @@
     document.querySelectorAll('.page').forEach(p => {
         p.addEventListener('scroll', () => {
             document.getElementById('main-nav').classList.toggle('scrolled', p.scrollTop > 10);
-        });
+        }, { passive: true });
     });
 
     // --- MOBILE NAV TOGGLE ---
@@ -1010,7 +1010,10 @@
     fab.innerHTML=SVG_STAR;
     stopListen();
     destroyRecog();
-    setTimeout(function(){ input.focus(); },100);
+    setTimeout(function(){
+      input.focus();
+      if(window.visualViewport) input.scrollIntoView({block:'center',behavior:'smooth'});
+    },100);
   }
   function closeChat(){
     isOpen=false;
@@ -1165,6 +1168,7 @@ function drawEq(){
     eqCtx.restore()
   }
 
+  if(eqCanvas.offsetParent===null){ eqAnimId=null; return }
   eqAnimId = requestAnimationFrame(drawEq)
 }
 

@@ -87,3 +87,19 @@
 - **Problem**: SSL cert not yet issued for custom domain; browser showed insecure warning.
 - **Fix**: DNS propagated to GitHub Pages IPs → Let's Encrypt SSL auto-issued → **Enforce HTTPS** enabled.
 - **URL**: [https://mahirvelizade.space/](https://mahirvelizade.space/) — fully secure, HTTP/2 from GitHub.com
+
+### 14. Mobile UX Audit & Fixes
+- **Problem**: Multiple mobile usability issues — tiny tap targets, missing `-webkit-backdrop-filter`, 300ms tap delay, wasteful rAF loops when hidden, Skypack CDN unreliable.
+- **Changes**:
+  - `#ai-x` close button: `padding: 0` → `padding: 12px` (44px tap target)
+  - `.nav-toggle` hamburger: added `min-width:44px; min-height:44px; padding:8px`
+  - Chat row buttons (`#ai-mic`, `#ai-listen-toggle`, `#ai-send`): added `min-height:44px; touch-action:manipulation`
+  - Music player buttons on mobile: `padding:6px 10px` → `padding:12px 14px; min-height:44px`
+  - Added `-webkit-backdrop-filter` to `nav.scrolled`, `#ai-bubble`, `#ai-fab` (iOS Safari)
+  - Added `html { touch-action: manipulation }` — removes 300ms tap delay
+  - Footer font on mobile: `0.45rem` → `0.55rem` (more readable)
+  - Equalizer rAF loop: added `offsetParent===null` guard — stops when `display:none` (saves battery on mobile)
+  - Scroll listener: added `{passive:true}` — prevents scroll jank
+  - Chat `openChat()`: added `visualViewport` scrollIntoView for mobile keyboard
+  - Skypack CDN → unpkg (long-term reliability for Three.js)
+- **Files**: `style.css`, `index.html`, `app.js`, `mysite.md`
