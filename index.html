@@ -419,7 +419,10 @@ window.switchPage = function(pageId) {
     return false;
 };
 document.querySelectorAll('[data-page]').forEach(function(el){
-    el.addEventListener('click', function(e){ e.preventDefault(); });
+    el.addEventListener('click', function(e){
+        e.preventDefault();
+        if (el.dataset.page) switchPage(el.dataset.page);
+    });
 });
 document.querySelectorAll('.page').forEach(function(p){
     p.addEventListener('scroll', function(){
