@@ -555,7 +555,7 @@ setInterval(function(){
 
     function animate3D() {
         requestAnimationFrame(animate3D);
-        if (mainObject && document.getElementById('page-home').classList.contains('active')) {
+        if (mainObject && document.getElementById('page-home').classList.contains('active') && !document.getElementById('nav-links').classList.contains('open')) {
             renderer.render(scene, camera);
         }
     }
@@ -567,7 +567,7 @@ setInterval(function(){
 
         // MOUSE — absolute position relative to screen center
         document.addEventListener('mousemove', function(e) {
-            if (!mainObject) return;
+            if (!mainObject || document.getElementById('nav-links').classList.contains('open')) return;
             var x = (e.clientX / window.innerWidth - 0.5) * 2;
             var y = (e.clientY / window.innerHeight - 0.5) * 2;
             mainObject.rotation.y = x * MAX_Y + gyroY;
@@ -577,6 +577,7 @@ setInterval(function(){
         // TOUCH — incremental drag
         var prevX=0, prevY=0, dragging=false;
         window.addEventListener('touchstart', function(e) {
+            if (document.getElementById('nav-links').classList.contains('open')) return;
             prevX=e.touches[0].clientX; prevY=e.touches[0].clientY; dragging=true;
         }, {passive:true});
         window.addEventListener('touchmove', function(e) {
@@ -591,6 +592,7 @@ setInterval(function(){
 
         // GYRO
         function onOrient(e) {
+            if (document.getElementById('nav-links').classList.contains('open')) return;
             var b=e.beta||0, g=e.gamma||0;
             if(refB===null){refB=b;refG=g;}
             var db=b-refB, dg=g-refG;
