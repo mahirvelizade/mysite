@@ -98,7 +98,7 @@
   - Added `-webkit-backdrop-filter` to `nav.scrolled`, `#ai-bubble`, `#ai-fab` (iOS Safari)
   - Added `html { touch-action: manipulation }` — removes 300ms tap delay
   - Footer font on mobile: `0.45rem` → `0.55rem` (more readable)
-  - Equalizer rAF loop: added `offsetParent===null` guard — stops when `display:none` (saves battery on mobile)
+  - Equalizer rAF loop: added `getComputedStyle().display==='none'` guard — stops when hidden (saves battery on mobile)
   - Scroll listener: added `{passive:true}` — prevents scroll jank
   - Chat `openChat()`: added `visualViewport` scrollIntoView for mobile keyboard
   - Skypack CDN → esm.sh via unpkg then esm.sh (unpkg doesn't resolve bare imports like `from 'three'` in GLTFLoader; esm.sh rewrites all internal imports)

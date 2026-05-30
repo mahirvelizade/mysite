@@ -494,7 +494,7 @@ function drawEq(){
     eqCtx.stroke();
     eqCtx.restore();
   }
-    if(eqCanvas.offsetParent===null){ eqAnimId=null; return; }
+    if(getComputedStyle(eqCanvas).display==='none'){ eqAnimId=null; return; }
     eqAnimId = requestAnimationFrame(drawEq);
 }
 
