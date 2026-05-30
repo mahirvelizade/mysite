@@ -772,6 +772,7 @@ nav.scrolled {
     color: #39FF14;
     border: none;
     transition: color .2s;
+    font-variant-emoji: text;
 }
 #music-player button:hover { color: #fff; }
 #music-info {
