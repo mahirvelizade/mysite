@@ -49,12 +49,12 @@ setTimeout(function(){
 
 <!-- NAV -->
 <nav id="main-nav">
-    <a href="#" class="nav-logo" data-page="home" onclick="return switchPage('home')">MAHIR<span>VELIZADE</span></a>
+    <a href="#" class="nav-logo" data-page="home">MAHIR<span>VELIZADE</span></a>
     <ul class="nav-links" id="nav-links">
-        <li><button type="button" data-page="home" class="nav-link active" onclick="switchPage('home')">Home</button></li>
-        <li><button type="button" data-page="work" class="nav-link" onclick="switchPage('work')">Work</button></li>
-        <li><button type="button" data-page="about" class="nav-link" onclick="switchPage('about')">About</button></li>
-        <li><button type="button" data-page="contact" class="nav-link" onclick="switchPage('contact')">Contact</button></li>
+        <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
+        <li><a href="#" data-page="work" class="nav-link">Work</a></li>
+        <li><a href="#" data-page="about" class="nav-link">About</a></li>
+        <li><a href="#" data-page="contact" class="nav-link">Contact</a></li>
     </ul>
     <div class="nav-status">
         <div class="status-dot"></div>
@@ -410,15 +410,10 @@ window.switchPage = function(pageId) {
             });
         }, 100);
     }
-    var nlx = document.getElementById('nav-links');
-    nlx.classList.remove('open');
+    document.getElementById('nav-links').classList.remove('open');
     document.getElementById('nav-toggle').classList.remove('open');
     var c3d = document.getElementById('canvas-3d');
     if (c3d) c3d.style.pointerEvents = '';
-    if (nlx.parentElement !== document.querySelector('nav')) {
-        document.querySelector('nav').appendChild(nlx);
-    }
-    return false;
 };
 document.querySelectorAll('.page').forEach(function(p){
     p.addEventListener('scroll', function(){
@@ -430,12 +425,13 @@ document.getElementById('nav-toggle').addEventListener('click', function(){
     nl.classList.toggle('open');
     this.classList.toggle('open');
     var c3d = document.getElementById('canvas-3d');
-    if (nl.classList.contains('open')) {
-        document.body.appendChild(nl);
-        if (c3d) c3d.style.pointerEvents = 'none';
-    } else {
-        document.querySelector('nav').appendChild(nl);
-        if (c3d) c3d.style.pointerEvents = '';
+    if (c3d) c3d.style.pointerEvents = nl.classList.contains('open') ? 'none' : '';
+});
+document.addEventListener('click', function(e) {
+    var el = e.target.closest('[data-page]');
+    if (el) {
+        e.preventDefault();
+        switchPage(el.dataset.page);
     }
 });
 setInterval(function(){
