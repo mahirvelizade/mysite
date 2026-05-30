@@ -556,3 +556,30 @@ window.localAnswer = function(q) {
   if(lang==='ru') return "Хм, не уверен, что правильно понял вопрос. Спросите о моей работе, опыте или проектах.";
   return "Hmm, not sure what to say to that one. Ask me about my work, experience, or anything design-related.";
 };
+
+/**
+ * createChatWidget() — injects AI chat DOM into the page
+ */
+window.createChatWidget = function() {
+  if (document.getElementById('ai-widget')) return;
+  var w = document.createElement('div'); w.id = 'ai-widget';
+  w.innerHTML =
+    '<div id="ai-bubble">' +
+      '<div id="ai-head">' +
+        '<div class="ai-head-l"><div class="ai-pulse"></div><span>Mahir AI // Online</span></div>' +
+        '<button id="ai-x">✕</button>' +
+      '</div>' +
+      '<div id="ai-msgs"></div>' +
+      '<div id="ai-row">' +
+        '<textarea id="ai-input" placeholder="Ask me anything..." maxlength="300" rows="1"></textarea>' +
+        '<button id="ai-mic" title="Voice input"></button>' +
+        '<button id="ai-listen-toggle" title="Always-listen mode"></button>' +
+        '<button id="ai-send">↑</button>' +
+      '</div>' +
+    '</div>' +
+    '<div id="ai-lbl"></div>' +
+    '<button id="ai-fab"></button>';
+  document.body.appendChild(w);
+};
+
+window.createChatWidget();
