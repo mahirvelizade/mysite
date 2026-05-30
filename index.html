@@ -31,7 +31,21 @@
     <div class="loader-text">Initializing</div>
     <div class="loader-pct" id="load-pct">0%</div>
 </div>
-<script>setTimeout(function(){var ls=document.getElementById('loading-screen');if(ls&&ls.style.display!=='none'){ls.style.opacity='0';setTimeout(function(){ls.style.display='none'},600)}},8000)</script>
+<script>
+(function(){
+var ls=document.getElementById('loading-screen'),lp=document.getElementById('load-pct'),pct=0;
+var tid=setInterval(function(){
+  pct=Math.min(pct+Math.random()*8,100);
+  if(lp) lp.textContent=Math.round(pct)+'%';
+  if(pct>=100){ clearInterval(tid);
+    setTimeout(function(){ ls.style.opacity='0'; setTimeout(function(){ ls.style.display='none'; },600); },300);
+  }
+},60);
+setTimeout(function(){
+  if(ls&&ls.style.display!=='none'){ ls.style.opacity='0'; setTimeout(function(){ ls.style.display='none'; },600); }
+},15000);
+})();
+</script>
 
 <!-- NAV -->
 <nav id="main-nav">
@@ -462,23 +476,7 @@ setInterval(function(){
     }
     animCursor();
 
-    // --- LOADING SCREEN ---
-    const loadScreen = document.getElementById('loading-screen');
-    const loadPct = document.getElementById('load-pct');
-    let pct = 0;
-    const loadInterval = setInterval(() => {
-        pct = Math.min(pct + Math.random() * 8, 100);
-        loadPct.textContent = Math.round(pct) + '%';
-        if (pct >= 100) {
-            clearInterval(loadInterval);
-            setTimeout(() => {
-                loadScreen.style.opacity = '0';
-                setTimeout(() => loadScreen.style.display = 'none', 600);
-            }, 300);
-        }
-    }, 60);
-
-    // --- SKILL BAR RESET (overridden by page switch anyway) ---
+    // --- SKILL BAR RESET (handled by page switch) ---
 
     // --- THREE.JS 3D MODEL ---
     const container3d = document.getElementById('canvas-3d');
