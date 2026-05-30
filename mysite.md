@@ -101,5 +101,5 @@
   - Equalizer rAF loop: added `offsetParent===null` guard — stops when `display:none` (saves battery on mobile)
   - Scroll listener: added `{passive:true}` — prevents scroll jank
   - Chat `openChat()`: added `visualViewport` scrollIntoView for mobile keyboard
-  - Skypack CDN → unpkg (long-term reliability for Three.js)
+  - Skypack CDN → esm.sh via unpkg then esm.sh (unpkg doesn't resolve bare imports like `from 'three'` in GLTFLoader; esm.sh rewrites all internal imports)
 - **Files**: `style.css`, `index.html`, `app.js`, `mysite.md`
