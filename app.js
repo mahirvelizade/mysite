@@ -414,6 +414,7 @@ function onYouTubeIframeAPIReady(){
         autoplay:0, controls:0,
         enablejsapi:1,
         playsinline:1,
+        origin:'https://mahirvelizade.space',
         listType:'playlist',
         list:'RDBPTR5-FHn9w'
       },
