@@ -28,9 +28,13 @@ Maintain and optimize Mahir Velizade's portfolio site at https://mahirvelizade.s
 - Google Fonts preconnect for faster load
 - Index.html reduced from 2046 → 1235 lines (~40% smaller)
 
-## Last Session
-- Site optimization v1 completed ✅
-- All changes committed and pushed to GitHub
+## Last Session (30 May 2026)
+- **Mobile nav click fix**: About/Contact unclickable on iOS — 3D WebGL canvas intercepted touch events through menu overlay. Fix: `pointer-events: none` on `#canvas-3d` when menu opens.
+- **Nav reverted to v4.1 design**: `<a href="#" data-page="...">` + delegated `[data-page]` click listener. No body-move, no inline onclick.
+- **Menu visual**: full-height overlay (`bottom: 0`), `1.2rem` link font, centered layout
+- **Music player emoji**: Unicode `▶ ⏸ ⏮ ⏭` rendered orange on Xiaomi Android. Replaced with safe chars (`▸`, `▌▌`, `‹‹`, `››`) + `font-family: serif` fallback.
+- **Latest commit**: `7d7fd3c`
+- **Note**: Emoji fix still not rendering correctly on Xiaomi Redmi 9 (user said "ciddi problem deyil, qalsın")
 
 ## Git
 - Remote: https://github.com/mahirvelizade/mysite

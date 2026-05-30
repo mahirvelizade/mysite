@@ -1,11 +1,43 @@
 # Mahir Velizade Portfolio — Project Changes
 
+## 🗺️ Session Summary (30 May 2026)
+- **Mobile nav click fix**: 3D canvas `pointer-events:none` when menu opens — fixes About/Contact unclickable on iOS
+- **Nav reverted to v4.1**: `<a data-page>` + delegated listener, no body-move, no inline onclick
+- **Menu visual**: full-height overlay, `1.2rem` links, `rgba(5,5,5,0.98)` bg, centered
+- **Music player emoji**: all Unicode replaced with safe non-emoji chars + serif font fallback for Xiaomi/Android
+- **Commit**: `7d7fd3c` (latest)
+
 ## 📁 Files
 - `index.html` — Main portfolio (single-page: Home, Work, About, Contact)
+- `style.css` — All styles
 - `mahir_qa.js` — 50+ Q&A pairs for AI chat (EN/AZ/RU)
 - `3D.glb` — 3D model rendered with THREE.js on homepage
 
 ## 🔧 Changes Made
+
+### 17. Mobile Nav — Click Fix (iOS WebGL Canvas Intercepting Touches)
+- **Problem**: About/Contact nav links unclickable on mobile. Three.js WebGL canvas sits on separate compositing layer and intercepts touch events through the mobile menu overlay. Clicking button text didn't work, but hitting button edges did.
+- **Fix 1** (reverted): Replaced `<a href="#">` with `<button type="button">` — didn't fix root cause, changed visual.
+- **Fix 2** (final): Menu açıldıqda `#canvas-3d`-yə `pointer-events: none` tətbiq olunur (`c3d.style.pointerEvents = 'none'`), bağlananda geri qayıdır. Bu iOS WebGL canvas-in touch event-lərini ələ keçirməsinin qarşısını alır.
+- **Nav design**: Reverted to original v4.1 style:
+  - `<a href="#" data-page="..." class="nav-link">` (no inline onclick — `[data-page]` delegated listener handles all)
+  - Single `document.addEventListener('click', closest('[data-page]'))` with `e.preventDefault()`
+  - Simple class toggle (no body-move). Links stay in `<nav>` always.
+  - Visual: `rgba(5,5,5,0.98)` bg, `32px 24px` padding, `border-bottom`, centered full-height overlay
+  - Links: `1.2rem` font-size, `12px 0` padding, natural (non-centered) position
+- **Events**: `animate3D`, `mousemove`, `touchstart`, gyro handlers all guard with `nav-links.classList.contains('open')` check — no interaction when menu open
+- **Lines**: `index.html:415-416,427-428,430-436` (pointer-events logic), `style.css:608-619` (menu CSS)
+
+### 18. Music Player Emoji — Orange on Xiaomi/Android
+- **Problem**: Unicode `▶ ⏸ ⏮ ⏭` rendered as colorful (orange) emoji on Xiaomi Redmi 9, ignoring CSS `color`. `font-variant-emoji: text` not supported on that Android version.
+- **Fix**: Replaced all emoji characters with safe Unicode alternatives that have no emoji presentation on any platform:
+  - Play `▶` → `▸` (U+25B8, small black right-pointing triangle)
+  - Pause `⏸` → `▌▌` (U+258C, left half block)
+  - Previous `⏮` → `‹‹` (U+2039, single left-pointing angle quotation mark)
+  - Next `⏭` → `››` (U+203A, single right-pointing angle quotation mark)
+  - Added `font-family: "Times New Roman", Times, Georgia, serif` to force text rendering (serif fonts don't include emoji glyphs)
+  - Mobile button size: `24px` → `28px` (since serif chars are slightly smaller)
+- **Lines**: `style.css:770`, `index.html:387-389,1193,1200`
 
 ### 1. Music Player — Next/Prev Fix
 - **Problem**: `player.nextVideo()` / `player.previousVideo()` only work with YouTube playlists, not single videos.
