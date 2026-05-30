@@ -627,7 +627,7 @@ nav.scrolled {
     #weather-fixed { display: none; }
     .nav-status { display: none; }
     #music-player { bottom: 6px; z-index: 9999; }
-    #music-player button { font-size: 24px; padding: 12px 14px; min-height: 44px; }
+    #music-player button { font-size: 28px; padding: 12px 14px; min-height: 44px; }
     #player {
       position: fixed; bottom: -200px; left: -200px;
       width: 200px; height: 200px; z-index: 9999;
@@ -772,7 +772,7 @@ nav.scrolled {
     color: #39FF14;
     border: none;
     transition: color .2s;
-    font-variant-emoji: text;
+    font-family: "Times New Roman", Times, Georgia, serif;
 }
 #music-player button:hover { color: #fff; }
 #music-info {

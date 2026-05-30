@@ -384,9 +384,9 @@ setTimeout(function(){
 </div>
 <div id="music-player">
   <div id="music-controls">
-    <button id="prev">⏮</button>
-    <button id="play-pause">▶︎</button>
-    <button id="next">⏭</button>
+    <button id="prev">&#x2039;&#x2039;</button>
+    <button id="play-pause">&#x25B8;</button>
+    <button id="next">&#x203A;&#x203A;</button>
   </div>
   <div id="music-info">
     <span id="music-title">loading...</span>
@@ -1190,14 +1190,14 @@ window.addEventListener('resize', function(){ if(eqCanvas.classList.contains('pl
 function onPlayerStateChange(e){
   if(e.data === YT.PlayerState.PLAYING){
     isPlaying = true
-    document.getElementById('play-pause').textContent = '⏸\uFE0E'
+    document.getElementById('play-pause').textContent = '\u258C\u258C'
     clearInterval(timeInterval)
     timeInterval = setInterval(updateTime, 500)
     eq(true)
     try{ player.unMute(); player.setVolume(100) }catch(e){}
   } else if(e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED){
     isPlaying = false
-    document.getElementById('play-pause').textContent = '▶\uFE0E'
+    document.getElementById('play-pause').textContent = '\u25B8'
     clearInterval(timeInterval)
     eq(false)
   }
