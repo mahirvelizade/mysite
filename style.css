@@ -615,11 +615,8 @@ nav.scrolled {
       touch-action: manipulation;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
     }
-    .nav-links.open a { font-size: 1.2rem; }
+    .nav-links.open a { font-size: 1.2rem; padding: 12px 0; }
     #page-home { padding: var(--nav-h) 6vw 60px; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; }
     .about-left { padding-right: 0; border-right: none; border-bottom: 1px solid var(--green-border); padding-bottom: 48px; margin-bottom: 48px; }
