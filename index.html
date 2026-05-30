@@ -49,7 +49,7 @@ setTimeout(function(){
 
 <!-- NAV -->
 <nav id="main-nav">
-    <a href="#" class="nav-logo" data-page="home" onclick="return switchPage('home')">MAHIR<span>VELIZADE</span></a>
+    <a href="#" class="nav-logo" data-page="home">MAHIR<span>VELIZADE</span></a>
     <ul class="nav-links" id="nav-links">
         <li><a href="#" data-page="home" class="nav-link active" onclick="return switchPage('home')">Home</a></li>
         <li><a href="#" data-page="work" class="nav-link" onclick="return switchPage('work')">Work</a></li>
@@ -410,18 +410,34 @@ window.switchPage = function(pageId) {
             });
         }, 100);
     }
-    document.getElementById('nav-links').classList.remove('open');
+    var nlx = document.getElementById('nav-links');
+    nlx.classList.remove('open');
     document.getElementById('nav-toggle').classList.remove('open');
+    if (nlx.parentElement !== document.querySelector('nav')) {
+        document.querySelector('nav').appendChild(nlx);
+    }
     return false;
 };
+document.querySelectorAll('[data-page]').forEach(function(el){
+    el.addEventListener('click', function(e){
+        e.preventDefault();
+        if (el.dataset.page) switchPage(el.dataset.page);
+    });
+});
 document.querySelectorAll('.page').forEach(function(p){
     p.addEventListener('scroll', function(){
         document.getElementById('main-nav').classList.toggle('scrolled', p.scrollTop > 10);
     }, { passive: true });
 });
 document.getElementById('nav-toggle').addEventListener('click', function(){
-    document.getElementById('nav-links').classList.toggle('open');
+    var nl = document.getElementById('nav-links');
+    nl.classList.toggle('open');
     this.classList.toggle('open');
+    if (nl.classList.contains('open')) {
+        document.body.appendChild(nl);
+    } else {
+        document.querySelector('nav').appendChild(nl);
+    }
 });
 setInterval(function(){
     var ft = document.getElementById('footer-time');
