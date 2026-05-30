@@ -613,7 +613,8 @@ nav.scrolled {
       padding: 80px 32px 32px; z-index: 998;
       justify-content: center; align-items: center; gap: 8px;
     }
-    .nav-links.open a { font-size: 1.4rem; letter-spacing: 0.15em; text-align: center; padding: 18px 0; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+    .nav-links.open a { font-size: 1.4rem; letter-spacing: 0.15em; text-align: center; padding: 18px 24px; min-height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; }
+    .nav-links.open li { width: 100%; }
     .nav-links.open a::after { display: none; }
     .nav-links.open a.active { color: var(--green); }
     #page-home { padding: var(--nav-h) 6vw 60px; }
