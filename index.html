@@ -413,6 +413,8 @@ window.switchPage = function(pageId) {
     var nlx = document.getElementById('nav-links');
     nlx.classList.remove('open');
     document.getElementById('nav-toggle').classList.remove('open');
+    var c3d = document.getElementById('canvas-3d');
+    if (c3d) c3d.style.pointerEvents = '';
     if (nlx.parentElement !== document.querySelector('nav')) {
         document.querySelector('nav').appendChild(nlx);
     }
@@ -427,10 +429,13 @@ document.getElementById('nav-toggle').addEventListener('click', function(){
     var nl = document.getElementById('nav-links');
     nl.classList.toggle('open');
     this.classList.toggle('open');
+    var c3d = document.getElementById('canvas-3d');
     if (nl.classList.contains('open')) {
         document.body.appendChild(nl);
+        if (c3d) c3d.style.pointerEvents = 'none';
     } else {
         document.querySelector('nav').appendChild(nl);
+        if (c3d) c3d.style.pointerEvents = '';
     }
 });
 setInterval(function(){
