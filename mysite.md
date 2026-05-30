@@ -88,6 +88,11 @@
 - **Fix**: DNS propagated to GitHub Pages IPs → Let's Encrypt SSL auto-issued → **Enforce HTTPS** enabled.
 - **URL**: [https://mahirvelizade.space/](https://mahirvelizade.space/) — fully secure, HTTP/2 from GitHub.com
 
+### 16. Page Navigation — Moved out of Module Script; Loading Screen Fallback
+- **Problem**: Page navigation (switchPage, nav click handlers) was inside `<script type="module">` with Three.js imports. If module imports fail, entire navigation breaks and loading screen never hides.
+- **Fix**: Moved switchPage, [data-page] click handlers, nav scroll, toggle, and clock to a standalone regular `<script>` before the module. Added 8-second fallback to hide loading screen if module fails.
+- **Files**: `index.html`
+
 ### 15. Mobile Nav — Modern Full-Screen Overlay
 - **Problem**: Mobile nav menu was narrow, text too small (0.7rem), left-aligned, unstyled.
 - **Fix**: Redesigned as full-screen overlay with backdrop blur, centered layout, 1.4rem font, 60px tap targets, smooth appearance.
