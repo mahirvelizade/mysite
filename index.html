@@ -414,11 +414,12 @@ window.switchPage = function(pageId) {
     document.getElementById('nav-toggle').classList.remove('open');
     return false;
 };
-document.querySelectorAll('[data-page]').forEach(function(el){
-    el.addEventListener('click', function(e){
+document.addEventListener('click', function(e){
+    var el = e.target.closest('[data-page]');
+    if (el && el.dataset.page) {
         e.preventDefault();
-        if (this.dataset.page) switchPage(this.dataset.page);
-    });
+        switchPage(el.dataset.page);
+    }
 });
 document.querySelectorAll('.page').forEach(function(p){
     p.addEventListener('scroll', function(){
