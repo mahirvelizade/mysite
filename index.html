@@ -49,12 +49,12 @@ setTimeout(function(){
 
 <!-- NAV -->
 <nav id="main-nav">
-    <a href="#" class="nav-logo" data-page="home">MAHIR<span>VELIZADE</span></a>
+    <a href="#" class="nav-logo" data-page="home" onclick="return switchPage('home')">MAHIR<span>VELIZADE</span></a>
     <ul class="nav-links" id="nav-links">
-        <li><a href="#" data-page="home" class="nav-link active" onclick="return switchPage('home')">Home</a></li>
-        <li><a href="#" data-page="work" class="nav-link" onclick="return switchPage('work')">Work</a></li>
-        <li><a href="#" data-page="about" class="nav-link" onclick="return switchPage('about')">About</a></li>
-        <li><a href="#" data-page="contact" class="nav-link" onclick="return switchPage('contact')">Contact</a></li>
+        <li><button type="button" data-page="home" class="nav-link active" onclick="switchPage('home')">Home</button></li>
+        <li><button type="button" data-page="work" class="nav-link" onclick="switchPage('work')">Work</button></li>
+        <li><button type="button" data-page="about" class="nav-link" onclick="switchPage('about')">About</button></li>
+        <li><button type="button" data-page="contact" class="nav-link" onclick="switchPage('contact')">Contact</button></li>
     </ul>
     <div class="nav-status">
         <div class="status-dot"></div>

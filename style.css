@@ -104,7 +104,7 @@ nav.scrolled {
     gap: 40px;
     list-style: none;
 }
-.nav-links a {
+.nav-links a, .nav-links button {
     font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -112,8 +112,14 @@ nav.scrolled {
     text-decoration: none;
     position: relative;
     transition: color var(--transition);
+    background: none;
+    border: none;
+    cursor: none;
+    padding: 0;
+    font-family: inherit;
+    line-height: inherit;
 }
-.nav-links a::after {
+.nav-links a::after, .nav-links button::after {
     content: '';
     position: absolute;
     bottom: -4px;
@@ -123,8 +129,10 @@ nav.scrolled {
     background: var(--green);
     transition: width var(--transition);
 }
-.nav-links a:hover, .nav-links a.active { color: var(--green); }
-.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+.nav-links a:hover, .nav-links button:hover,
+.nav-links a.active, .nav-links button.active { color: var(--green); }
+.nav-links a:hover::after, .nav-links button:hover::after,
+.nav-links a.active::after, .nav-links button.active::after { width: 100%; }
 .nav-status {
     display: flex;
     align-items: center;
@@ -615,10 +623,10 @@ nav.scrolled {
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
     }
-    .nav-links.open a { font-size: 1.4rem; letter-spacing: 0.15em; text-align: center; padding: 18px 24px; min-height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; }
+    .nav-links.open a, .nav-links.open button { font-size: 1.4rem; letter-spacing: 0.15em; text-align: center; padding: 18px 24px; min-height: 60px; display: flex; align-items: center; justify-content: center; width: 100%; }
     .nav-links.open li { width: 100%; }
-    .nav-links.open a::after { display: none; }
-    .nav-links.open a.active { color: var(--green); }
+    .nav-links.open a::after, .nav-links.open button::after { display: none; }
+    .nav-links.open a.active, .nav-links.open button.active { color: var(--green); }
     #page-home { padding: var(--nav-h) 6vw 60px; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; }
     .about-left { padding-right: 0; border-right: none; border-bottom: 1px solid var(--green-border); padding-bottom: 48px; margin-bottom: 48px; }
