@@ -88,6 +88,11 @@
 - **Fix**: DNS propagated to GitHub Pages IPs → Let's Encrypt SSL auto-issued → **Enforce HTTPS** enabled.
 - **URL**: [https://mahirvelizade.space/](https://mahirvelizade.space/) — fully secure, HTTP/2 from GitHub.com
 
+### 15. Mobile Nav — Modern Full-Screen Overlay
+- **Problem**: Mobile nav menu was narrow, text too small (0.7rem), left-aligned, unstyled.
+- **Fix**: Redesigned as full-screen overlay with backdrop blur, centered layout, 1.4rem font, 60px tap targets, smooth appearance.
+- **Files**: `style.css`
+
 ### 14. Mobile UX Audit & Fixes
 - **Problem**: Multiple mobile usability issues — tiny tap targets, missing `-webkit-backdrop-filter`, 300ms tap delay, wasteful rAF loops when hidden, Skypack CDN unreliable.
 - **Changes**:
