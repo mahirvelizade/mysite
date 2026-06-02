@@ -5,7 +5,13 @@
 - **Nav reverted to v4.1**: `<a data-page>` + delegated listener, no body-move, no inline onclick
 - **Menu visual**: full-height overlay, `1.2rem` links, `rgba(5,5,5,0.98)` bg, centered
 - **Music player emoji**: all Unicode replaced with safe non-emoji chars + serif font fallback for Xiaomi/Android
-- **Commit**: `7d7fd3c` (latest)
+- **Commit**: `7dc2757` (latest)
+
+## 🗺️ Session Summary (02 Jun 2026)
+- **Equalizer positioning**: `.eq-right` class added — Work/About/Contact səhifələrində equalizer sağ tərəfə keçir (`left: 106%`, `150vmin × 200vmin`), Home-da mərkəzdə qalır
+- **switchPage** updates: `#eq-canvas.classList.toggle('eq-right', ...)` Work/About/Contact-da əlavə olunur, Home-da silinir
+- **Version bump**: v4.2 → v4.3
+- **Commit**: `7dc2757`
 
 ## 📁 Files
 - `index.html` — Main portfolio (single-page: Home, Work, About, Contact)
