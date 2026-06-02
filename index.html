@@ -79,7 +79,7 @@ setTimeout(function(){
         <button class="btn-outline" data-page="contact" onclick="switchPage('contact')">Get in Touch</button>
     </div>
     <div class="home-meta">
-        <div class="meta-item">Version <strong>v4.2</strong></div>
+        <div class="meta-item">Version <strong>v4.3</strong></div>
         <div class="meta-item">Stream <strong>Active</strong></div>
         <div class="meta-item">Views <strong>46K+</strong></div>
     </div>
@@ -380,7 +380,7 @@ setTimeout(function(){
 <!-- FOOTER BAR -->
 <div class="footer-bar">
     <span id="footer-time">--:--:--</span>
-    <span>v4.2 // Baku, AZ</span>
+    <span>v4.3 // Baku, AZ</span>
 </div>
 <div id="music-player">
   <div id="music-controls">
@@ -410,6 +410,8 @@ window.switchPage = function(pageId) {
             });
         }, 100);
     }
+    var eq = document.getElementById('eq-canvas');
+    if (eq) eq.classList.toggle('eq-right', pageId === 'work' || pageId === 'about' || pageId === 'contact');
     document.getElementById('nav-links').classList.remove('open');
     document.getElementById('nav-toggle').classList.remove('open');
     var c3d = document.getElementById('canvas-3d');

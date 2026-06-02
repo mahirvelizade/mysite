@@ -576,6 +576,11 @@ nav.scrolled {
     transition: opacity .6s;
 }
 #eq-canvas.playing { opacity: 1; }
+#eq-canvas.eq-right {
+    left: 106%;
+    width: 150vmin;
+    height: 200vmin;
+}
 
 /* ANIMATIONS */
 @keyframes pulse-dot {
