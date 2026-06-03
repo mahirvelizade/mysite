@@ -1,5 +1,10 @@
 # Mahir Velizade Portfolio — Project Changes
 
+## 🗺️ Session Summary (03 Jun 2026)
+- **Equalizer performance optimization**: Canvas resolution `2000×2000` → dinamik `min(innerWidth, innerHeight)`, bar sayı 120 → 60, shadow blur 20/6 → 10/3. Cursor/3D model frame rate yaxşılaşdı.
+- **Version bump**: v4.3 → v4.4
+- **Commit**: `b328680`
+
 ## 🗺️ Session Summary (30 May 2026)
 - **Mobile nav click fix**: 3D canvas `pointer-events:none` when menu opens — fixes About/Contact unclickable on iOS
 - **Nav reverted to v4.1**: `<a data-page>` + delegated listener, no body-move, no inline onclick
