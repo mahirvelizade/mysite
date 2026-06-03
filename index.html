@@ -79,7 +79,7 @@ setTimeout(function(){
         <button class="btn-outline" data-page="contact" onclick="switchPage('contact')">Get in Touch</button>
     </div>
     <div class="home-meta">
-        <div class="meta-item">Version <strong>v4.4</strong></div>
+        <div class="meta-item">Version <strong>v4.3</strong></div>
         <div class="meta-item">Stream <strong>Active</strong></div>
         <div class="meta-item">Views <strong>46K+</strong></div>
     </div>
@@ -380,7 +380,7 @@ setTimeout(function(){
 <!-- FOOTER BAR -->
 <div class="footer-bar">
     <span id="footer-time">--:--:--</span>
-    <span>v4.4 // Baku, AZ</span>
+    <span>v4.3 // Baku, AZ</span>
 </div>
 <div id="music-player">
   <div id="music-controls">
@@ -556,11 +556,8 @@ setInterval(function(){
         animate3D();
     }
 
-    var updateRotation = function() {};
-
     function animate3D() {
         requestAnimationFrame(animate3D);
-        updateRotation();
         if (mainObject && document.getElementById('page-home').classList.contains('active') && !document.getElementById('nav-links').classList.contains('open')) {
             renderer.render(scene, camera);
         }
@@ -568,28 +565,19 @@ setInterval(function(){
 
 
     function setup3DInteraction() {
-        const MAX_Y = 0.4, MAX_X = 0.2;
+        const MAX_Y = 0.35, MAX_X = 0.15;
         var gyroX=0, gyroY=0, refB=null, refG=null;
 
-        // Smooth spring state
-        var targetRotY = 0, targetRotX = 0;
-        var currentRotY = 0, currentRotX = 0;
-        var velY = 0, velX = 0;
-        var lastMoveTime = 0, isMoving = false;
-        var springK = 0.12, damping = 0.09;
-
-        // MOUSE — store target for spring physics
+        // MOUSE — absolute position relative to screen center
         document.addEventListener('mousemove', function(e) {
             if (!mainObject || document.getElementById('nav-links').classList.contains('open')) return;
             var x = (e.clientX / window.innerWidth - 0.5) * 2;
             var y = (e.clientY / window.innerHeight - 0.5) * 2;
-            targetRotY = Math.max(-1, Math.min(1, x)) * MAX_Y + gyroY;
-            targetRotX = Math.max(-1, Math.min(1, y)) * MAX_X + gyroX;
-            lastMoveTime = performance.now();
-            isMoving = true;
+            mainObject.rotation.y = x * MAX_Y + gyroY;
+            mainObject.rotation.x = y * MAX_X + gyroX;
         });
 
-        // TOUCH — incremental drag on target
+        // TOUCH — incremental drag
         var prevX=0, prevY=0, dragging=false;
         window.addEventListener('touchstart', function(e) {
             if (document.getElementById('nav-links').classList.contains('open')) return;
@@ -599,11 +587,9 @@ setInterval(function(){
             if (!dragging||!mainObject) return;
             var dx = (e.touches[0].clientX - prevX) / window.innerWidth * 2;
             var dy = (e.touches[0].clientY - prevY) / window.innerHeight * 2;
-            targetRotY += dx * MAX_Y;
-            targetRotX += dy * MAX_X;
+            mainObject.rotation.y += dx;
+            mainObject.rotation.x += dy;
             prevX=e.touches[0].clientX; prevY=e.touches[0].clientY;
-            lastMoveTime = performance.now();
-            isMoving = true;
         }, {passive:true});
         window.addEventListener('touchend', function(){ dragging=false; }, {passive:true});
 
@@ -630,30 +616,6 @@ setInterval(function(){
         } else { attachGyro(); }
 
         window.addEventListener('pagehide',function(){ window.removeEventListener('deviceorientation',onOrient,true); window.removeEventListener('deviceorientationabsolute',onOrient,true); });
-
-        // Spring physics rotation update — called from animate3D
-        updateRotation = function() {
-            // Idle return to neutral after 1.5s of no input
-            if (isMoving && performance.now() - lastMoveTime > 1500) {
-                isMoving = false;
-            }
-            if (!isMoving) {
-                targetRotY += (gyroY - targetRotY) * 0.015;
-                targetRotX += (gyroX - targetRotX) * 0.015;
-            }
-
-            var dy = targetRotY - currentRotY;
-            var dx = targetRotX - currentRotX;
-            velY += dy * springK;
-            velX += dx * springK;
-            velY *= (1 - damping);
-            velX *= (1 - damping);
-            currentRotY += velY;
-            currentRotX += velX;
-
-            mainObject.rotation.y = currentRotY;
-            mainObject.rotation.x = currentRotX;
-        };
     }
 
         window.addEventListener('resize', () => {
