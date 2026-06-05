@@ -1,5 +1,13 @@
 # Mahir Velizade Portfolio — Project Changes
 
+## 🗺️ Session Summary (05 Jun 2026)
+- **English-only chat**: `detectLang` always returns `'en'`, SYSTEM prompt AZ/RU təlimatları silindi
+- **Male TTS voice**: English üçün qadın səsləri (Samantha, Karen, Moira...) xaric edilir, kişi adlı səslər axtarılır (David, Mark, Daniel, Alex, Google...)
+- **Cloud TTS removed**: Google Cloud TTS API kodu tam çıxarıldı (ödənişli olduğu üçün)
+- **Cleanup**: `QUALITY_VOICES` / `pickVoice` / `[LANG: xx]` / AZ/RU fallback-lər təmizləndi
+- **Version bump**: v4.4 → v4.5
+- **Commit**: `2702e84`
+
 ## 🗺️ Session Summary (03 Jun 2026)
 - **Equalizer performance optimization**: Canvas resolution `2000×2000` → dinamik `min(innerWidth, innerHeight)`, bar sayı 120 → 60, shadow blur 20/6 → 10/3. Cursor/3D model frame rate yaxşılaşdı.
 - **Version bump**: v4.3 → v4.4
