@@ -94,7 +94,13 @@ function speak(text,cb){
           try {
             const vs=synth.getVoices();
             const pfx=lc.split('-')[0];
-            var voice=vs.find(x=>x.lang.startsWith(pfx));
+            var voice;
+            if(ttsLang==='az'||ttsLang==='ru'){
+              voice=vs.find(x=>x.lang.startsWith(pfx)&&!/samanta|karen|moira|tessa|veena|sara|fiona|catherine|helen|siri/i.test(x.name));
+              if(!voice) voice=vs.find(x=>x.lang.startsWith(pfx));
+            } else {
+              voice=vs.find(x=>x.lang.startsWith(pfx));
+            }
             if(!voice) voice=vs.find(x=>x.lang.startsWith('en'));
             if(voice){u.voice=voice;u.lang=voice.lang||lc;}
           } catch(e){}
