@@ -754,9 +754,18 @@ function pickVoice(lang){
               const vs=synth.getVoices();
               const pfx=lc.split('-')[0];
               var voice;
-              var isMale=/male|david|mark|daniel|arthur|gordon|alex|aaron|fred|reed|rocko|alexander|yuri|ioan|toms|steffan|viktor|mikhail|nikola|petr|boris|vladimir|tolga|tom|tim|james|john|paul|mike|steve|peter|george|henry/i;
               if(ttsLang==='az'||ttsLang==='ru'){
-                voice=vs.find(x=>x.lang.startsWith(pfx)&&isMale.test(x.name));
+                var femaleSuffix=/kadın|женский|kadın|female|yelda|milena|samanta|karen|moira|tessa|veena|sara|fiona|catherine|helen|siri/i;
+                voice=vs.find(function(v){
+                  if(!v.lang.startsWith(pfx)) return;
+                  if(femaleSuffix.test(v.name)) return;
+                  return /male|david|mark|daniel|arthur|gordon|alex|aaron|fred|reed|rocko|alexander|yuri|ioan|toms|steffan|viktor|mikhail|nikola|petr|boris|vladimir|tolga|tom|tim|james|john|paul|mike|steve|peter|george|henry|google/i.test(v.name);
+                });
+                if(!voice) voice=vs.find(function(v){
+                  if(!v.lang.startsWith(pfx)) return;
+                  if(femaleSuffix.test(v.name)) return;
+                  return true;
+                });
                 if(!voice) voice=vs.find(x=>x.lang.startsWith(pfx));
               } else {
                 voice=vs.find(x=>x.lang.startsWith(pfx));
