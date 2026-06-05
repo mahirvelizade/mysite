@@ -806,29 +806,20 @@ function pickVoice(lang){
     const text=(override||input.value).trim();
     if(!text||isBusy) return;
     _lastLang = detectLang(text);
-    // Check if user is setting their own API key
     var keyMatch=text.match(/^(key|api|apikey|api.key)[:\s]+(AIza[a-zA-Z0-9_-]+)/i);
     var orMatch=text.match(/^(key|api|apikey|api.key)[:\s]+(sk-or-[a-zA-Z0-9_-]+)/i);
     if(orMatch){
-      input.value=''; addMsg(text,'usr');
+      input.value='';
       var orKey=orMatch[2];
       if(typeof localStorage!=='undefined') localStorage.setItem('or_key',orKey);
-      addMsg({en:"✅ OpenRouter key saved! Refreshing...",
-        az:"✅ OpenRouter açarı yadda saxlandı! Yenilənir...",
-        ru:"✅ Ключ OpenRouter сохранён! Обновляю..."}[_lastLang]||"✅ Key saved!","ai");
-      isBusy=false; lock(false);
-      setTimeout(function(){ location.reload(); },1000);
+      location.reload();
       return;
     }
     if(keyMatch){
-      input.value=''; addMsg(text,'usr');
+      input.value='';
       var newKey=keyMatch[2];
       if(typeof localStorage!=='undefined') localStorage.setItem('gemini_key',newKey);
-      addMsg({en:"✅ Gemini API key saved! Refreshing...",
-        az:"✅ Gemini API açarı yadda saxlandı! Yenilənir...",
-        ru:"✅ Gemini API ключ сохранён! Обновляю..."}[_lastLang]||"✅ Key saved!","ai");
-      isBusy=false; lock(false);
-      setTimeout(function(){ location.reload(); },1000);
+      location.reload();
       return;
     }
     input.value=''; addMsg(text,'usr'); lock(true);
@@ -842,13 +833,6 @@ function pickVoice(lang){
       speak(reply,function(){ isBusy=false; lock(false); });
     } catch(err){
       console.warn('[AI]',err.message); typing.remove();
-      if(err.message==='QUOTA_EXCEEDED'){
-        var qmsg="";
-        if(_lastLang==='az') qmsg="⚠️ AI kvotası bitib. Local cavablar işləyir. Öz Gemini API açarınız varsa chat-da yazın: key: AIza...";
-        else if(_lastLang==='ru') qmsg="⚠️ Квота AI исчерпана. Работают локальные ответы. Если у вас есть ключ Gemini API, напишите в чате: key: AIza...";
-        else qmsg="⚠️ AI quota exceeded. Local answers still work. To use your own Gemini key, type in chat: key: AIza...";
-        addMsg(qmsg,'ai');
-      }
       var fb=FALLBACKS[_lastLang]||FALLBACKS.en;
       if(typeof window.localAnswer==='function'){
         var lr=window.localAnswer(text);
