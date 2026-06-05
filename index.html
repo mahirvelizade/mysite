@@ -380,7 +380,7 @@ setTimeout(function(){
 <!-- FOOTER BAR -->
 <div class="footer-bar">
     <span id="footer-time">--:--:--</span>
-    <span>v4.4 // Baku, AZ</span>
+    <span id="footer-date"></span>
 </div>
 <div id="music-player">
   <div id="music-controls">
@@ -438,9 +438,11 @@ document.addEventListener('click', function(e) {
 });
 setInterval(function(){
     var ft = document.getElementById('footer-time');
-    if (ft) {
+    var fd = document.getElementById('footer-date');
+    if (ft || fd) {
         var now = new Date();
-        ft.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+        if (ft) ft.textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+        if (fd) fd.textContent = now.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
     }
 }, 1000);
 </script>
