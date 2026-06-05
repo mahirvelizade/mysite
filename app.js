@@ -107,12 +107,14 @@ function speak(text,cb){
 function addMsg(text,role){ const d=document.createElement('div');d.className='cm '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d; }
 function lock(v){ input.disabled=v;sendBtn.disabled=v;if(!v) setTimeout(()=>input.focus(),50); }
 
-async function callGemini(userText){
+async function callGemini(userText, lang){
+  const langTag = lang ? '['+lang.toUpperCase()+'] ' : '';
+  const taggedText = langTag + userText;
   if(OR_KEY){
     try{
       const msgs=[{role:'system',content:SYSTEM}];
       for(const h of history) msgs.push({role:h.role,content:h.text});
-      msgs.push({role:'user',content:userText});
+      msgs.push({role:'user',content:taggedText});
       const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
         method:'POST',
         headers:{'Authorization':'Bearer '+OR_KEY,'Content-Type':'application/json','HTTP-Referer':'https://mahirvelizade.com','X-Title':'MahirVelizade'},
@@ -125,7 +127,7 @@ async function callGemini(userText){
     } catch(e){ console.warn('[OpenRouter]',e.message); }
   }
   const contents=history.map(h=>({role:h.role,parts:[{text:h.text}]}));
-  contents.push({role:'user',parts:[{text:userText}]});
+  contents.push({role:'user',parts:[{text:taggedText}]});
   var lastErr=null;
   for(var attempt=0;attempt<GEMINI_MODELS.length;attempt++){
     var idx=(GEMINI_MODEL_IDX+attempt)%GEMINI_MODELS.length;
@@ -177,7 +179,7 @@ async function send(override){
   isBusy=true;
   const typing=addMsg('','ai typing');
   try{
-    const reply=await callGemini(text);
+    const reply=await callGemini(text, _lastLang);
     history.push({role:'user',text});history.push({role:'model',text:reply});
     if(history.length>24) history=history.slice(-24);
     typing.remove(); addMsg(reply,'ai');
