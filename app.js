@@ -95,7 +95,11 @@ function speak(text,cb){
             const vs=synth.getVoices();
             const pfx=lc.split('-')[0];
             var voice;
-            if(ttsLang==='az'||ttsLang==='ru'){
+            if(ttsLang==='az'){
+              voice=vs.find(x=>x.lang.startsWith('tr')&&/tolga/i.test(x.name));
+              if(!voice) voice=vs.find(x=>x.lang.startsWith('tr')&&!/yelda/i.test(x.name));
+              if(!voice) voice=vs.find(x=>x.lang.startsWith('tr'));
+            } else if(ttsLang==='ru'){
               voice=vs.find(x=>x.lang.startsWith(pfx)&&!/samanta|karen|moira|tessa|veena|sara|fiona|catherine|helen|siri/i.test(x.name));
               if(!voice) voice=vs.find(x=>x.lang.startsWith(pfx));
             } else {
