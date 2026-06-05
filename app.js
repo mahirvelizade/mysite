@@ -52,24 +52,18 @@ function startJaw(){ if(jawTick) return; let ph=false; jawTick=setInterval(()=>{
 function stopJaw(){ clearInterval(jawTick);jawTick=null;jaw(false);fab.classList.remove('speaking');lbl.classList.remove('on'); }
 
 const synth=window.speechSynthesis;
-const MALE_NAMES=['david','mark','daniel','arthur','gordon','alex','aaron','fred','reed','rocko','alexander','yuri','ioan','toms','steffan','viktor','mikhail','nikola','petr','boris','vladimir'];
-function isMale(v){
-  return MALE_NAMES.some(n=>v.name.toLowerCase().includes(n))||/\bmale\b/i.test(v.name);
-}
+const QUALITY_VOICES=['samantha','karen','moira','tessa','veena','sara','daniel','tom','alex','mark'];
 function pickVoice(lang){
   if(!synth) return null;
   const vs=synth.getVoices(); if(!vs.length) return null;
   const pfx=lang.split('-')[0];
   let v;
-  v=vs.find(x=>x.lang.startsWith(pfx)&&isMale(x));
+  v=vs.find(x=>x.lang.startsWith(pfx)&&QUALITY_VOICES.some(n=>x.name.toLowerCase().includes(n)));
   if(v) return v;
-  v=vs.find(x=>isMale(x)&&x.lang.startsWith('en')); if(v) return v;
-  v=vs.find(x=>isMale(x)); if(v) return v;
+  v=vs.find(x=>QUALITY_VOICES.some(n=>x.name.toLowerCase().includes(n))); if(v) return v;
   v=vs.find(x=>x.lang.startsWith(pfx)); if(v) return v;
-  for(const n of['Google UK English Male','Microsoft David','Microsoft Mark','Microsoft Guy','Daniel','Arthur','Gordon','Alex','Aaron','Fred','Reed','Rocko']){ v=vs.find(x=>x.name===n); if(v) return v; }
-  for(const n of['Google UK English Male','Microsoft David','Microsoft Mark','Microsoft Guy','Daniel','Arthur','Gordon','Alex','Aaron','Fred','Reed','Rocko']){ v=vs.find(x=>x.name.includes(n)); if(v) return v; }
-  v=vs.find(x=>isMale(x)&&x.lang.startsWith('en')); if(v) return v;
-  return vs.find(x=>x.lang==='en-GB')||vs.find(x=>x.lang==='en-US')||vs.find(x=>x.lang.startsWith('en'))||vs[0];
+  v=vs.find(x=>x.lang.startsWith('en')); if(v) return v;
+  return vs[0];
 }
 if(synth){ synth.getVoices(); if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>synth.getVoices(); }
 
@@ -92,9 +86,9 @@ function speak(text,cb){
   ensureVoices(function(){
     setTimeout(function(){
       const u=new SpeechSynthesisUtterance(text);
-      var pitch=0.55;
-      if(ttsLang==='az'||ttsLang==='ru'){pitch=0.2;}
-      u.lang=lc;u.rate=0.85;u.pitch=pitch;u.volume=1.0;
+      var pitch=0.95;
+      if(ttsLang==='az'||ttsLang==='ru'){pitch=0.85;}
+      u.lang=lc;u.rate=0.92;u.pitch=pitch;u.volume=1.0;
       const v=pickVoice(lc);if(v){u.voice=v;u.lang=v.lang||lc;}
       u.onstart=startJaw;
       u.onend=function(){stopJaw();cb&&cb();};
