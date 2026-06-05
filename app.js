@@ -90,10 +90,13 @@ function speak(text,cb){
       if(ttsLang==='az'||ttsLang==='ru'){pitch=0.85;}
       u.lang=lc;u.rate=0.92;u.pitch=pitch;u.volume=1.0;
       const v=pickVoice(lc);if(v){u.voice=v;u.lang=v.lang||lc;}
+      let done=false;
+      function finish(){if(done)return;done=true;stopJaw();cb&&cb();}
+      var safeTimer=setTimeout(finish,8000);
       u.onstart=startJaw;
-      u.onend=function(){stopJaw();cb&&cb();};
-      u.onerror=function(){stopJaw();cb&&cb();};
-      synth.speak(u);
+      u.onend=function(){clearTimeout(safeTimer);finish();};
+      u.onerror=function(){clearTimeout(safeTimer);finish();};
+      try{ synth.speak(u); }catch(e){ clearTimeout(safeTimer);finish(); }
     },80);
   });
 }
