@@ -80,7 +80,7 @@ function ensureVoices(cb){
 function speak(text,cb){
   try {
     if(!synth){cb&&cb();return;}
-    synth.cancel();
+    try{ synth.cancel(); }catch(e){}
     const ttsLang=detectLang(text);
     const TTS_LANG={en:'en-US',az:'tr-TR',ru:'ru-RU'};
     const lc=TTS_LANG[ttsLang]||'en-US';
@@ -91,7 +91,13 @@ function speak(text,cb){
           var pitch=0.95;
           if(ttsLang==='az'||ttsLang==='ru'){pitch=0.85;}
           u.lang=lc;u.rate=0.92;u.pitch=pitch;u.volume=1.0;
-          const v=pickVoice(lc);if(v){u.voice=v;u.lang=v.lang||lc;}
+          try {
+            const vs=synth.getVoices();
+            const pfx=lc.split('-')[0];
+            var voice=vs.find(x=>x.lang.startsWith(pfx));
+            if(!voice) voice=vs.find(x=>x.lang.startsWith('en'));
+            if(voice){u.voice=voice;u.lang=voice.lang||lc;}
+          } catch(e){}
           let done=false;
           function finish(){if(done)return;done=true;stopJaw();cb&&cb();}
           var safeTimer=setTimeout(finish,8000);
@@ -99,7 +105,7 @@ function speak(text,cb){
           u.onend=function(){clearTimeout(safeTimer);finish();};
           u.onerror=function(){clearTimeout(safeTimer);finish();};
           synth.speak(u);
-        } catch(e){ clearTimeout(safeTimer); finish(); }
+        } catch(e){ clearTimeout(safeTimer); done=true; cb&&cb(); }
       },80);
     });
   } catch(e){ cb&&cb(); }
