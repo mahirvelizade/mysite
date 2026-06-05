@@ -737,6 +737,28 @@ function pickVoice(lang){
   }
 
   function speak(text,cb){
+    const ttsLang=detectLang(text);
+    if((ttsLang==='az'||ttsLang==='ru')&&GEMINI_KEY) tryCloudTTS(text,ttsLang,cb);
+    else webSpeechSpeak(text,cb);
+  }
+  function tryCloudTTS(text,lang,cb){
+    var lc={az:'tr-TR',ru:'ru-RU'}[lang]||'ru-RU';
+    var voiceName=lang==='az'?'tr-TR-Standard-E':'ru-RU-Standard-E';
+    fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+GEMINI_KEY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({input:{text},voice:{languageCode:lc,name:voiceName,ssmlGender:'MALE'},audioConfig:{audioEncoding:'MP3'}})
+    }).then(function(r){if(!r.ok)throw new Error();return r.json();})
+    .then(function(data){
+      if(!data.audioContent) throw new Error();
+      var audio=new Audio('data:audio/mp3;base64,'+data.audioContent);
+      startJaw();
+      audio.onended=function(){stopJaw();cb&&cb();};
+      audio.onerror=function(){stopJaw();webSpeechSpeak(text,cb);};
+      audio.play().catch(function(){stopJaw();webSpeechSpeak(text,cb);});
+    }).catch(function(){webSpeechSpeak(text,cb);});
+  }
+  function webSpeechSpeak(text,cb){
     try {
       if(!synth){cb&&cb();return;}
       try{ synth.cancel(); }catch(e){}
