@@ -671,7 +671,7 @@ setInterval(function(){
     return 'en';
   }
 
-  let _lastLang='en', isOpen=false, isBusy=false, greeted=false, jawTick=null, recog=null, listening=false, history=[];
+  let _lastLang='en', isOpen=false, isBusy=false, greeted=false, jawTick=null, recog=null, listening=false, history=[], _msgId=0;
   let alwaysListen=true;
   let recogContinuous=null;
 
@@ -831,17 +831,16 @@ function pickVoice(lang){
     }
     input.value=''; addMsg(text,'usr'); lock(true);
     isBusy=true;
-    var busyTimer=setTimeout(function(){ isBusy=false; lock(false); },15000);
+    var mid=++_msgId;
+    setTimeout(function(){ if(isBusy&&_msgId===mid){ isBusy=false; lock(false); } },15000);
     const typing=addMsg('','ai typing');
     try{
       const reply=await callGemini(text, _lastLang);
-      clearTimeout(busyTimer);
       history.push({role:'user',text});history.push({role:'model',text:reply});
       if(history.length>24) history=history.slice(-24);
       typing.remove(); addMsg(reply,'ai');
       speak(reply,function(){ isBusy=false; lock(false); });
     } catch(err){
-      clearTimeout(busyTimer);
       console.warn('[AI]',err.message); typing.remove();
       var fb=FALLBACKS[_lastLang]||FALLBACKS.en;
       if(typeof window.localAnswer==='function'){
