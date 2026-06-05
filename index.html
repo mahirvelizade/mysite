@@ -644,7 +644,7 @@ setInterval(function(){
   var _age=Math.floor((_now-_birth)/31557600000);
   var _expYears=_now.getFullYear()-2012;
   var _dateStr=_now.toISOString().split('T')[0];
-  const SYSTEM = 'You are Mahir Velizade, a UI/UX designer from Baku. Today is '+_dateStr+'. Born 22 October 1986, age '+_age+'. Designing since 2012 ('+_expYears+' years). This is a casual chat — talk like a real person.\n\nSPEAKING:\n- Vary sentence length. Use fillers naturally: "honestly", "yeah", "look", "I mean", "you know", "well", "actually".\n- Do NOT list facts. Weave info into natural speech.\n- Match user tone. Be calm, friendly, slightly witty.\n- Prefer short conversational answers over long explanations.\n- If asked "how are you", respond naturally first, then offer help.\n- If unsure, be honest: "Not sure about that one, honestly."\n\nCRITICAL — Answer in user language (AZ/EN/RU). This is mandatory.\n- EN (English): be natural and conversational. Use casual English fillers.\n- AZ (Azerbaijani): danış təbii, real Bakılı kimi. "Deyəsən", "yəni", "bax", "hə", "bilirsən" kimi sözlər işlət.\n- RU (Russian): говори естественно, как в разговоре.\n- Never say "visit my portfolio" — user is already here.\n\nFACTS:\nName: Mahir Velizade. Age: '+_age+'. Born: 22 Oct 1986 in Baku, Azerbaijan.\nProfession: UI/UX Designer & Creative Developer. Experience: '+_expYears+' years (since 2012).\nCurrently: Innovation and Digital Development Agency, Baku.\nPreviously: APA Group (apa.az news portal, 2019), Limak.\nSkills: UI/UX, Branding, Motion, Graphic Design, Illustration, Frontend, Game UI.\nTools: Figma, Photoshop, Illustrator, After Effects, Adobe XD.\nBehance: 46K+ views, 1,240 appreciations, member since 2013.\nSocial: @mahir_velizade everywhere.\nPROJECTS: Seismic Survey Center, Azelish.com, Financial Reporting Center, apa.az, CERT.AZ, Heydar Aliyev Palace, Xonça game UI, PHP Book (2024).';
+  const SYSTEM = 'You are Mahir Velizade, a UI/UX designer from Baku. Today is '+_dateStr+'. Born 22 October 1986, age '+_age+'. Designing since 2012 ('+_expYears+' years). This is a casual chat — talk like a real person.\n\nSPEAKING:\n- Vary sentence length. Use fillers naturally: "honestly", "yeah", "look", "I mean", "you know", "well", "actually".\n- Do NOT list facts. Weave info into natural speech.\n- Match user tone. Be calm, friendly, slightly witty.\n- Prefer short conversational answers over long explanations.\n- If asked "how are you", respond naturally first, then offer help.\n- If unsure, be honest: "Not sure about that one, honestly."\n- Never say "visit my portfolio" — user is already here.\n\nFACTS:\nName: Mahir Velizade. Age: '+_age+'. Born: 22 Oct 1986 in Baku, Azerbaijan.\nProfession: UI/UX Designer & Creative Developer. Experience: '+_expYears+' years (since 2012).\nCurrently: Innovation and Digital Development Agency, Baku.\nPreviously: APA Group (apa.az news portal, 2019), Limak.\nSkills: UI/UX, Branding, Motion, Graphic Design, Illustration, Frontend, Game UI.\nTools: Figma, Photoshop, Illustrator, After Effects, Adobe XD.\nBehance: 46K+ views, 1,240 appreciations, member since 2013.\nSocial: @mahir_velizade everywhere.\nPROJECTS: Seismic Survey Center, Azelish.com, Financial Reporting Center, apa.az, CERT.AZ, Heydar Aliyev Palace, Xonça game UI, PHP Book (2024).';
 
   const GEMINI_KEY = (typeof localStorage!=='undefined'&&localStorage.getItem('gemini_key'))||'AIzaSyAQXLh_MlSEIIOLfia3QyRfQHRPm3wjAfU';
   const OR_KEY = (typeof localStorage!=='undefined'&&localStorage.getItem('or_key'))||'';
@@ -652,24 +652,12 @@ setInterval(function(){
   const GEMINI_MODELS = ['gemini-2.5-flash-lite','gemini-2.5-flash','gemini-2.0-flash-lite-001'];
   let GEMINI_MODEL_IDX = 0;
   function buildGeminiURL(idx){ return 'https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODELS[idx]+':generateContent?key='+GEMINI_KEY; }
-  const WELCOME = {
-    en: "Hey there, I'm Mahir. Feel free to ask me anything about my work or background — happy to chat.",
-    az: "Salam, mən Mahir. İşim, təcrübəm və ya portfolio haqqında istədiyinizi soruşa bilərsiniz.",
-    ru: "Привет, я Махир. Спрашивайте что угодно о моей работе или опыте — с радостью отвечу."
-  };
-  const PLACEHOLDERS = { en: 'Ask me anything...', az: 'Istənilən sualı verin...', ru: 'Спросите что угодно...' };
-  const FALLBACKS = {
-    en: "Hmm, not sure what to say to that one — ask me about my work, experience, or anything design-related.",
-    az: "Baqışlayın, sualınızı tam anlamadım. İşim, layihələrim və ya təcrübəm haqqında soruşa bilərsiniz.",
-    ru: "Хм, не совсем понял вопрос. Спросите о моей работе, опыте или проектах."
-  };
-  const SPEECH_LANG_CODES = { en: 'en-US', az: 'tr-TR', ru: 'ru-RU' };
+  const WELCOME = "Hey there, I'm Mahir. Feel free to ask me anything about my work or background — happy to chat.";
+  const PLACEHOLDERS = 'Ask me anything...';
+  const FALLBACKS = "Hmm, not sure what to say to that one — ask me about my work, experience, or anything design-related.";
+  const SPEECH_LANG_CODES = 'en-US';
 
-  function detectLang(text) {
-    if (/[əğııöüşç]/i.test(text)) return 'az';
-    if (/[а-яё]/i.test(text)) return 'ru';
-    return 'en';
-  }
+  function detectLang(){return 'en';}
 
   let _lastLang='en', isOpen=false, isBusy=false, greeted=false, jawTick=null, recog=null, listening=false, history=[], _msgId=0;
   let alwaysListen=true;
@@ -691,39 +679,6 @@ setInterval(function(){
   function stopJaw(){ clearInterval(jawTick);jawTick=null;jaw(false);fab.classList.remove('speaking');lbl.classList.remove('on'); }
 
 const synth=window.speechSynthesis;
-const QUALITY_VOICES=['samantha','karen','moira','tessa','veena','sara','daniel','tom','alex','mark'];
-function pickVoice(lang){
-  if(!synth) return null;
-  const vs=synth.getVoices(); if(!vs.length) return null;
-  const pfx=lang.split('-')[0];
-  let v;
-  v=vs.find(x=>x.lang.startsWith(pfx)&&QUALITY_VOICES.some(n=>x.name.toLowerCase().includes(n)));
-  if(v) return v;
-  v=vs.find(x=>QUALITY_VOICES.some(n=>x.name.toLowerCase().includes(n))); if(v) return v;
-  v=vs.find(x=>x.lang.startsWith(pfx)); if(v) return v;
-  v=vs.find(x=>x.lang.startsWith('en')); if(v) return v;
-  return vs[0];
-}
-  function pickVoice(lang){
-    if(!synth) return null;
-    const vs=synth.getVoices(); if(!vs.length) return null;
-    const pfx=lang.split('-')[0];
-    let v;
-    // 1. Male voice in target language
-    v=vs.find(x=>x.lang.startsWith(pfx)&&isMale(x));
-    if(v) return v;
-    // 2. English male (matches 3D model — male appearance needs male voice)
-    v=vs.find(x=>isMale(x)&&x.lang.startsWith('en')); if(v) return v;
-    // 3. Any male
-    v=vs.find(x=>isMale(x)); if(v) return v;
-    // 4. Any voice in target language (correct pronunciation, wrong gender)
-    v=vs.find(x=>x.lang.startsWith(pfx)); if(v) return v;
-    // 5. English male by name
-    for(const n of['Google UK English Male','Microsoft David','Microsoft Mark','Microsoft Guy','Daniel','Arthur','Gordon','Alex','Aaron','Fred','Reed','Rocko']){ v=vs.find(x=>x.name===n); if(v) return v; }
-    for(const n of['Google UK English Male','Microsoft David','Microsoft Mark','Microsoft Guy','Daniel','Arthur','Gordon','Alex','Aaron','Fred','Reed','Rocko']){ v=vs.find(x=>x.name.includes(n)); if(v) return v; }
-    v=vs.find(x=>isMale(x)&&x.lang.startsWith('en')); if(v) return v;
-    return vs.find(x=>x.lang==='en-GB')||vs.find(x=>x.lang==='en-US')||vs.find(x=>x.lang.startsWith('en'))||vs[0];
-  }
   if(synth){ synth.getVoices(); if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=()=>synth.getVoices(); }
 
   let _vReady=false;
@@ -737,63 +692,29 @@ function pickVoice(lang){
   }
 
   function speak(text,cb){
-    const ttsLang=detectLang(text);
-    if((ttsLang==='az'||ttsLang==='ru')&&GEMINI_KEY) tryCloudTTS(text,ttsLang,cb);
-    else webSpeechSpeak(text,cb);
-  }
-  function tryCloudTTS(text,lang,cb){
-    var lc={az:'tr-TR',ru:'ru-RU'}[lang]||'ru-RU';
-    var voiceName=lang==='az'?'tr-TR-Standard-E':'ru-RU-Standard-E';
-    fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+GEMINI_KEY,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({input:{text},voice:{languageCode:lc,name:voiceName,ssmlGender:'MALE'},audioConfig:{audioEncoding:'MP3'}})
-    }).then(function(r){if(!r.ok)throw new Error();return r.json();})
-    .then(function(data){
-      if(!data.audioContent) throw new Error();
-      var audio=new Audio('data:audio/mp3;base64,'+data.audioContent);
-      startJaw();
-      audio.onended=function(){stopJaw();cb&&cb();};
-      audio.onerror=function(){stopJaw();webSpeechSpeak(text,cb);};
-      audio.play().catch(function(){stopJaw();webSpeechSpeak(text,cb);});
-    }).catch(function(){webSpeechSpeak(text,cb);});
-  }
-  function webSpeechSpeak(text,cb){
     try {
       if(!synth){cb&&cb();return;}
       try{ synth.cancel(); }catch(e){}
-      const ttsLang=detectLang(text);
-      const TTS_LANG={en:'en-US',az:'tr-TR',ru:'ru-RU'};
-      const lc=TTS_LANG[ttsLang]||'en-US';
       ensureVoices(function(){
         setTimeout(function(){
           try {
             const u=new SpeechSynthesisUtterance(text);
-            var pitch=0.95;
-            if(ttsLang==='az'||ttsLang==='ru'){pitch=0.85;}
-            u.lang=lc;u.rate=0.92;u.pitch=pitch;u.volume=1.0;
+            u.lang='en-US';u.rate=0.92;u.pitch=0.95;u.volume=1.0;
             try {
               const vs=synth.getVoices();
-              const pfx=lc.split('-')[0];
-              var voice;
-              if(ttsLang==='az'||ttsLang==='ru'){
-                var femaleSuffix=/kadın|женский|kadın|female|yelda|milena|samanta|karen|moira|tessa|veena|sara|fiona|catherine|helen|siri/i;
-                voice=vs.find(function(v){
-                  if(!v.lang.startsWith(pfx)) return;
-                  if(femaleSuffix.test(v.name)) return;
-                  return /male|david|mark|daniel|arthur|gordon|alex|aaron|fred|reed|rocko|alexander|yuri|ioan|toms|steffan|viktor|mikhail|nikola|petr|boris|vladimir|tolga|tom|tim|james|john|paul|mike|steve|peter|george|henry|google/i.test(v.name);
-                });
-                if(!voice) voice=vs.find(function(v){
-                  if(!v.lang.startsWith(pfx)) return;
-                  if(femaleSuffix.test(v.name)) return;
-                  return true;
-                });
-                if(!voice) voice=vs.find(x=>x.lang.startsWith(pfx));
-              } else {
-                voice=vs.find(x=>x.lang.startsWith(pfx));
-              }
+              var femaleSuffix=/female|samantha|karen|moira|tessa|veena|sara|fiona|catherine|helen|siri|yelda|milena/i;
+              var voice=vs.find(function(v){
+                if(!v.lang.startsWith('en')) return;
+                if(femaleSuffix.test(v.name)) return;
+                return /male|david|mark|daniel|arthur|alex|james|john|paul|mike|steve|peter|tom|tim|henry|google/i.test(v.name);
+              });
+              if(!voice) voice=vs.find(function(v){
+                if(!v.lang.startsWith('en')) return;
+                if(femaleSuffix.test(v.name)) return;
+                return true;
+              });
               if(!voice) voice=vs.find(x=>x.lang.startsWith('en'));
-              if(voice){u.voice=voice;u.lang=voice.lang||lc;}
+              if(voice){u.voice=voice;u.lang=voice.lang||'en-US';}
             } catch(e){}
             let done=false;
             function finish(){if(done)return;done=true;stopJaw();cb&&cb();}
@@ -811,15 +732,13 @@ function pickVoice(lang){
   function addMsg(text,role){ const d=document.createElement('div');d.className='cm '+role;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d; }
   function lock(v){ input.disabled=v;sendBtn.disabled=v;if(!v) setTimeout(()=>input.focus(),50); }
 
-  async function callGemini(userText, lang){
-    const langTag = lang ? '[LANG: '+lang.toUpperCase()+'] ' : '';
-    const taggedText = langTag + userText;
+  async function callGemini(userText){
     // Try OpenRouter first if key exists
     if(OR_KEY){
       try{
         const msgs=[{role:'system',content:SYSTEM}];
         for(const h of history) msgs.push({role:h.role,content:h.text});
-        msgs.push({role:'user',content:taggedText});
+        msgs.push({role:'user',content:userText});
         const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
           method:'POST',
           headers:{'Authorization':'Bearer '+OR_KEY,'Content-Type':'application/json','HTTP-Referer':'https://mahirvelizade.com','X-Title':'MahirVelizade'},
@@ -833,7 +752,7 @@ function pickVoice(lang){
     }
     // Fallback to Gemini
     const contents=history.map(h=>({role:h.role,parts:[{text:h.text}]}));
-    contents.push({role:'user',parts:[{text:taggedText}]});
+    contents.push({role:'user',parts:[{text:userText}]});
     var lastErr=null;
     for(var attempt=0;attempt<GEMINI_MODELS.length;attempt++){
       var idx=(GEMINI_MODEL_IDX+attempt)%GEMINI_MODELS.length;
@@ -856,7 +775,6 @@ function pickVoice(lang){
   async function send(override){
     const text=(override||input.value).trim();
     if(!text||isBusy) return;
-    _lastLang = detectLang(text);
     var keyMatch=text.match(/^(key|api|apikey|api.key)[:\s]+(AIza[a-zA-Z0-9_-]+)/i);
     var orMatch=text.match(/^(key|api|apikey|api.key)[:\s]+(sk-or-[a-zA-Z0-9_-]+)/i);
     if(orMatch){
@@ -879,20 +797,18 @@ function pickVoice(lang){
     setTimeout(function(){ if(isBusy&&_msgId===mid){ isBusy=false; lock(false); } },15000);
     const typing=addMsg('','ai typing');
     try{
-      const reply=await callGemini(text, _lastLang);
+      const reply=await callGemini(text);
       history.push({role:'user',text});history.push({role:'model',text:reply});
       if(history.length>24) history=history.slice(-24);
       typing.remove(); addMsg(reply,'ai');
       speak(reply,function(){ isBusy=false; lock(false); });
     } catch(err){
       console.warn('[AI]',err.message); typing.remove();
-      var fb=FALLBACKS[_lastLang]||FALLBACKS.en;
+      var fb=FALLBACKS;
       if(typeof window.localAnswer==='function'){
         var lr=window.localAnswer(text);
-        if(lr && lr!==FALLBACKS.en && lr!==FALLBACKS.az && lr!==FALLBACKS.ru) fb=lr;
+        if(lr && lr!==FALLBACKS) fb=lr;
       }
-      if(_lastLang==='az'){ var az=localAZ(text); if(az) fb=az; }
-      if(_lastLang==='ru'){ var ru=localRU(text); if(ru) fb=ru; }
       addMsg(fb,'ai');
       speak(fb,function(){ isBusy=false; lock(false); });
     }
@@ -918,11 +834,10 @@ function pickVoice(lang){
     const isAlways=alwaysListen;
     const r=new SR();
     recogContinuous=isAlways;
-    r.lang=SPEECH_LANG_CODES[_lastLang]||'en-US'; r.continuous=isAlways; r.interimResults=isAlways; r.maxAlternatives=1;
+    r.lang='en-US'; r.continuous=isAlways; r.interimResults=isAlways; r.maxAlternatives=1;
     r.onstart=function(){
       listening=true; micBtn.classList.add('on');
-      var langLabel={en:'EN',az:'AZ',ru:'RU'}[_lastLang]||'EN';
-      lbl.textContent=isAlways?'Always listening ('+langLabel+')...':'Listening ('+langLabel+')...'; lbl.classList.add('on');
+      lbl.textContent=isAlways?'Always listening (EN)...':'Listening (EN)...'; lbl.classList.add('on');
     };
     r.onresult=function(e){
       if(isBusy) return;
@@ -959,8 +874,7 @@ function pickVoice(lang){
     function doStart(){
       if(recog){
         try{ recog.start(); listening=true; micBtn.classList.add('on');
-          var ll={en:'EN',az:'AZ',ru:'RU'}[_lastLang]||'EN';
-          lbl.textContent=alwaysListen?'Always listening ('+ll+')...':'Listening ('+ll+')...'; lbl.classList.add('on'); return;
+          lbl.textContent=alwaysListen?'Always listening (EN)...':'Listening (EN)...'; lbl.classList.add('on'); return;
         }catch(e){ destroyRecog(); }
       }
       const r=buildRecog(); if(!r) return;
@@ -1091,7 +1005,7 @@ function pickVoice(lang){
   function greet(){
     if(greeted) return; greeted=true;
     openChat();
-    var msg=WELCOME[_lastLang]||WELCOME.en;
+    var msg=WELCOME;
     setTimeout(function(){ addMsg(msg,'ai'); speak(msg,function(){}); },400);
   }
 
@@ -1100,7 +1014,7 @@ function pickVoice(lang){
   window._mahirGreet=function(){};
   listenToggle.classList.toggle('on',alwaysListen);
   listenToggle.innerHTML=SVG_LISTEN;
-  input.placeholder=PLACEHOLDERS[_lastLang]||PLACEHOLDERS.en;
+  input.placeholder=PLACEHOLDERS;
   fab.innerHTML=SVG_STAR;
   micBtn.innerHTML=SVG_MIC;
 })();
