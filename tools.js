@@ -44,9 +44,9 @@ function imgToolUI(toolId, label, accept){
 }
 
 const TOOL_PLACEHOLDER_BODIES = {
-  'image-to-pdf': imgToolUI('img-to-pdf','convert it to PDF (print as PDF)','image/*') +
-    '<button onclick="window.convertImgToPDF()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Print as PDF</button>' +
-    '<div id="img-to-pdf-output"></div>',
+  'image-to-pdf': imgToolUI('img-to-pdf','convert it to PDF','image/*') +
+    '<button onclick="window.convertImgToPDF()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Create PDF & Download</button>' +
+    '<div id="img-to-pdf-output" style="margin-top:8px;font-size:0.6rem;color:var(--muted);"></div>',
 
   'image-compressor': imgToolUI('img-comp','compress the image (adjust quality below)','image/*') +
     '<div style="margin-top:12px;">' +
@@ -231,16 +231,16 @@ function openTool(toolId){
   if(!detail){
     detail = document.createElement('div');
     detail.id = 'tool-detail';
-    detail.className = 'tool-detail active';
     document.querySelector('.tools-wrapper').appendChild(detail);
   }
+  detail.className = 'tool-detail active';
   grid.style.display = 'none';
   var body = TOOL_PLACEHOLDER_BODIES[toolId] || '<p class="tool-detail-placeholder">' + tool.name + ' — coming soon.</p>';
   detail.innerHTML =
     '<button class="tool-detail-back" onclick="window.closeTool()">← Back to Tools</button>' +
     '<h3 class="tool-detail-title">' + tool.icon + ' ' + tool.name + '</h3>' +
     '<div class="tool-detail-body">' + body + '</div>';
-  window.location.hash = 'tools-' + toolId;
+  if(window.location.hash !== '#tools-' + toolId) window.location.hash = 'tools-' + toolId;
 }
 
 window.closeTool = function(){
@@ -286,11 +286,47 @@ function getCachedImg(prefix){
   return c.img;
 }
 
-/* ─── IMAGE TO PDF ─── */
+/* ─── IMAGE TO PDF (pure JS — no window.print) ─── */
 window.convertImgToPDF = function(){
   var img = getCachedImg('img-to-pdf');
   if(!img) return;
-  window.print();
+  var c = document.createElement('canvas');
+  c.width = img.width; c.height = img.height;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(img, 0, 0);
+  var jpegBytes = atob(c.toDataURL('image/jpeg',0.92).split(',')[1]);
+  var w = img.width, h = img.height;
+  var objs = [];
+  objs.push('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj');
+  objs.push('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj');
+  objs.push('3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w + ' ' + h + '] /Contents 4 0 R /Resources << /XObject << /Im0 5 0 R >> >> >>\nendobj');
+  var stream = 'q ' + w + ' 0 0 ' + h + ' 0 0 cm /Im0 Do Q';
+  objs.push('4 0 obj\n<< /Length ' + stream.length + ' >>\nstream\n' + stream + '\nendstream\nendobj');
+  objs.push('5 0 obj\n<< /Type /XObject /Subtype /Image /Width ' + w + ' /Height ' + h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegBytes.length + ' >>\nstream\n' + jpegBytes + '\nendstream\nendobj');
+  var body = objs.join('\n');
+  var header = '%PDF-1.4\n';
+  var lines = body.split('\n');
+  var offsets = [];
+  var pos = header.length;
+  for(var i=0;i<lines.length;i++){
+    if(/^\d+ 0 obj$/.test(lines[i])) offsets.push(pos);
+    pos += lines[i].length + 1;
+  }
+  var xref = 'xref\n0 6\n0000000000 65535 f \n';
+  for(i=0;i<offsets.length;i++) xref += ('0000000000'+offsets[i]).slice(-10) + ' 00000 n \n';
+  xref += 'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n' + pos + '\n%%EOF';
+  var pdf = header + body + '\n' + xref;
+  var buf = new Uint8Array(pdf.length);
+  for(var i=0;i<pdf.length;i++) buf[i] = pdf.charCodeAt(i) & 0xff;
+  var blob = new Blob([buf], {type:'application/pdf'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'image.pdf'; a.click();
+  URL.revokeObjectURL(url);
+  var out = document.getElementById('img-to-pdf-output');
+  if(out) out.textContent = '✅ PDF created: ' + w + '×' + h + 'px, ' + (jpegBytes.length/1024).toFixed(0) + 'KB';
 };
 
 /* ─── IMAGE COMPRESSOR ─── */
@@ -338,10 +374,6 @@ window.convertFormat = function(prefix, ext, mime, fromId, toId){
   var ctx = c.getContext('2d');
   ctx.drawImage(img, 0, 0);
   canvasToDownload(c, 'converted.' + ext, mime);
-};
-
-window.handleConvert = function(prefix, outputMime, ext){
-  return function(){ convertFormat(prefix, ext, outputMime); };
 };
 
 /* Auto-wire converters on tool open via onclick in HTML */
