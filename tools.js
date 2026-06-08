@@ -341,7 +341,10 @@ window.compressImage = function(){
   var dataUrl = c.toDataURL('image/jpeg', qual);
   var kb = Math.round(dataUrl.length * 0.75 / 1024);
   document.getElementById('img-comp-info').textContent = 'Compressed: ~' + kb + 'KB (quality: ' + Math.round(qual*100) + '%)';
-  canvasToDownload(c, 'compressed.jpg', 'image/jpeg');
+  var link = document.createElement('a');
+  link.download = 'compressed.jpg';
+  link.href = dataUrl;
+  link.click();
 };
 
 /* ─── IMAGE RESIZE ─── */
