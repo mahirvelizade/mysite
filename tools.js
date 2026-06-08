@@ -187,8 +187,6 @@ function buildGrid(){
 function openTool(toolId){
   var tool = TOOLS.find(function(t){ return t.id === toolId; });
   if(!tool) return;
-  var header = document.querySelector('#page-tools .page-header');
-  if(header) header.style.display = 'none';
   var grid = document.getElementById('tools-grid');
   var detail = document.getElementById('tool-detail');
   if(!detail){
@@ -207,8 +205,6 @@ function openTool(toolId){
 }
 
 window.closeTool = function(){
-  var header = document.querySelector('#page-tools .page-header');
-  if(header) header.style.display = '';
   var detail = document.getElementById('tool-detail');
   var grid = document.getElementById('tools-grid');
   if(detail) detail.classList.remove('active');
@@ -466,8 +462,6 @@ function handleHash(){
 window.addEventListener('hashchange', function(){
   var hash = window.location.hash.replace('#','');
   if(!hash || !hash.startsWith('tools-')){
-    var header = document.querySelector('#page-tools .page-header');
-    if(header) header.style.display = '';
     var detail = document.getElementById('tool-detail');
     var grid = document.getElementById('tools-grid');
     if(detail) detail.classList.remove('active');
