@@ -804,6 +804,7 @@ nav.scrolled {
     position: fixed; bottom: 48px; right: 32px;
     z-index: 2000; display: flex; flex-direction: column;
     align-items: flex-end; gap: 10px;
+    pointer-events: none;
 }
 #ai-bubble {
     background: rgba(5,5,5,0.96); border: 1px solid var(--green-border);
@@ -892,6 +893,7 @@ nav.scrolled {
     display: flex; align-items: center; justify-content: center;
     cursor: none; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
     transition: border-color .3s, box-shadow .3s, transform .3s;
+    pointer-events: auto;
 }
 #ai-fab:hover { border-color: var(--green); box-shadow: var(--green-glow); transform: scale(1.08); }
 #ai-fab.speaking { border-color: var(--green); animation: speakring 1s ease-out infinite; }
