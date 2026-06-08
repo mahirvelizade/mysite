@@ -1,5 +1,15 @@
 # Mahir Velizade Portfolio — Project Changes
 
+## 🗺️ Session Summary (08 Jun 2026)
+- **Tools Center page**: Added `/tools` with 25 browser-based tools in 5×5 grid
+- **Navigation**: "Tools" link added to main nav
+- **Working tools**: Image to PDF, Word Counter, Password Generator, QR Code Generator, JSON Formatter, SHA256, URL Encode/Decode, Text Case Converter, Base64 Encode/Decode, MD5 Generator, UUID Generator, Color Picker, Lorem Ipsum Generator — all pure browser, no backend
+- **Hash routing**: Individual tool views via `#tools-tool-id`
+- **3 categories**: Core (10), Image (9), Dev (6)
+- **Responsive**: 5→4→3→2 columns
+- **Version bump**: v4.5 → v4.6
+- **Commit**: `fe380eb`
+
 ## 🗺️ Session Summary (05 Jun 2026)
 - **English-only chat**: `detectLang` always returns `'en'`, SYSTEM prompt AZ/RU təlimatları silindi
 - **Male TTS voice**: English üçün qadın səsləri (Samantha, Karen, Moira...) xaric edilir, kişi adlı səslər axtarılır (David, Mark, Daniel, Alex, Google...)
