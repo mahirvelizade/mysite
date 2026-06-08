@@ -31,16 +31,16 @@ const TOOLS = [
 
 const CATEGORY_LABELS = { core:'Core', image:'Image', dev:'Dev' };
 
-function imgUploadHTML(id, accept){
+function imgUploadHTML(id, cacheKey, accept){
   return '<div style="text-align:center;padding:40px;border:2px dashed var(--green-border);border-radius:8px;cursor:none;" onclick="document.getElementById(\''+id+'\').click()">' +
     '<div style="font-size:2.5rem;margin-bottom:12px;">📁</div>' +
     '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Click to upload image</div>' +
-    '<input id="'+id+'" type="file" accept="'+accept+'" style="display:none" onchange="window.handleImgTool(\''+id+'\',this)"></div>' +
+    '<input id="'+id+'" type="file" accept="'+accept+'" style="display:none" onchange="window.handleImgTool(\''+cacheKey+'\',this)"></div>' +
     '<div id="'+id+'-preview" style="margin-top:16px;"></div>';
 }
 
 function imgToolUI(toolId, label, accept){
-  return '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload an image and ' + label + '.</div>' + imgUploadHTML(toolId + '-upload', accept);
+  return '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload an image and ' + label + '.</div>' + imgUploadHTML(toolId + '-upload', toolId, accept);
 }
 
 const TOOL_PLACEHOLDER_BODIES = {
