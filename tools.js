@@ -187,16 +187,17 @@ function buildGrid(){
 function openTool(toolId){
   var tool = TOOLS.find(function(t){ return t.id === toolId; });
   if(!tool) return;
+  var header = document.querySelector('#page-tools .page-header');
+  if(header) header.style.display = 'none';
   var grid = document.getElementById('tools-grid');
   var detail = document.getElementById('tool-detail');
   if(!detail){
     detail = document.createElement('div');
     detail.id = 'tool-detail';
-    detail.className = 'tool-detail';
+    detail.className = 'tool-detail active';
     document.querySelector('.tools-wrapper').appendChild(detail);
   }
   grid.style.display = 'none';
-  detail.classList.add('active');
   var body = TOOL_PLACEHOLDER_BODIES[toolId] || '<p class="tool-detail-placeholder">' + tool.name + ' — coming soon. All processing runs in your browser.</p>';
   detail.innerHTML =
     '<button class="tool-detail-back" onclick="window.closeTool()">← Back to Tools</button>' +
@@ -206,6 +207,8 @@ function openTool(toolId){
 }
 
 window.closeTool = function(){
+  var header = document.querySelector('#page-tools .page-header');
+  if(header) header.style.display = '';
   var detail = document.getElementById('tool-detail');
   var grid = document.getElementById('tools-grid');
   if(detail) detail.classList.remove('active');
@@ -463,6 +466,8 @@ function handleHash(){
 window.addEventListener('hashchange', function(){
   var hash = window.location.hash.replace('#','');
   if(!hash || !hash.startsWith('tools-')){
+    var header = document.querySelector('#page-tools .page-header');
+    if(header) header.style.display = '';
     var detail = document.getElementById('tool-detail');
     var grid = document.getElementById('tools-grid');
     if(detail) detail.classList.remove('active');
