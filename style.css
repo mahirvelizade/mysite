@@ -642,7 +642,6 @@ nav.scrolled {
 .tool-detail {
     display: none;
     padding: 40px 10vw;
-    max-width: 800px;
     margin: 0 auto;
 }
 .tool-detail.active { display: block; }
