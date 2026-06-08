@@ -1,14 +1,16 @@
 # Mahir Velizade Portfolio — Project Changes
 
-## 🗺️ Session Summary (08 Jun 2026)
-- **Tools Center page**: Added `/tools` with 25 browser-based tools in 5×5 grid
-- **Navigation**: "Tools" link added to main nav
-- **Working tools**: Image to PDF, Word Counter, Password Generator, QR Code Generator, JSON Formatter, SHA256, URL Encode/Decode, Text Case Converter, Base64 Encode/Decode, MD5 Generator, UUID Generator, Color Picker, Lorem Ipsum Generator — all pure browser, no backend
-- **Hash routing**: Individual tool views via `#tools-tool-id`
-- **3 categories**: Core (10), Image (9), Dev (6)
-- **Responsive**: 5→4→3→2 columns
-- **Version bump**: v4.5 → v4.6
-- **Commit**: `fe380eb`
+## 🗺️ Session Summary (08 Jun 2026) — Bug fixes + 26th tool
+- **HTML Viewer tool** (26th tool): Split HTML textarea / iframe live preview, auto-render with debounce, Render/Clear buttons
+- **QR Code Generator rewritten**: Proper QR spec (GF(256), Reed-Solomon EC, module placement, mask evaluation, format info BCH) — produces scannable codes
+- **Image to PDF rewritten**: Real PDF generation (catalog, pages, page object, JPEG image stream, xref table) via Uint8Array — fixes binary corruption
+- **Image Compressor fix**: Uses actual quality slider value instead of hardcoded constant
+- **All image tools fix**: Cache key prefix now matches toolId — all 8 image tools work again
+- **Tool detail fix**: `openTool()` always sets `detail.className = 'tool-detail active'` — detail reappears after close
+- **Hash recursion fix**: Guard added to prevent infinite hash change loop
+- **AI widget overlap fix**: `.tool-detail` gets `pointer-events: auto`, FAB keeps `pointer-events: auto`, chats container gets `pointer-events: none`
+- **HTML Viewer widened**: `max-width: 800px` removed from `.tool-detail` CSS, added "↗ Open in New Tab" button
+- **Version**: v4.6, commit `8c088c5`
 
 ## 🗺️ Session Summary (05 Jun 2026)
 - **English-only chat**: `detectLang` always returns `'en'`, SYSTEM prompt AZ/RU təlimatları silindi
