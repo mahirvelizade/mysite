@@ -27,6 +27,7 @@ const TOOLS = [
   { id:'color-picker',       name:'Color Picker',        icon:'🎨', cat:'dev' },
   { id:'lorem-ipsum',        name:'Lorem Ipsum',         icon:'📝', cat:'dev' },
   { id:'text-cleaner',       name:'Text Cleaner',        icon:'🧹', cat:'dev' },
+  { id:'html-viewer',        name:'HTML Viewer',         icon:'🌐', cat:'dev' },
 ];
 
 const CATEGORY_LABELS = { core:'Core', image:'Image', dev:'Dev' };
@@ -203,6 +204,19 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<button onclick="window.cleanText(\'lines\')" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 14px;cursor:none;letter-spacing:0.1em;">Remove Empty Lines</button>' +
     '<button onclick="window.cleanText(\'all\')" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 14px;cursor:none;letter-spacing:0.1em;">Clean All</button></div>' +
     '<div style="margin-top:12px;"><textarea id="clean-output" readonly placeholder="Cleaned text..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--green);font-family:var(--mono);font-size:0.75rem;padding:12px;min-height:120px;resize:vertical;outline:none;"></textarea></div></div>',
+
+  'html-viewer': '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Enter HTML code below and see the live preview.</div>' +
+    '<div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+    '<button onclick="window.renderHTML()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Render</button>' +
+    '<label style="font-size:0.6rem;color:var(--muted);display:flex;align-items:center;gap:4px;"><input type="checkbox" id="hv-auto" checked onchange="window.toggleAutoRender()"> Auto-render</label></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:6px;">HTML</div>' +
+    '<textarea id="hv-input" placeholder="<h1>Hello World</h1>" oninput="window.scheduleRender()" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:250px;resize:vertical;outline:none;tab-size:2;"></textarea></div>' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:6px;">Preview</div>' +
+    '<iframe id="hv-preview" style="width:100%;height:250px;background:#fff;border:1px solid var(--green-border);border-radius:4px;"></iframe></div></div>' +
+    '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">' +
+    '<button onclick="window.clearHTML()" style="background:var(--surface);color:var(--muted);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:6px 12px;cursor:none;letter-spacing:0.1em;">Clear</button>' +
+    '<span style="font-size:0.55rem;color:var(--muted);align-self:center;">Tip: &lt;script&gt; tags won\'t execute in preview for security.</span></div>',
 };
 
 function buildGrid(){
@@ -735,6 +749,36 @@ window.cleanText = function(mode){
       break;
   }
   output.value = result;
+};
+
+/* ─── HTML VIEWER ─── */
+var _renderTimer = null;
+
+window.renderHTML = function(){
+  var html = document.getElementById('hv-input').value;
+  var iframe = document.getElementById('hv-preview');
+  if(!iframe) return;
+  var doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+};
+
+window.scheduleRender = function(){
+  var auto = document.getElementById('hv-auto');
+  if(!auto || !auto.checked) return;
+  if(_renderTimer) clearTimeout(_renderTimer);
+  _renderTimer = setTimeout(window.renderHTML, 300);
+};
+
+window.toggleAutoRender = function(){
+  var auto = document.getElementById('hv-auto');
+  if(auto && auto.checked) window.renderHTML();
+};
+
+window.clearHTML = function(){
+  document.getElementById('hv-input').value = '';
+  window.renderHTML();
 };
 
 function handleHash(){
