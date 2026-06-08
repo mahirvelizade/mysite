@@ -540,6 +540,164 @@ nav.scrolled {
 .form-field input:focus, .form-field textarea:focus { border-color: var(--green); }
 .form-field textarea { min-height: 120px; }
 
+/* TOOLS */
+#page-tools { padding: var(--nav-h) 0 80px; }
+.tools-wrapper { padding: 40px 10vw; }
+.tools-header-search {
+    margin-bottom: 32px;
+    position: relative;
+    max-width: 400px;
+}
+.tools-header-search input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--green-border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 10px 14px 10px 36px;
+    outline: none;
+    letter-spacing: 0.05em;
+    transition: border-color var(--transition);
+}
+.tools-header-search input:focus { border-color: var(--green); }
+.tools-header-search input::placeholder { color: rgba(232,232,224,0.22); }
+.tools-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+}
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+.tool-card {
+    background: var(--surface);
+    border: 1px solid var(--green-border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: none;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+    min-height: 130px;
+    text-decoration: none;
+    color: var(--text);
+}
+.tool-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--green-dim), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+.tool-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: var(--green);
+    box-shadow: 0 8px 32px rgba(57,255,20,0.12);
+}
+.tool-card:hover::before { opacity: 1; }
+.tool-card:active { transform: translateY(-1px) scale(0.98); }
+.tool-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    transition: transform var(--transition);
+}
+.tool-card:hover .tool-icon { transform: scale(1.15); }
+.tool-name {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.3;
+    position: relative;
+    z-index: 1;
+    transition: color var(--transition);
+}
+.tool-card:hover .tool-name { color: var(--green); }
+.tool-category {
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(57,255,20,0.35);
+    position: relative;
+    z-index: 1;
+}
+.tool-card:hover .tool-category { color: rgba(57,255,20,0.6); }
+
+/* TOOL DETAIL VIEW */
+.tool-detail {
+    display: none;
+    padding: 40px 10vw;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.tool-detail.active { display: block; }
+.tool-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    font-family: var(--mono);
+    cursor: none;
+    padding: 8px 0;
+    margin-bottom: 24px;
+    transition: color var(--transition);
+}
+.tool-detail-back:hover { color: var(--green); }
+.tool-detail-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+.tool-detail-body {
+    background: var(--surface);
+    border: 1px solid var(--green-border);
+    padding: 32px;
+    min-height: 200px;
+}
+.tool-detail-placeholder {
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.8;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+@media (max-width: 1100px) {
+    .tools-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+    .tools-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tool-card { padding: 16px 10px; min-height: 100px; }
+    .tool-icon { font-size: 1.4rem; }
+    .tool-name { font-size: 0.55rem; }
+    .tools-wrapper { padding: 24px 6vw; }
+    .tool-detail { padding: 24px 6vw; }
+}
+@media (max-width: 480px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* FOOTER */
 .footer-bar {
     position: fixed;

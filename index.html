@@ -54,6 +54,7 @@ setTimeout(function(){
         <li><a href="#" data-page="home" class="nav-link active">Home</a></li>
         <li><a href="#" data-page="work" class="nav-link">Work</a></li>
         <li><a href="#" data-page="about" class="nav-link">About</a></li>
+        <li><a href="#" data-page="tools" class="nav-link">Tools</a></li>
         <li><a href="#" data-page="contact" class="nav-link">Contact</a></li>
     </ul>
     <div class="nav-status">
@@ -374,6 +375,17 @@ setTimeout(function(){
     </div>
 </section>
 
+<!-- =================== TOOLS =================== -->
+<section class="page" id="page-tools">
+    <div class="page-header">
+        <div class="page-label">// 04 — Tools</div>
+        <h2 class="page-title">Browser<br>Toolkit</h2>
+    </div>
+    <div class="tools-wrapper">
+        <div class="tools-grid" id="tools-grid"></div>
+    </div>
+</section>
+
 <div id="footer-gradient"></div>
 <canvas id="eq-canvas"></canvas>
 <div id="player"></div>
@@ -411,7 +423,7 @@ window.switchPage = function(pageId) {
         }, 100);
     }
     var eq = document.getElementById('eq-canvas');
-    if (eq) eq.classList.toggle('eq-right', pageId === 'work' || pageId === 'about' || pageId === 'contact');
+    if (eq) eq.classList.toggle('eq-right', pageId === 'work' || pageId === 'about' || pageId === 'contact' || pageId === 'tools');
     document.getElementById('nav-links').classList.remove('open');
     document.getElementById('nav-toggle').classList.remove('open');
     var c3d = document.getElementById('canvas-3d');
@@ -636,6 +648,7 @@ setInterval(function(){
 </script>
 
 <script src="mahir_qa.js"></script>
+<script src="tools.js"></script>
 <script>
 (function(){
   'use strict';
