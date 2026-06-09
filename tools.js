@@ -1387,27 +1387,22 @@ window.generateQR = function(){
   // ...
   // Skip column 6 completely
 
-  // Reset and redo
+  // Place data bits in QR zigzag pattern (one column at a time, alternating direction)
   bi2=0; var allBits=all.length*8;
   for(var col=n-1;col>=1;col--){
     if(col===6) continue;
-    // Determine direction: rightmost column goes upward
     var upward=((n-1-col)%2===0);
     if(upward){
       for(var row=n-1;row>=0;row--){
-        for(var cx=0;cx<2;cx++){
-          var xx=col-cx,yy=row;
-          if(xx<0||xx>=n||yy<0||yy>=n||mat[yy][xx]!==-1) continue;
-          mat[yy][xx]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
+        if(mat[row][col]===-1){
+          mat[row][col]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
           bi2++;
         }
       }
     } else {
       for(var row=0;row<n;row++){
-        for(var cx=0;cx<2;cx++){
-          var xx=col-cx,yy=row;
-          if(xx<0||xx>=n||yy<0||yy>=n||mat[yy][xx]!==-1) continue;
-          mat[yy][xx]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
+        if(mat[row][col]===-1){
+          mat[row][col]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
           bi2++;
         }
       }
