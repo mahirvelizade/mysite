@@ -1389,9 +1389,9 @@ window.generateQR = function(){
 
   // Place data bits in QR zigzag pattern (one column at a time, alternating direction)
   bi2=0; var allBits=all.length*8;
+  var upward=true; // rightmost column goes upward
   for(var col=n-1;col>=1;col--){
     if(col===6) continue;
-    var upward=((n-1-col)%2===0);
     if(upward){
       for(var row=n-1;row>=0;row--){
         if(mat[row][col]===-1){
@@ -1407,6 +1407,7 @@ window.generateQR = function(){
         }
       }
     }
+    upward=!upward;
   }
 
   // Remaining bits fill remaining -1 cells
@@ -1426,14 +1427,14 @@ window.generateQR = function(){
   var finalMat=applyMaskQR(mat.slice(),bestM,n,ver);
   if(!finalMat) finalMat=mat;
 
-  // Render to canvas
-  var s=300,cell=s/n,pad=10,s2=s+pad*2;
-  var cv=document.createElement('canvas'); cv.width=s2; cv.height=s2;
+  // Render to canvas (with 4-module quiet zone)
+  var cell=10,pad=cell*4,s=n*cell+pad*2;
+  var cv=document.createElement('canvas'); cv.width=s; cv.height=s;
   var cx=cv.getContext('2d');
-  cx.fillStyle='#FFFFFF'; cx.fillRect(0,0,s2,s2);
+  cx.fillStyle='#FFFFFF'; cx.fillRect(0,0,s,s);
   cx.fillStyle='#000000';
   for(var y=0;y<n;y++) for(var x=0;x<n;x++){
-    if(finalMat[y][x]) cx.fillRect(pad+x*cell,pad+y*cell,Math.ceil(cell),Math.ceil(cell));
+    if(finalMat[y][x]) cx.fillRect(pad+x*cell,pad+y*cell,cell,cell);
   }
 
   out.appendChild(cv);
