@@ -22,6 +22,7 @@ const TOOLS = [
   { id:'contrast-adjuster',  name:'Contrast',            icon:'🌓', cat:'image' },
   { id:'grayscale-filter',   name:'Grayscale',           icon:'⚫', cat:'image' },
   { id:'remove-bg',          name:'Remove Background',   icon:'✨', cat:'image' },
+  { id:'pdf-compressor',     name:'PDF Compressor',      icon:'📦', cat:'core' },
   { id:'base64-encode',      name:'Base64 Encode/Decode',icon:'🔡', cat:'dev' },
   { id:'md5-generator',      name:'MD5 Generator',       icon:'🔏', cat:'dev' },
   { id:'uuid-generator',     name:'UUID Generator',      icon:'🆔', cat:'dev' },
@@ -187,27 +188,49 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<button onclick="window.downloadRemoveBg()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;transition:var(--transition);">Download Transparent PNG</button>' +
     '</div>' +
     '</div>' +
-    '<div id="rbg-error" style="display:none;margin-top:12px;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;"></div>' +
-    '<div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--green-border);">' +
-    '<div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:16px;">Why Use This Tool?</div>' +
-    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">' +
-    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
-    '<div style="font-size:1.5rem;margin-bottom:8px;">🔒</div>' +
-    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">No Upload to Server</div>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">Everything stays on your device</div></div>' +
-    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
-    '<div style="font-size:1.5rem;margin-bottom:8px;">🛡️</div>' +
-    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Privacy Friendly</div>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">No data leaves your browser</div></div>' +
-    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
-    '<div style="font-size:1.5rem;margin-bottom:8px;">💰</div>' +
-    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Free to Use</div>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">No API keys or payments required</div></div>' +
-    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
-    '<div style="font-size:1.5rem;margin-bottom:8px;">⚡</div>' +
-    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Fast AI Processing</div>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">Powered by @imgly/background-removal</div></div>' +
-    '</div></div>',
+    '<div id="rbg-error" style="display:none;margin-top:12px;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;"></div>',
+
+  'pdf-compressor': '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload a PDF and compress it using server-side Ghostscript. Files are processed securely and deleted after download.</div>' +
+    '<div id="pdfc-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;transition:var(--transition);" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handlePdfCompressUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'pdfc-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📄</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">Max 70MB · PDF only</div>' +
+    '<input id="pdfc-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handlePdfCompressUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="pdfc-file-info" style="display:none;margin-top:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--green-border);font-size:0.65rem;color:var(--muted);"></div>' +
+    '<div id="pdfc-quality" style="display:none;margin-top:12px;">' +
+    '<div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Compression Quality</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+    '<button class="pdfc-q-btn" data-q="low" onclick="window.selectPdfcQuality(\'low\')" style="background:var(--surface);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:10px 18px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Low (Smallest)</button>' +
+    '<button class="pdfc-q-btn" data-q="medium" onclick="window.selectPdfcQuality(\'medium\')" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:10px 18px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Medium</button>' +
+    '<button class="pdfc-q-btn" data-q="high" onclick="window.selectPdfcQuality(\'high\')" style="background:var(--surface);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:10px 18px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">High (Best Quality)</button>' +
+    '</div></div>' +
+    '<div id="pdfc-compress-btn" style="display:none;margin-top:16px;text-align:center;">' +
+    '<button onclick="window.compressPdf()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;transition:var(--transition);">Compress PDF</button>' +
+    '</div>' +
+    '<div id="pdfc-progress" style="display:none;text-align:center;padding:24px;">' +
+    '<div class="loader-ring" style="margin:0 auto 16px;"></div>' +
+    '<div style="font-size:0.65rem;color:var(--green);letter-spacing:0.1em;">Compressing PDF<span id="pdfc-progress-text"></span></div>' +
+    '<div id="pdfc-upload-bar-wrap" style="display:none;margin-top:12px;background:var(--bg);border:1px solid var(--green-border);border-radius:4px;height:8px;overflow:hidden;">' +
+    '<div id="pdfc-upload-bar" style="height:100%;width:0%;background:var(--green);transition:width 0.3s;"></div></div>' +
+    '<div id="pdfc-upload-pct" style="font-size:0.55rem;color:var(--muted);margin-top:6px;"></div>' +
+    '<div id="pdfc-estimate" style="font-size:0.55rem;color:var(--muted);margin-top:8px;">Large files may take a moment</div>' +
+    '</div>' +
+    '<div id="pdfc-result" style="display:none;margin-top:16px;">' +
+    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:20px;">' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">' +
+    '<div style="text-align:center;"><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Original Size</div><div id="pdfc-orig-size" style="font-size:1rem;color:var(--text);font-family:var(--mono);"></div></div>' +
+    '<div style="text-align:center;"><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">Compressed Size</div><div id="pdfc-comp-size" style="font-size:1rem;color:var(--green);font-family:var(--mono);"></div></div>' +
+    '</div>' +
+    '<div id="pdfc-ratio" style="text-align:center;margin-top:12px;font-size:0.65rem;color:var(--muted);"></div>' +
+    '<div style="text-align:center;margin-top:16px;">' +
+    '<button onclick="window.downloadCompressedPdf()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;transition:var(--transition);">Download Compressed PDF</button>' +
+    '</div></div></div>' +
+    '<div id="pdfc-error" style="display:none;margin-top:12px;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;"></div>',
 
   'base64-encode': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
     '<div><div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Input</div>' +
@@ -317,6 +340,7 @@ function updateToolMeta(tool){
   var desc = '';
   if(tool.id === 'remove-bg') desc = 'Remove image backgrounds for free in your browser. AI-powered, no uploads, privacy-first. Supports JPG, PNG, WEBP.';
   else if(tool.id === 'image-to-pdf') desc = 'Convert images to PDF files instantly in your browser. Free, no upload required.';
+  else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files online. Reduces file size with Ghostscript. Free, secure, files deleted after processing.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
@@ -335,6 +359,8 @@ window.closeTool = function(){
   window.location.hash = '';
   _rbgOriginalUrl = null;
   _rbgResultBlob = null;
+  _pdfcFile = null;
+  _pdfcDownloadToken = null;
   document.title = 'Mahir Velizade — Designer';
   var og = document.querySelector('meta[property="og:title"]');
   if(og) og.setAttribute('content','Mahir Velizade — Designer &amp; Tools');
@@ -637,6 +663,170 @@ window.downloadRemoveBg = function(){
   link.href = URL.createObjectURL(_rbgResultBlob);
   link.click();
 };
+
+/* ─── PDF COMPRESSOR (server-side via Ghostscript) ─── */
+var _pdfcFile = null;
+var _pdfcQuality = 'medium';
+var _pdfcDownloadToken = null;
+var _pdfcServerUrl = 'http://localhost:3000';
+
+window.handlePdfCompressUpload = function(file){
+  if(!file) return;
+  if(file.type !== 'application/pdf'){
+    pdfcError('Only PDF files are accepted.');
+    return;
+  }
+  if(file.size > 70 * 1024 * 1024){
+    pdfcError('File exceeds 70MB limit.');
+    return;
+  }
+  _pdfcFile = file;
+  _pdfcDownloadToken = null;
+  document.getElementById('pdfc-upload-zone').style.display = 'none';
+  document.getElementById('pdfc-error').style.display = 'none';
+  document.getElementById('pdfc-result').style.display = 'none';
+  document.getElementById('pdfc-progress').style.display = 'none';
+  var info = document.getElementById('pdfc-file-info');
+  info.style.display = 'block';
+  info.innerHTML = '📄 <strong>' + file.name + '</strong> · ' + formatSize(file.size) +
+    '<span style="float:right;color:var(--green);cursor:none;" onclick="window.resetPdfcUpload()">✕</span>';
+  document.getElementById('pdfc-quality').style.display = 'block';
+  document.getElementById('pdfc-compress-btn').style.display = 'block';
+};
+
+window.resetPdfcUpload = function(){
+  _pdfcFile = null;
+  _pdfcDownloadToken = null;
+  document.getElementById('pdfc-upload-zone').style.display = '';
+  document.getElementById('pdfc-file-info').style.display = 'none';
+  document.getElementById('pdfc-quality').style.display = 'none';
+  document.getElementById('pdfc-compress-btn').style.display = 'none';
+  document.getElementById('pdfc-result').style.display = 'none';
+  document.getElementById('pdfc-error').style.display = 'none';
+  document.getElementById('pdfc-progress').style.display = 'none';
+};
+
+window.selectPdfcQuality = function(q){
+  _pdfcQuality = q;
+  var btns = document.querySelectorAll('.pdfc-q-btn');
+  for(var i=0;i<btns.length;i++){
+    var b = btns[i];
+    if(b.getAttribute('data-q') === q){
+      b.style.background = 'var(--green)';
+      b.style.color = '#000';
+      b.style.border = 'none';
+    } else {
+      b.style.background = 'var(--surface)';
+      b.style.color = 'var(--text)';
+      b.style.border = '1px solid var(--green-border)';
+    }
+  }
+};
+
+window.compressPdf = function(){
+  if(!_pdfcFile) return;
+  document.getElementById('pdfc-error').style.display = 'none';
+  document.getElementById('pdfc-result').style.display = 'none';
+  document.getElementById('pdfc-compress-btn').style.display = 'none';
+  document.getElementById('pdfc-quality').style.display = 'none';
+  var prog = document.getElementById('pdfc-progress');
+  prog.style.display = 'block';
+  document.getElementById('pdfc-upload-bar-wrap').style.display = 'block';
+  document.getElementById('pdfc-upload-bar').style.width = '0%';
+  document.getElementById('pdfc-upload-pct').textContent = '0%';
+  var est = document.getElementById('pdfc-estimate');
+  if(_pdfcFile.size > 10 * 1024 * 1024){
+    est.textContent = 'Large file — this may take up to a minute.';
+  } else {
+    est.textContent = 'Compressing...';
+  }
+
+  var form = new FormData();
+  form.append('pdf', _pdfcFile);
+  form.append('quality', _pdfcQuality);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', _pdfcServerUrl + '/api/compress', true);
+
+  xhr.upload.onprogress = function(e){
+    if(e.lengthComputable){
+      var pct = Math.round(e.loaded / e.total * 100);
+      document.getElementById('pdfc-upload-bar').style.width = pct + '%';
+      document.getElementById('pdfc-upload-pct').textContent = pct + '%';
+      if(pct < 100){
+        document.getElementById('pdfc-progress-text').textContent = ' — Uploading ' + pct + '%';
+      } else {
+        document.getElementById('pdfc-progress-text').textContent = ' — Processing...';
+      }
+    }
+  };
+
+  xhr.onload = function(){
+    if(xhr.status === 200){
+      var data;
+      try { data = JSON.parse(xhr.responseText); } catch(e){ pdfcError('Invalid server response.'); return; }
+      if(data.success){
+        _pdfcDownloadToken = data.downloadToken;
+        document.getElementById('pdfc-progress').style.display = 'none';
+        document.getElementById('pdfc-result').style.display = 'block';
+        document.getElementById('pdfc-orig-size').textContent = formatSize(data.originalSize);
+        document.getElementById('pdfc-comp-size').textContent = formatSize(data.compressedSize);
+        var ratioEl = document.getElementById('pdfc-ratio');
+        if(data.ratio > 0){
+          ratioEl.innerHTML = 'Reduced by <strong style="color:var(--green);">' + data.ratio + '%</strong>';
+        } else if(data.ratio === 0){
+          ratioEl.textContent = 'No size reduction (already optimized).';
+        } else {
+          ratioEl.textContent = 'Size increased by ' + Math.abs(data.ratio) + '% (file may already be optimized).';
+        }
+      } else {
+        pdfcError(data.error || 'Compression failed.');
+      }
+    } else if(xhr.status === 413){
+      pdfcError('File exceeds 70MB limit.');
+    } else if(xhr.status === 503){
+      pdfcError('Server is busy. Please try again in a moment.');
+    } else if(xhr.status === 504){
+      pdfcError('Compression timed out. Try a smaller file or lower quality.');
+    } else {
+      var msg = 'Server error (' + xhr.status + ').';
+      try { var d = JSON.parse(xhr.responseText); if(d.error) msg = d.error; } catch(e){}
+      pdfcError(msg);
+    }
+  };
+
+  xhr.onerror = function(){
+    pdfcError('Connection failed. Is the server running at ' + _pdfcServerUrl + '?');
+  };
+
+  xhr.ontimeout = function(){
+    pdfcError('Request timed out.');
+  };
+
+  xhr.timeout = 130000;
+  xhr.send(form);
+};
+
+window.downloadCompressedPdf = function(){
+  if(!_pdfcDownloadToken) return;
+  var a = document.createElement('a');
+  a.href = _pdfcServerUrl + '/api/download/' + _pdfcDownloadToken;
+  a.download = '';
+  a.click();
+};
+
+function pdfcError(msg){
+  var el = document.getElementById('pdfc-error');
+  if(el){ el.textContent = msg; el.style.display = 'block'; }
+  document.getElementById('pdfc-progress').style.display = 'none';
+  document.getElementById('pdfc-compress-btn').style.display = 'none';
+}
+
+function formatSize(bytes){
+  if(bytes >= 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  if(bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return bytes + ' B';
+}
 
 /* ─── WORD COUNTER ─── */
 window.updateWordCount = function(){
