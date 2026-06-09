@@ -44,6 +44,7 @@ const TOOLS = [
   { id:'md5-generator',      name:'MD5 Generator',       icon:'🔏', cat:'dev' },
   { id:'uuid-generator',     name:'UUID Generator',      icon:'🆔', cat:'dev' },
   { id:'color-picker',       name:'Color Picker',        icon:'🎨', cat:'dev' },
+  { id:'color-converter',    name:'Color Converter',     icon:'🌈', cat:'dev' },
   { id:'lorem-ipsum',        name:'Lorem Ipsum',         icon:'📝', cat:'dev' },
   { id:'text-cleaner',       name:'Text Cleaner',        icon:'🧹', cat:'dev' },
   { id:'html-viewer',        name:'HTML Viewer',         icon:'🌐', cat:'dev' },
@@ -282,6 +283,30 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div id="cp-hex" style="padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.75rem;color:var(--green);margin-bottom:8px;">HEX: #39ff14</div>' +
     '<div id="cp-rgb" style="padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.75rem;color:var(--text);margin-bottom:8px;">RGB: 57, 255, 20</div>' +
     '<div id="cp-hsl" style="padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.75rem;color:var(--text);">HSL: 111, 100%, 54%</div></div></div>',
+
+  'color-converter': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+    '<div>' +
+    '<div id="cc-preview" style="width:100%;aspect-ratio:1;border:2px solid var(--green-border);border-radius:8px;background:#39ff14;margin-bottom:16px;"></div>' +
+    '<div style="display:grid;gap:10px;">' +
+    '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HEX</label>' +
+    '<input id="cc-hex" value="#39ff14" oninput="window.updateFromHEX(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">RGB</label>' +
+    '<input id="cc-rgb" value="57, 255, 20" oninput="window.updateFromRGB(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HSL</label>' +
+    '<input id="cc-hsl" value="111, 100%, 54%" oninput="window.updateFromHSL(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HSV</label>' +
+    '<input id="cc-hsv" value="111, 100%, 100%" oninput="window.updateFromHSV(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">CMYK</label>' +
+    '<input id="cc-cmyk" value="78%, 0%, 92%, 0%" oninput="window.updateFromCMYK(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div></div></div>' +
+    '<div style="font-size:0.6rem;color:var(--muted);line-height:1.8;padding:12px;">' +
+    '<div style="margin-bottom:8px;color:var(--green);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;">Color Info</div>' +
+    '<div id="cc-info-name" style="margin-bottom:4px;">Name: <span id="cc-name">Neon Green</span></div>' +
+    '<div id="cc-info-hex"></div>' +
+    '<div id="cc-info-rgb"></div>' +
+    '<div id="cc-info-hsl"></div>' +
+    '<div id="cc-info-hsv"></div>' +
+    '<div id="cc-info-cmyk"></div>' +
+    '<div id="cc-info-w3"></div></div></div>',
 
   'lorem-ipsum': '<div style="margin-bottom:16px;">' +
     '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">' +
@@ -1695,6 +1720,193 @@ window.updateColorInfo = function(hex){
     }
   }
   document.getElementById('cp-hsl').textContent = 'HSL: ' + Math.round(h*360) + ', ' + Math.round(s*100) + '%, ' + Math.round(l*100) + '%';
+};
+
+/* ─── COLOR CONVERTER ─── */
+var _ccUpdating = false;
+
+function ccHex(r, g, b){
+  return '#' + [r,g,b].map(function(v){ return ('0' + Math.round(v).toString(16)).slice(-2); }).join('');
+}
+
+function ccRgbToHsl(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b);
+  var h, s, l = (max+min)/2;
+  if(max === min){ h = s = 0; }
+  else {
+    var d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch(max){
+      case r: h = ((g-b)/d + (g<b?6:0)) / 6; break;
+      case g: h = ((b-r)/d + 2) / 6; break;
+      case b: h = ((r-g)/d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h*360), Math.round(s*100), Math.round(l*100)];
+}
+
+function ccHslToRgb(h, s, l){
+  h /= 360; s /= 100; l /= 100;
+  var r, g, b;
+  if(s === 0){ r = g = b = l; }
+  else {
+    function hue2rgb(p, q, t){
+      if(t < 0) t += 1;
+      if(t > 1) t -= 1;
+      if(t < 1/6) return p + (q-p)*6*t;
+      if(t < 1/2) return q;
+      if(t < 2/3) return p + (q-p)*(2/3 - t)*6;
+      return p;
+    }
+    var q = l < 0.5 ? l*(1+s) : l + s - l*s;
+    var p = 2*l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
+}
+
+function ccRgbToHsv(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b);
+  var h, s, v = max;
+  var d = max - min;
+  s = max === 0 ? 0 : d / max;
+  if(max === min){ h = 0; }
+  else {
+    switch(max){
+      case r: h = ((g-b)/d + (g<b?6:0)) / 6; break;
+      case g: h = ((b-r)/d + 2) / 6; break;
+      case b: h = ((r-g)/d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h*360), Math.round(s*100), Math.round(v*100)];
+}
+
+function ccHsvToRgb(h, s, v){
+  h /= 360; s /= 100; v /= 100;
+  var i = Math.floor(h*6);
+  var f = h*6 - i;
+  var p = v*(1 - s);
+  var q = v*(1 - f*s);
+  var t = v*(1 - (1-f)*s);
+  var r, g, b;
+  switch(i % 6){
+    case 0: r=v; g=t; b=p; break;
+    case 1: r=q; g=v; b=p; break;
+    case 2: r=p; g=v; b=t; break;
+    case 3: r=p; g=q; b=v; break;
+    case 4: r=t; g=p; b=v; break;
+    case 5: r=v; g=p; b=q; break;
+  }
+  return [Math.round(r*255), Math.round(g*255), Math.round(b*255)];
+}
+
+function ccRgbToCmyk(r, g, b){
+  var c = 1 - r/255, m = 1 - g/255, y = 1 - b/255, k = Math.min(c, m, y);
+  if(k === 1) return [0,0,0,100];
+  c = (c - k) / (1 - k) * 100;
+  m = (m - k) / (1 - k) * 100;
+  y = (y - k) / (1 - k) * 100;
+  k *= 100;
+  return [Math.round(c), Math.round(m), Math.round(y), Math.round(k)];
+}
+
+function ccCmykToRgb(c, m, y, k){
+  c /= 100; m /= 100; y /= 100; k /= 100;
+  var r = 255 * (1 - c) * (1 - k);
+  var g = 255 * (1 - m) * (1 - k);
+  var b = 255 * (1 - y) * (1 - k);
+  return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+var _ccNames = {
+  '000000':'Black','ffffff':'White','ff0000':'Red','00ff00':'Lime','0000ff':'Blue',
+  'ffff00':'Yellow','00ffff':'Cyan','ff00ff':'Magenta','c0c0c0':'Silver','808080':'Gray',
+  '800000':'Maroon','808000':'Olive','008000':'Green','800080':'Purple','008080':'Teal',
+  '000080':'Navy','ffa500':'Orange','ffc0cb':'Pink','a52a2a':'Brown','8a2be2':'BlueViolet',
+  'deb887':'Burlywood','5f9ea0':'CadetBlue','7fff00':'Chartreuse','d2691e':'Chocolate',
+  'ff7f50':'Coral','6495ed':'CornflowerBlue','dc143c':'Crimson','00bfff':'DeepSkyBlue',
+  'ff1493':'DeepPink','1e90ff':'DodgerBlue','b22222':'FireBrick','228b22':'ForestGreen',
+  'ffd700':'Gold','adff2f':'GreenYellow','4b0082':'Indigo','f0e68c':'Khaki',
+  '00ff00':'LimeGreen','faf0e6':'Linen','ff00ff':'Magenta','fdee00':'Mango',
+  'ffe4e1':'MistyRose','ffe4b5':'Moccasin','ffdead':'NavajoWhite','fdf5e6':'OldLace',
+  '6b8e23':'OliveDrab','ff4500':'OrangeRed','da70d6':'Orchid','eee8aa':'PaleGoldenrod',
+  '98fb98':'PaleGreen','afeeee':'PaleTurquoise','db7093':'PaleVioletRed','ffefd5':'PapayaWhip',
+  'ffdab9':'PeachPuff','cd853f':'Peru','ffc0cb':'Pink','dda0dd':'Plum',
+  'b0e0e6':'PowderBlue','bc8f8f':'RosyBrown','4169e1':'RoyalBlue','8b4513':'SaddleBrown',
+  'fa8072':'Salmon','f4a460':'SandyBrown','2e8b57':'SeaGreen','fff5ee':'SeaShell',
+  'a0522d':'Sienna','87ceeb':'SkyBlue','6a5acd':'SlateBlue','708090':'SlateGray',
+  'fffafa':'Snow','00ff7f':'SpringGreen','4682b4':'SteelBlue','d2b48c':'Tan',
+  'd8bfd8':'Thistle','ff6347':'Tomato','40e0d0':'Turquoise','ee82ee':'Violet',
+  '39ff14':'Neon Green','f5f5dc':'Beige','ffe4c4':'Bisque','8a2be2':'BlueViolet'
+};
+
+function ccSetAll(r, g, b){
+  if(_ccUpdating) return;
+  _ccUpdating = true;
+  r = Math.max(0, Math.min(255, Math.round(r)));
+  g = Math.max(0, Math.min(255, Math.round(g)));
+  b = Math.max(0, Math.min(255, Math.round(b)));
+  var hex = ccHex(r, g, b);
+  var hsl = ccRgbToHsl(r, g, b);
+  var hsv = ccRgbToHsv(r, g, b);
+  var cmyk = ccRgbToCmyk(r, g, b);
+  document.getElementById('cc-hex').value = hex;
+  document.getElementById('cc-rgb').value = r + ', ' + g + ', ' + b;
+  document.getElementById('cc-hsl').value = hsl[0] + ', ' + hsl[1] + '%, ' + hsl[2] + '%';
+  document.getElementById('cc-hsv').value = hsv[0] + ', ' + hsv[1] + '%, ' + hsv[2] + '%';
+  document.getElementById('cc-cmyk').value = cmyk[0] + '%, ' + cmyk[1] + '%, ' + cmyk[2] + '%, ' + cmyk[3] + '%';
+  document.getElementById('cc-preview').style.background = hex;
+  var name = _ccNames[hex.replace('#','').toLowerCase()] || 'Unknown';
+  document.getElementById('cc-name').textContent = name;
+  document.getElementById('cc-info-hex').textContent = 'HEX: ' + hex;
+  document.getElementById('cc-info-rgb').textContent = 'RGB: ' + r + ', ' + g + ', ' + b;
+  document.getElementById('cc-info-hsl').textContent = 'HSL: ' + hsl.join(', ').replace(/,/g, '°,') + '°';
+  document.getElementById('cc-info-hsv').textContent = 'HSV: ' + hsv.join(', ').replace(/,/g, '°,') + '°';
+  document.getElementById('cc-info-cmyk').textContent = 'CMYK: ' + cmyk.join('%, ').replace(/%$/,'') + '%';
+  document.getElementById('cc-info-w3').innerHTML = '<a href="https://www.w3schools.com/colors/colors_converter.asp?hex=' + hex.replace('#','') + '" target="_blank" style="color:var(--green);text-decoration:underline;">Open in W3Schools →</a>';
+  _ccUpdating = false;
+}
+
+window.updateFromHEX = function(v){
+  v = v.trim();
+  if(!/^#?[0-9a-f]{6}$/i.test(v)) return;
+  if(v[0] !== '#') v = '#' + v;
+  var r = parseInt(v.slice(1,3), 16);
+  var g = parseInt(v.slice(3,5), 16);
+  var b = parseInt(v.slice(5,7), 16);
+  ccSetAll(r, g, b);
+};
+
+window.updateFromRGB = function(v){
+  var parts = v.split(',').map(function(s){ return parseInt(s.trim()); });
+  if(parts.length !== 3 || parts.some(isNaN)) return;
+  ccSetAll(parts[0], parts[1], parts[2]);
+};
+
+window.updateFromHSL = function(v){
+  var parts = v.split(',').map(function(s){ return parseFloat(s.trim()); });
+  if(parts.length !== 3) return;
+  var h = parts[0], s = parts[1], l = parts[2];
+  var rgb = ccHslToRgb(h, s, l);
+  ccSetAll(rgb[0], rgb[1], rgb[2]);
+};
+
+window.updateFromHSV = function(v){
+  var parts = v.split(',').map(function(s){ return parseFloat(s.trim()); });
+  if(parts.length !== 3) return;
+  var rgb = ccHsvToRgb(parts[0], parts[1], parts[2]);
+  ccSetAll(rgb[0], rgb[1], rgb[2]);
+};
+
+window.updateFromCMYK = function(v){
+  var parts = v.split(',').map(function(s){ return parseFloat(s.trim()); });
+  if(parts.length !== 4) return;
+  var rgb = ccCmykToRgb(parts[0], parts[1], parts[2], parts[3]);
+  ccSetAll(rgb[0], rgb[1], rgb[2]);
 };
 
 /* ─── LOREM IPSUM ─── */
