@@ -21,6 +21,7 @@ const TOOLS = [
   { id:'brightness-adjuster',name:'Brightness',          icon:'☀️', cat:'image' },
   { id:'contrast-adjuster',  name:'Contrast',            icon:'🌓', cat:'image' },
   { id:'grayscale-filter',   name:'Grayscale',           icon:'⚫', cat:'image' },
+  { id:'remove-bg',          name:'Remove Background',   icon:'✨', cat:'image' },
   { id:'base64-encode',      name:'Base64 Encode/Decode',icon:'🔡', cat:'dev' },
   { id:'md5-generator',      name:'MD5 Generator',       icon:'🔏', cat:'dev' },
   { id:'uuid-generator',     name:'UUID Generator',      icon:'🆔', cat:'dev' },
@@ -159,6 +160,55 @@ const TOOL_PLACEHOLDER_BODIES = {
   'grayscale-filter': imgToolUI('img-gray','convert it to grayscale','image/*') +
     '<button onclick="window.applyGrayscale()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Convert to Grayscale & Download</button>',
 
+  'remove-bg': '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload an image to remove its background automatically — all processing happens locally in your browser.</div>' +
+    '<div id="rbg-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;transition:var(--transition);" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleRemoveBgUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'rbg-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">🖼️</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop an image here or click to browse</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">Supports JPG, JPEG, PNG, WEBP</div>' +
+    '<input id="rbg-input" type="file" accept=".jpg,.jpeg,.png,.webp" style="display:none" onchange="window.handleRemoveBgUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="rbg-progress" style="display:none;text-align:center;padding:24px;">' +
+    '<div class="loader-ring" style="margin:0 auto 16px;"></div>' +
+    '<div style="font-size:0.65rem;color:var(--green);letter-spacing:0.1em;">Removing background<span id="rbg-progress-text"></span></div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">Loading AI model (~40MB) on first run may take a moment</div>' +
+    '</div>' +
+    '<div id="rbg-result" style="display:none;">' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Original</div>' +
+    '<div id="rbg-original-preview" style="background:var(--bg);border:1px solid var(--green-border);padding:8px;text-align:center;"></div></div>' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Processed</div>' +
+    '<div id="rbg-processed-preview" style="background:var(--bg);border:1px solid var(--green-border);padding:8px;text-align:center;"></div></div>' +
+    '</div>' +
+    '<div style="text-align:center;margin-top:16px;">' +
+    '<button onclick="window.downloadRemoveBg()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;transition:var(--transition);">Download Transparent PNG</button>' +
+    '</div>' +
+    '</div>' +
+    '<div id="rbg-error" style="display:none;margin-top:12px;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;"></div>' +
+    '<div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--green-border);">' +
+    '<div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:16px;">Why Use This Tool?</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">' +
+    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
+    '<div style="font-size:1.5rem;margin-bottom:8px;">🔒</div>' +
+    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">No Upload to Server</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">Everything stays on your device</div></div>' +
+    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
+    '<div style="font-size:1.5rem;margin-bottom:8px;">🛡️</div>' +
+    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Privacy Friendly</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">No data leaves your browser</div></div>' +
+    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
+    '<div style="font-size:1.5rem;margin-bottom:8px;">💰</div>' +
+    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Free to Use</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">No API keys or payments required</div></div>' +
+    '<div style="background:var(--surface);border:1px solid var(--green-border);padding:16px;text-align:center;">' +
+    '<div style="font-size:1.5rem;margin-bottom:8px;">⚡</div>' +
+    '<div style="font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text);">Fast AI Processing</div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:4px;">Powered by @imgly/background-removal</div></div>' +
+    '</div></div>',
+
   'base64-encode': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
     '<div><div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Input</div>' +
     '<textarea id="b64-input" placeholder="Enter text..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:120px;resize:vertical;outline:none;"></textarea>' +
@@ -256,6 +306,25 @@ function openTool(toolId){
     '<h3 class="tool-detail-title">' + tool.icon + ' ' + tool.name + '</h3>' +
     '<div class="tool-detail-body">' + body + '</div>';
   if(window.location.hash !== '#tools-' + toolId) window.location.hash = 'tools-' + toolId;
+  updateToolMeta(tool);
+}
+
+function updateToolMeta(tool){
+  var title = tool.name + ' — Mahir Velizade Tools';
+  document.title = title;
+  var og = document.querySelector('meta[property="og:title"]');
+  if(og) og.setAttribute('content', title);
+  var desc = '';
+  if(tool.id === 'remove-bg') desc = 'Remove image backgrounds for free in your browser. AI-powered, no uploads, privacy-first. Supports JPG, PNG, WEBP.';
+  else if(tool.id === 'image-to-pdf') desc = 'Convert images to PDF files instantly in your browser. Free, no upload required.';
+  else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
+  else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
+  var md = document.querySelector('meta[name="description"]');
+  if(md) md.setAttribute('content', desc);
+  var od = document.querySelector('meta[property="og:description"]');
+  if(od) od.setAttribute('content', desc);
+  var td = document.querySelector('meta[name="twitter:description"]');
+  if(td) td.setAttribute('content', desc);
 }
 
 window.closeTool = function(){
@@ -264,6 +333,17 @@ window.closeTool = function(){
   if(detail) detail.classList.remove('active');
   if(grid) grid.style.display = '';
   window.location.hash = '';
+  _rbgOriginalUrl = null;
+  _rbgResultBlob = null;
+  document.title = 'Mahir Velizade — Designer';
+  var og = document.querySelector('meta[property="og:title"]');
+  if(og) og.setAttribute('content','Mahir Velizade — Designer &amp; Tools');
+  var md = document.querySelector('meta[name="description"]');
+  if(md) md.setAttribute('content','Mahir Velizade — UX/UI Designer &amp; Front-End Developer. Browser-based image tools including AI background removal, all processing locally.');
+  var od = document.querySelector('meta[property="og:description"]');
+  if(od) od.setAttribute('content','Free browser-based image tools: Remove Background, Image to PDF, QR Generator &amp; more. All processing stays on your device.');
+  var td = document.querySelector('meta[name="twitter:description"]');
+  if(td) td.setAttribute('content','Free browser-based image tools with AI background removal. Privacy-first, no upload required.');
 };
 
 var _imgCache = {};
@@ -499,6 +579,63 @@ window.applyGrayscale = function(){
       data[i] = data[i+1] = data[i+2] = g;
     }
   });
+};
+
+/* ─── REMOVE BACKGROUND (using @imgly/background-removal via CDN) ─── */
+var _rbgOriginalUrl = null;
+var _rbgResultBlob = null;
+
+window.handleRemoveBgUpload = function(file){
+  if(!file) return;
+  var valid = ['image/jpeg','image/png','image/webp'];
+  if(valid.indexOf(file.type) === -1){
+    rbgError('Unsupported format. Please use JPG, PNG, or WEBP.');
+    return;
+  }
+  document.getElementById('rbg-upload-zone').style.display = 'none';
+  document.getElementById('rbg-error').style.display = 'none';
+  document.getElementById('rbg-progress').style.display = 'block';
+  document.getElementById('rbg-result').style.display = 'none';
+  var reader = new FileReader();
+  reader.onload = function(e){
+    _rbgOriginalUrl = e.target.result;
+    document.getElementById('rbg-original-preview').innerHTML = '<img src="'+_rbgOriginalUrl+'" style="max-width:100%;max-height:250px;">';
+    processRemoveBg(_rbgOriginalUrl);
+  };
+  reader.readAsDataURL(file);
+};
+
+async function processRemoveBg(src){
+  try {
+    var mod = await import('https://esm.sh/@imgly/background-removal@1.7.0');
+    var fn = mod.default || mod.removeBackground || mod;
+    var blob = await fn(src, {
+      model: 'isnet_quint8',
+      output: { format: 'image/png' }
+    });
+    _rbgResultBlob = blob;
+    var url = URL.createObjectURL(blob);
+    document.getElementById('rbg-progress').style.display = 'none';
+    document.getElementById('rbg-result').style.display = 'block';
+    document.getElementById('rbg-processed-preview').innerHTML = '<img src="'+url+'" style="max-width:100%;max-height:250px;">';
+  } catch(err) {
+    rbgError('Processing failed: ' + (err.message || 'Unknown error'));
+  }
+}
+
+function rbgError(msg){
+  var el = document.getElementById('rbg-error');
+  if(el){ el.textContent = msg; el.style.display = 'block'; }
+  var p = document.getElementById('rbg-progress');
+  if(p) p.style.display = 'none';
+}
+
+window.downloadRemoveBg = function(){
+  if(!_rbgResultBlob) return;
+  var link = document.createElement('a');
+  link.download = 'removed-background.png';
+  link.href = URL.createObjectURL(_rbgResultBlob);
+  link.click();
 };
 
 /* ─── WORD COUNTER ─── */
