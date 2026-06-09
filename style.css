@@ -571,6 +571,30 @@ nav.scrolled {
     font-size: 0.75rem;
     pointer-events: none;
 }
+.tools-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.tools-tab {
+    background: var(--surface);
+    border: 1px solid var(--green-border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.57rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    cursor: none;
+    transition: all var(--transition);
+}
+.tools-tab:hover { color: var(--green); border-color: var(--green); }
+.tools-tab.active {
+    background: var(--green);
+    color: #000;
+    border-color: var(--green);
+}
 .tools-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);

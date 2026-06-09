@@ -2,16 +2,16 @@
 'use strict';
 
 const TOOLS = [
-  { id:'image-to-pdf',       name:'Image to PDF',        icon:'📄', cat:'core' },
-  { id:'image-compressor',   name:'Image Compressor',    icon:'🗜️', cat:'core' },
-  { id:'image-resize',       name:'Image Resize',        icon:'📐', cat:'core' },
-  { id:'word-counter',       name:'Word Counter',        icon:'🔢', cat:'core' },
-  { id:'password-generator', name:'Password Generator',  icon:'🔑', cat:'core' },
-  { id:'qr-code-generator',  name:'QR Code Generator',   icon:'📱', cat:'core' },
-  { id:'json-formatter',     name:'JSON Formatter',      icon:'📋', cat:'core' },
-  { id:'url-encoder',        name:'URL Encoder',         icon:'🔗', cat:'core' },
-  { id:'sha256-generator',   name:'SHA256 Generator',    icon:'🔐', cat:'core' },
-  { id:'text-case-converter',name:'Text Case Converter', icon:'✏️', cat:'core' },
+  { id:'image-to-pdf',       name:'Image to PDF',        icon:'📄', cat:'pdf' },
+  { id:'pdf-compressor',     name:'PDF Compressor',      icon:'📦', cat:'pdf' },
+  { id:'merge-pdf',          name:'Merge PDF',           icon:'📑', cat:'pdf' },
+  { id:'split-pdf',          name:'Split PDF',           icon:'✂️', cat:'pdf' },
+  { id:'create-pdf',         name:'Create PDF',          icon:'📝', cat:'pdf' },
+  { id:'pdf-to-jpg',         name:'PDF to JPG',          icon:'🖼️', cat:'pdf' },
+  { id:'unlock-pdf',         name:'Unlock PDF',          icon:'🔓', cat:'pdf' },
+  { id:'protect-pdf',        name:'Protect PDF',         icon:'🔒', cat:'pdf' },
+  { id:'extract-text',       name:'Extract Text',        icon:'📃', cat:'pdf' },
+
   { id:'jpg-to-png',         name:'JPG to PNG',          icon:'🖼️', cat:'image' },
   { id:'png-to-jpg',         name:'PNG to JPG',          icon:'🖼️', cat:'image' },
   { id:'webp-converter',     name:'WebP Converter',      icon:'🌐', cat:'image' },
@@ -22,7 +22,24 @@ const TOOLS = [
   { id:'contrast-adjuster',  name:'Contrast',            icon:'🌓', cat:'image' },
   { id:'grayscale-filter',   name:'Grayscale',           icon:'⚫', cat:'image' },
   { id:'remove-bg',          name:'Remove Background',   icon:'✨', cat:'image' },
-  { id:'pdf-compressor',     name:'PDF Compressor',      icon:'📦', cat:'core' },
+  { id:'image-compressor',   name:'Image Compressor',    icon:'🗜️', cat:'image' },
+  { id:'image-resize',       name:'Image Resize',        icon:'📐', cat:'image' },
+  { id:'add-border',         name:'Add Border',          icon:'🖼️', cat:'image' },
+  { id:'round-image',        name:'Make Round',          icon:'⭕', cat:'image' },
+  { id:'image-splitter',     name:'Image Splitter',      icon:'🔲', cat:'image' },
+  { id:'pixelate',           name:'Pixelate',            icon:'🔳', cat:'image' },
+  { id:'combine-images',     name:'Combine Images',      icon:'🔀', cat:'image' },
+  { id:'add-text',           name:'Add Text',            icon:'📝', cat:'image' },
+  { id:'blur-bg',            name:'Blur Background',     icon:'🌫️', cat:'image' },
+  { id:'profile-photo',      name:'Profile Photo',       icon:'👤', cat:'image' },
+
+  { id:'word-counter',       name:'Word Counter',        icon:'🔢', cat:'dev' },
+  { id:'password-generator', name:'Password Generator',  icon:'🔑', cat:'dev' },
+  { id:'qr-code-generator',  name:'QR Code Generator',   icon:'📱', cat:'dev' },
+  { id:'json-formatter',     name:'JSON Formatter',      icon:'📋', cat:'dev' },
+  { id:'url-encoder',        name:'URL Encoder',         icon:'🔗', cat:'dev' },
+  { id:'sha256-generator',   name:'SHA256 Generator',    icon:'🔐', cat:'dev' },
+  { id:'text-case-converter',name:'Text Case Converter', icon:'✏️', cat:'dev' },
   { id:'base64-encode',      name:'Base64 Encode/Decode',icon:'🔡', cat:'dev' },
   { id:'md5-generator',      name:'MD5 Generator',       icon:'🔏', cat:'dev' },
   { id:'uuid-generator',     name:'UUID Generator',      icon:'🆔', cat:'dev' },
@@ -30,9 +47,16 @@ const TOOLS = [
   { id:'lorem-ipsum',        name:'Lorem Ipsum',         icon:'📝', cat:'dev' },
   { id:'text-cleaner',       name:'Text Cleaner',        icon:'🧹', cat:'dev' },
   { id:'html-viewer',        name:'HTML Viewer',         icon:'🌐', cat:'dev' },
+  { id:'epoch-converter',    name:'Epoch Converter',     icon:'⏰', cat:'dev' },
+
+  { id:'csv-json',           name:'CSV ↔ JSON',          icon:'📊', cat:'converter' },
+  { id:'xml-json',           name:'XML ↔ JSON',          icon:'🔀', cat:'converter' },
+  { id:'split-csv',          name:'Split CSV',           icon:'✂️', cat:'converter' },
+  { id:'create-zip',         name:'Create ZIP',          icon:'🗜️', cat:'converter' },
 ];
 
-const CATEGORY_LABELS = { core:'Core', image:'Image', dev:'Dev' };
+const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter' };
+const CATEGORY_ORDER = ['pdf', 'image', 'dev', 'converter'];
 
 function imgUploadHTML(id, cacheKey, accept){
   return '<div style="text-align:center;padding:40px;border:2px dashed var(--green-border);border-radius:8px;cursor:none;" onclick="document.getElementById(\''+id+'\').click()">' +
@@ -291,11 +315,286 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">' +
     '<button onclick="window.clearHTML()" style="background:var(--surface);color:var(--muted);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:6px 12px;cursor:none;letter-spacing:0.1em;">Clear</button>' +
     '<span style="font-size:0.55rem;color:var(--muted);align-self:center;">Tip: &lt;script&gt; tags won\'t execute in preview for security.</span></div>',
+
+  /* ─── NEW PDF TOOLS ─── */
+  'merge-pdf': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload multiple PDFs and merge them into a single file.</div>' +
+    '<div id="merge-pdf-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleMergePdfUpload(event.dataTransfer.files)" ' +
+    'onclick="document.getElementById(\'merge-pdf-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📑</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop PDF files here or click to browse</div>' +
+    '<input id="merge-pdf-input" type="file" accept=".pdf,application/pdf" multiple style="display:none" onchange="window.handleMergePdfUpload(this.files)">' +
+    '</div>' +
+    '<div id="merge-pdf-list" style="margin-top:12px;"></div>' +
+    '<div id="merge-pdf-btn" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.mergePdfFiles()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Merge PDFs</button></div>' +
+    '<div id="merge-pdf-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Merging...</div>' +
+    '<div id="merge-pdf-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>' +
+    '<div id="merge-pdf-download" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.downloadMergedPdf()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download Merged PDF</button></div>',
+
+  'split-pdf': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload a PDF to split it into individual pages.</div>' +
+    '<div id="split-pdf-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleSplitPdfUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'split-pdf-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📄</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<input id="split-pdf-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handleSplitPdfUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="split-pdf-info" style="margin-top:12px;font-size:0.65rem;color:var(--muted);display:none;"></div>' +
+    '<div id="split-pdf-btn" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.splitPdfFile()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Split into Pages</button></div>' +
+    '<div id="split-pdf-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Splitting...</div>' +
+    '<div id="split-pdf-result" style="margin-top:16px;display:none;"></div>' +
+    '<div id="split-pdf-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  'create-pdf': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Enter text below and download as a PDF document.</div>' +
+    '<textarea id="create-pdf-text" placeholder="Type or paste your text here..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:16px;min-height:200px;resize:vertical;outline:none;line-height:1.7;"></textarea>' +
+    '<div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Title: <input id="create-pdf-title" type="text" value="Document" style="width:120px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:6px 10px;outline:none;"></label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Author: <input id="create-pdf-author" type="text" value="" style="width:120px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:6px 10px;outline:none;"></label></div>' +
+    '<div style="text-align:center;margin-top:16px;">' +
+    '<button onclick="window.createPdfFromText()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Create PDF & Download</button></div>' +
+    '<div id="create-pdf-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  'pdf-to-jpg': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload a PDF and export pages as JPG images.</div>' +
+    '<div id="ptj-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handlePtjUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'ptj-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📄</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<input id="ptj-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handlePtjUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="ptj-info" style="margin-top:12px;font-size:0.65rem;color:var(--muted);display:none;"></div>' +
+    '<div id="ptj-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Rendering pages...</div>' +
+    '<div id="ptj-result" style="margin-top:16px;display:none;"></div>' +
+    '<div id="ptj-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>' +
+    '<div id="ptj-download-all" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.downloadAllPtj()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download All as ZIP</button></div>',
+
+  'unlock-pdf': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Remove password protection from a PDF. You must know the password.</div>' +
+    '<div id="unlock-pdf-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleUnlockPdfUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'unlock-pdf-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">🔒</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<input id="unlock-pdf-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handleUnlockPdfUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="unlock-pdf-info" style="display:none;margin-top:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--green-border);font-size:0.65rem;color:var(--muted);"></div>' +
+    '<div id="unlock-pdf-pw" style="display:none;margin-top:12px;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Password: <input id="unlock-pdf-pass" type="password" style="width:200px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:8px 12px;outline:none;"></label>' +
+    '<button onclick="window.unlockPdfFile()" style="margin-left:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Unlock</button></div>' +
+    '<div id="unlock-pdf-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Processing...</div>' +
+    '<div id="unlock-pdf-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>' +
+    '<div id="unlock-pdf-download" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.downloadUnlockedPdf()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download Unlocked PDF</button></div>',
+
+  'protect-pdf': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Add password protection to a PDF file.</div>' +
+    '<div id="protect-pdf-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleProtectPdfUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'protect-pdf-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">🔓</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<input id="protect-pdf-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handleProtectPdfUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="protect-pdf-info" style="display:none;margin-top:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--green-border);font-size:0.65rem;color:var(--muted);"></div>' +
+    '<div id="protect-pdf-pw" style="display:none;margin-top:12px;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Password: <input id="protect-pdf-pass" type="text" style="width:200px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:8px 12px;outline:none;" placeholder="Enter password"></label>' +
+    '<button onclick="window.protectPdfFile()" style="margin-left:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Protect</button></div>' +
+    '<div id="protect-pdf-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Processing...</div>' +
+    '<div id="protect-pdf-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>' +
+    '<div id="protect-pdf-download" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.downloadProtectedPdf()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download Protected PDF</button></div>',
+
+  'extract-text': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload a PDF to extract all text content from it.</div>' +
+    '<div id="et-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleEtUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'et-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📄</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a PDF here or click to browse</div>' +
+    '<input id="et-input" type="file" accept=".pdf,application/pdf" style="display:none" onchange="window.handleEtUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="et-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Extracting text...</div>' +
+    '<div id="et-result" style="display:none;margin-top:16px;">' +
+    '<textarea id="et-text-output" readonly style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:200px;resize:vertical;outline:none;line-height:1.5;"></textarea>' +
+    '<button onclick="window.copyEtText()" style="margin-top:8px;background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Copy to Clipboard</button></div>' +
+    '<div id="et-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  /* ─── NEW IMAGE TOOLS ─── */
+  'add-border': imgUploadHTML('ab-upload','ab','image/*') +
+    '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Width: <input type="number" id="ab-width" value="10" min="1" max="100" style="width:60px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Color: <input id="ab-color" type="color" value="#39ff14" style="width:40px;height:40px;border:1px solid var(--green-border);background:var(--bg);cursor:none;padding:2px;vertical-align:middle;"></label></div>' +
+    '<button onclick="window.addBorderToImage()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Add Border & Download</button>',
+
+  'round-image': imgUploadHTML('ri-upload','ri','image/*') +
+    '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Border: <input type="number" id="ri-border" value="0" min="0" max="50" style="width:60px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Size: <input type="number" id="ri-size" value="400" min="50" max="2000" style="width:70px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label></div>' +
+    '<button onclick="window.makeRoundImage()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Make Round & Download</button>',
+
+  'image-splitter': imgUploadHTML('is-upload','is','image/*') +
+    '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Rows: <input type="number" id="is-rows" value="2" min="1" max="10" style="width:50px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;"></label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Cols: <input type="number" id="is-cols" value="2" min="1" max="10" style="width:50px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;"></label></div>' +
+    '<button onclick="window.splitImageToPieces()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Split into Grid</button>' +
+    '<div id="is-result" style="margin-top:12px;display:grid;gap:8px;"></div>',
+
+  'pixelate': imgUploadHTML('px-upload','px','image/*') +
+    '<div style="margin-top:12px;"><label style="font-size:0.6rem;color:var(--muted);">Block Size: <span id="px-size-label">8</span>px</label>' +
+    '<input type="range" id="px-size" min="2" max="40" value="8" oninput="document.getElementById(\'px-size-label\').textContent=this.value" style="width:100%;margin-top:4px;"></div>' +
+    '<button onclick="window.pixelateImage()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Pixelate & Download</button>',
+
+  'combine-images': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload two images to combine them side by side.</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+    '<div>' + imgUploadHTML('ci-upload1','ci1','image/*') + '</div>' +
+    '<div>' + imgUploadHTML('ci-upload2','ci2','image/*') + '</div></div>' +
+    '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Direction: <select id="ci-dir" style="background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:6px 10px;">' +
+    '<option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Gap: <input type="number" id="ci-gap" value="10" min="0" max="100" style="width:50px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label></div>' +
+    '<button onclick="window.combineTwoImages()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Combine & Download</button>',
+
+  'add-text': imgUploadHTML('at-upload','at','image/*') +
+    '<div style="margin-top:12px;">' +
+    '<input id="at-text" type="text" placeholder="Enter text to add..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:10px 14px;outline:none;">' +
+    '<div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Font Size: <input type="number" id="at-size" value="36" min="8" max="200" style="width:50px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Color: <input id="at-color" type="color" value="#ffffff" style="width:40px;height:40px;border:1px solid var(--green-border);background:var(--bg);cursor:none;padding:2px;"></label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Position: <select id="at-pos" style="background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:4px 8px;">' +
+    '<option value="top">Top</option><option value="center" selected>Center</option><option value="bottom">Bottom</option></select></label></div></div>' +
+    '<button onclick="window.addTextToImage()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Add Text & Download</button>',
+
+  'blur-bg': imgUploadHTML('bb-upload','bb','image/*') +
+    '<div style="margin-top:12px;"><label style="font-size:0.6rem;color:var(--muted);">Blur Amount: <span id="bb-amt-label">10</span></label>' +
+    '<input type="range" id="bb-amt" min="1" max="30" value="10" oninput="document.getElementById(\'bb-amt-label\').textContent=this.value" style="width:100%;margin-top:4px;"></div>' +
+    '<button onclick="window.blurBackgroundImage()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Blur Background & Download</button>' +
+    '<div id="bb-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Processing...</div>' +
+    '<div id="bb-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  'profile-photo': imgUploadHTML('pp-upload','pp','image/*') +
+    '<div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Size: <input type="number" id="pp-size" value="400" min="100" max="2000" style="width:70px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Border: <input type="number" id="pp-border" value="3" min="0" max="50" style="width:50px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:4px 8px;outline:none;">px</label>' +
+    '<label style="font-size:0.6rem;color:var(--muted);">BG Color: <input id="pp-bg" type="color" value="#222222" style="width:40px;height:40px;border:1px solid var(--green-border);background:var(--bg);cursor:none;padding:2px;"></label></div>' +
+    '<button onclick="window.makeProfilePhoto()" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Create & Download</button>',
+
+  /* ─── NEW DEV / CONVERTER TOOLS ─── */
+  'epoch-converter': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Timestamp → Date</div>' +
+    '<input id="ec-ts" type="number" placeholder="Enter Unix timestamp..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:10px 14px;outline:none;">' +
+    '<button onclick="window.epochToDate()" style="margin-top:8px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Convert to Date</button>' +
+    '<div id="ec-ts-result" style="margin-top:8px;padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.7rem;color:var(--green);min-height:20px;"></div></div>' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Date → Timestamp</div>' +
+    '<input id="ec-date" type="datetime-local" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:10px 14px;outline:none;color-scheme:dark;">' +
+    '<button onclick="window.dateToEpoch()" style="margin-top:8px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Convert to Timestamp</button>' +
+    '<div id="ec-date-result" style="margin-top:8px;padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.7rem;color:var(--green);min-height:20px;"></div></div></div>' +
+    '<div style="margin-top:12px;display:flex;gap:8px;"><button onclick="window.copyEpochResult()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Copy Result</button>' +
+    '<button onclick="window.nowEpoch()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Current Time</button></div>',
+
+  'csv-json': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Input</div>' +
+    '<textarea id="cj-input" placeholder="Paste CSV or JSON here..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:200px;resize:vertical;outline:none;"></textarea>' +
+    '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
+    '<button onclick="window.csvToJson()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">CSV → JSON</button>' +
+    '<button onclick="window.jsonToCsv()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">JSON → CSV</button></div></div>' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Output</div>' +
+    '<textarea id="cj-output" readonly style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--green);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:200px;resize:vertical;outline:none;"></textarea></div></div>' +
+    '<div style="display:flex;gap:8px;margin-top:8px;"><button onclick="window.copyCjOutput()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Copy Output</button></div>',
+
+  'xml-json': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Input</div>' +
+    '<textarea id="xj-input" placeholder="Paste XML or JSON here..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:200px;resize:vertical;outline:none;"></textarea>' +
+    '<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">' +
+    '<button onclick="window.xmlToJson()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">XML → JSON</button>' +
+    '<button onclick="window.jsonToXml()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">JSON → XML</button></div></div>' +
+    '<div><div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Output</div>' +
+    '<textarea id="xj-output" readonly style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--green);font-family:var(--mono);font-size:0.7rem;padding:12px;min-height:200px;resize:vertical;outline:none;"></textarea></div></div>' +
+    '<div style="display:flex;gap:8px;margin-top:8px;"><button onclick="window.copyXjOutput()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 16px;cursor:none;letter-spacing:0.1em;">Copy Output</button></div>',
+
+  'split-csv': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Upload a CSV file and split it into multiple smaller files by row count.</div>' +
+    '<div id="sc-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleScUpload(event.dataTransfer.files[0])" ' +
+    'onclick="document.getElementById(\'sc-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📊</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop a CSV here or click to browse</div>' +
+    '<input id="sc-input" type="file" accept=".csv" style="display:none" onchange="window.handleScUpload(this.files[0])">' +
+    '</div>' +
+    '<div id="sc-info" style="display:none;margin-top:12px;font-size:0.65rem;color:var(--muted);"></div>' +
+    '<div id="sc-rows-input" style="display:none;margin-top:12px;">' +
+    '<label style="font-size:0.6rem;color:var(--muted);">Rows per file: <input type="number" id="sc-rows" value="100" min="1" max="100000" style="width:80px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:6px 10px;outline:none;"></label>' +
+    '<button onclick="window.splitCsvFile()" style="margin-left:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Split CSV</button></div>' +
+    '<div id="sc-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Splitting...</div>' +
+    '<div id="sc-result" style="margin-top:16px;display:none;"></div>' +
+    '<div id="sc-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  'create-zip': '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">Select multiple files to bundle them into a ZIP archive.</div>' +
+    '<div id="cz-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;" ' +
+    'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
+    'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
+    'ondrop="event.preventDefault();this.style.borderColor=\'\';this.style.background=\'\';window.handleCzUpload(event.dataTransfer.files)" ' +
+    'onclick="document.getElementById(\'cz-input\').click()">' +
+    '<div style="font-size:2.5rem;margin-bottom:12px;">📦</div>' +
+    '<div style="font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;">Drop files here or click to browse</div>' +
+    '<input id="cz-input" type="file" multiple style="display:none" onchange="window.handleCzUpload(this.files)">' +
+    '</div>' +
+    '<div id="cz-list" style="margin-top:12px;"></div>' +
+    '<div id="cz-btn" style="text-align:center;margin-top:16px;display:none;">' +
+    '<button onclick="window.createZipArchive()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Create ZIP</button></div>' +
+    '<div id="cz-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Creating archive...</div>' +
+    '<div id="cz-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
 };
 
-function buildGrid(){
+var _activeCategory = 'all';
+
+function buildTabs(){
+  var wrapper = document.querySelector('.tools-wrapper');
+  var existing = document.getElementById('tools-tabs');
+  if(existing) existing.remove();
+  var tabs = document.createElement('div');
+  tabs.id = 'tools-tabs';
+  tabs.className = 'tools-tabs';
+  var allBtn = document.createElement('button');
+  allBtn.textContent = 'All';
+  allBtn.className = 'tools-tab active';
+  allBtn.setAttribute('data-cat', 'all');
+  allBtn.addEventListener('click', function(){ filterTools('all'); });
+  tabs.appendChild(allBtn);
+  CATEGORY_ORDER.forEach(function(cat){
+    var btn = document.createElement('button');
+    btn.textContent = CATEGORY_LABELS[cat];
+    btn.className = 'tools-tab';
+    btn.setAttribute('data-cat', cat);
+    btn.addEventListener('click', function(){ filterTools(cat); });
+    tabs.appendChild(btn);
+  });
+  wrapper.insertBefore(tabs, wrapper.firstChild);
+}
+
+function filterTools(cat){
+  _activeCategory = cat;
+  var btns = document.querySelectorAll('.tools-tab');
+  for(var i=0;i<btns.length;i++){
+    btns[i].className = 'tools-tab' + (btns[i].getAttribute('data-cat') === cat ? ' active' : '');
+  }
   var grid = document.getElementById('tools-grid');
+  grid.innerHTML = '';
   TOOLS.forEach(function(t){
+    if(cat !== 'all' && t.cat !== cat) return;
     var card = document.createElement('a');
     card.href = '#tools-' + t.id;
     card.className = 'tool-card';
@@ -309,6 +608,14 @@ function buildGrid(){
     });
     grid.appendChild(card);
   });
+  if(grid.children.length === 0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:0.7rem;">No tools in this category yet.</div>';
+  }
+}
+
+function buildGrid(){
+  buildTabs();
+  filterTools('all');
 }
 
 function openTool(toolId){
@@ -1494,6 +1801,1055 @@ window.addEventListener('hashchange', function(){
   }
   if(hash.startsWith('tools-')) handleHash();
 });
+
+/* ─── NEW PDF TOOL HELPERS ─── */
+var _pdfLibPromise = null;
+function ensurePdfLib(){
+  if(_pdfLibPromise) return _pdfLibPromise;
+  _pdfLibPromise = import('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/+esm');
+  return _pdfLibPromise;
+}
+
+/* ─── MERGE PDF ─── */
+var _mergePdfFiles = [];
+
+window.handleMergePdfUpload = function(files){
+  if(!files || !files.length) return;
+  _mergePdfFiles = [];
+  for(var i=0;i<files.length;i++){
+    if(files[i].type === 'application/pdf' || files[i].name.match(/\.pdf$/i)){
+      _mergePdfFiles.push(files[i]);
+    }
+  }
+  if(_mergePdfFiles.length === 0){
+    document.getElementById('merge-pdf-error').textContent = 'No valid PDF files found.';
+    document.getElementById('merge-pdf-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('merge-pdf-error').style.display = 'none';
+  var list = document.getElementById('merge-pdf-list');
+  list.innerHTML = '<div style="font-size:0.65rem;color:var(--green);">' + _mergePdfFiles.length + ' PDF(s) selected:</div>' +
+    _mergePdfFiles.map(function(f,i){ return '<div style="font-size:0.6rem;color:var(--muted);padding:4px 0;">' + (i+1) + '. ' + f.name + ' (' + formatSize(f.size) + ')</div>'; }).join('');
+  document.getElementById('merge-pdf-btn').style.display = 'block';
+};
+
+window.mergePdfFiles = function(){
+  if(!_mergePdfFiles || _mergePdfFiles.length < 2){
+    document.getElementById('merge-pdf-error').textContent = 'Please upload at least 2 PDF files.';
+    document.getElementById('merge-pdf-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('merge-pdf-progress').style.display = 'block';
+  document.getElementById('merge-pdf-btn').style.display = 'none';
+  document.getElementById('merge-pdf-error').style.display = 'none';
+  ensurePdfLib().then(function(pdfLib){
+    var PDFDocument = pdfLib.PDFDocument;
+    var mergedPdf = PDFDocument.create();
+    var readers = _mergePdfFiles.map(function(f){ return f.arrayBuffer(); });
+    return Promise.all(readers).then(function(buffers){
+      var chain = Promise.resolve();
+      buffers.forEach(function(buf){
+        chain = chain.then(function(){
+          return PDFDocument.load(buf).then(function(doc){
+            var indices = doc.getPageIndices();
+            return mergedPdf.copyPages(doc, indices).then(function(pages){
+              pages.forEach(function(p){ mergedPdf.addPage(p); });
+            });
+          });
+        });
+      });
+      return chain.then(function(){ return mergedPdf.save(); });
+    });
+  }).then(function(pdfBytes){
+    _mergePdfResult = new Blob([pdfBytes], {type:'application/pdf'});
+    document.getElementById('merge-pdf-progress').style.display = 'none';
+    document.getElementById('merge-pdf-download').style.display = 'block';
+  }).catch(function(err){
+    document.getElementById('merge-pdf-progress').style.display = 'none';
+    document.getElementById('merge-pdf-error').textContent = 'Merge failed: ' + err.message;
+    document.getElementById('merge-pdf-error').style.display = 'block';
+  });
+};
+
+var _mergePdfResult = null;
+window.downloadMergedPdf = function(){
+  if(!_mergePdfResult) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(_mergePdfResult);
+  a.download = 'merged.pdf';
+  a.click();
+};
+
+/* ─── SPLIT PDF ─── */
+var _splitPdfFile = null;
+var _splitPdfPages = [];
+
+window.handleSplitPdfUpload = function(file){
+  if(!file) return;
+  _splitPdfFile = file;
+  document.getElementById('split-pdf-info').style.display = 'block';
+  document.getElementById('split-pdf-info').textContent = '📄 ' + file.name + ' (' + formatSize(file.size) + ')';
+  document.getElementById('split-pdf-btn').style.display = 'block';
+  document.getElementById('split-pdf-error').style.display = 'none';
+  document.getElementById('split-pdf-result').style.display = 'none';
+};
+
+window.splitPdfFile = function(){
+  if(!_splitPdfFile) return;
+  document.getElementById('split-pdf-progress').style.display = 'block';
+  document.getElementById('split-pdf-btn').style.display = 'none';
+  document.getElementById('split-pdf-error').style.display = 'none';
+  ensurePdfLib().then(function(pdfLib){
+    return _splitPdfFile.arrayBuffer().then(function(buf){
+      return pdfLib.PDFDocument.load(buf).then(function(doc){
+        _splitPdfPages = [];
+        var indices = doc.getPageIndices();
+        var chain = Promise.resolve();
+        indices.forEach(function(idx){
+          chain = chain.then(function(){
+            var newDoc = pdfLib.PDFDocument.create();
+            return newDoc.copyPages(doc, [idx]).then(function(pages){
+              newDoc.addPage(pages[0]);
+              return newDoc.save();
+            }).then(function(bytes){
+              _splitPdfPages.push(new Blob([bytes], {type:'application/pdf'}));
+            });
+          });
+        });
+        return chain;
+      });
+    });
+  }).then(function(){
+    document.getElementById('split-pdf-progress').style.display = 'none';
+    var result = document.getElementById('split-pdf-result');
+    result.style.display = 'block';
+    var html = '<div style="font-size:0.65rem;color:var(--green);margin-bottom:12px;">Split into ' + _splitPdfPages.length + ' pages:</div>';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    _splitPdfPages.forEach(function(blob,i){
+      html += '<button onclick="window.downloadSplitPage(' + i + ')" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.55rem;padding:6px 12px;cursor:none;letter-spacing:0.1em;">Page ' + (i+1) + '</button>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;"><button onclick="window.downloadAllSplitPages()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download All (' + _splitPdfPages.length + ' files)</button></div>';
+    result.innerHTML = html;
+  }).catch(function(err){
+    document.getElementById('split-pdf-progress').style.display = 'none';
+    document.getElementById('split-pdf-error').textContent = 'Split failed: ' + err.message;
+    document.getElementById('split-pdf-error').style.display = 'block';
+  });
+};
+
+window.downloadSplitPage = function(idx){
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(_splitPdfPages[idx]);
+  a.download = 'page_' + (idx+1) + '.pdf';
+  a.click();
+};
+
+/* ─── CREATE PDF ─── */
+window.createPdfFromText = function(){
+  var text = document.getElementById('create-pdf-text').value;
+  if(!text.trim()){
+    document.getElementById('create-pdf-error').textContent = 'Please enter some text.';
+    document.getElementById('create-pdf-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('create-pdf-error').style.display = 'none';
+  var title = document.getElementById('create-pdf-title').value || 'Document';
+  var author = document.getElementById('create-pdf-author').value || '';
+  ensurePdfLib().then(function(pdfLib){
+    var doc = pdfLib.PDFDocument.create();
+    if(title) doc.setTitle(title);
+    if(author) doc.setAuthor(author);
+    doc.setCreator('Mahir\'s Tools');
+    return doc.embedFont(pdfLib.StandardFonts.Helvetica).then(function(font){
+      var page = doc.addPage([612, 792]);
+      var lines = text.split('\n');
+      var y = 740;
+      var size = 11;
+      lines.forEach(function(line){
+        if(y < 40){
+          page = doc.addPage([612, 792]);
+          y = 740;
+        }
+        page.drawText(line || ' ', { x: 72, y: y, size: size, font: font, color: pdfLib.rgb(0,0,0) });
+        y -= 16;
+      });
+      return doc.save();
+    });
+  }).then(function(bytes){
+    var blob = new Blob([bytes], {type:'application/pdf'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = title.replace(/[^a-z0-9]/gi,'_').toLowerCase() + '.pdf';
+    a.click();
+  }).catch(function(err){
+    document.getElementById('create-pdf-error').textContent = 'Failed: ' + err.message;
+    document.getElementById('create-pdf-error').style.display = 'block';
+  });
+};
+
+/* ─── PDF TO JPG ─── */
+var _ptjPages = [];
+var _ptjFile = null;
+
+window.handlePtjUpload = function(file){
+  if(!file) return;
+  _ptjFile = file;
+  _ptjPages = [];
+  document.getElementById('ptj-info').style.display = 'block';
+  document.getElementById('ptj-info').textContent = '📄 ' + file.name + ' (' + formatSize(file.size) + ')';
+  document.getElementById('ptj-progress').style.display = 'block';
+  document.getElementById('ptj-error').style.display = 'none';
+  document.getElementById('ptj-result').style.display = 'none';
+  document.getElementById('ptj-download-all').style.display = 'none';
+
+  var pdfjsLib = window.pdfjsLib;
+  if(!pdfjsLib){
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = function(){
+      pdfjsLib = window.pdfjsLib;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      renderPdfToJpg(file, pdfjsLib);
+    };
+    document.head.appendChild(s);
+  } else {
+    renderPdfToJpg(file, pdfjsLib);
+  }
+};
+
+function renderPdfToJpg(file, pdfjsLib){
+  file.arrayBuffer().then(function(buf){
+    return pdfjsLib.getDocument({data: buf}).promise;
+  }).then(function(pdf){
+    var canvases = [];
+    var chain = Promise.resolve();
+    for(var i=1;i<=pdf.numPages;i++){
+      chain = chain.then((function(pageNum){
+        return function(){
+          return pdf.getPage(pageNum).then(function(page){
+            var scale = 1.5;
+            var viewport = page.getViewport({scale:scale});
+            var canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            return page.render({canvasContext:canvas.getContext('2d'),viewport:viewport}).promise.then(function(){
+              _ptjPages.push({canvas:canvas, page:pageNum});
+            });
+          });
+        };
+      })(i));
+    }
+    return chain;
+  }).then(function(){
+    document.getElementById('ptj-progress').style.display = 'none';
+    var result = document.getElementById('ptj-result');
+    result.style.display = 'block';
+    var html = '<div style="font-size:0.65rem;color:var(--green);margin-bottom:12px;">' + _ptjPages.length + ' page(s) rendered:</div>';
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;">';
+    _ptjPages.forEach(function(p,i){
+      var dataUrl = p.canvas.toDataURL('image/jpeg',0.92);
+      html += '<div style="text-align:center;">' +
+        '<img src="' + dataUrl + '" style="max-width:120px;max-height:150px;border:1px solid var(--green-border);border-radius:4px;display:block;margin-bottom:4px;">' +
+        '<button onclick="window.downloadPtjPage(' + i + ')" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:4px 10px;cursor:none;">Page ' + (i+1) + '</button></div>';
+    });
+    html += '</div>';
+    result.innerHTML = html;
+    document.getElementById('ptj-download-all').style.display = 'block';
+  }).catch(function(err){
+    document.getElementById('ptj-progress').style.display = 'none';
+    document.getElementById('ptj-error').textContent = 'Failed: ' + err.message;
+    document.getElementById('ptj-error').style.display = 'block';
+  });
+}
+
+window.downloadPtjPage = function(idx){
+  var p = _ptjPages[idx];
+  var a = document.createElement('a');
+  a.href = p.canvas.toDataURL('image/jpeg',0.92);
+  a.download = 'page_' + (idx+1) + '.jpg';
+  a.click();
+};
+
+/* ─── EPOCH CONVERTER ─── */
+window.epochToDate = function(){
+  var ts = document.getElementById('ec-ts').value;
+  if(!ts) return;
+  var d = new Date(parseInt(ts) * 1000);
+  document.getElementById('ec-ts-result').textContent = isNaN(d.getTime()) ? 'Invalid timestamp' : d.toLocaleString();
+};
+
+window.dateToEpoch = function(){
+  var val = document.getElementById('ec-date').value;
+  if(!val) return;
+  var d = new Date(val);
+  document.getElementById('ec-date-result').textContent = Math.floor(d.getTime() / 1000);
+};
+
+window.copyEpochResult = function(){
+  var ts = document.getElementById('ec-ts-result').textContent;
+  var ds = document.getElementById('ec-date-result').textContent;
+  var text = ts || ds;
+  if(text && text !== 'Invalid timestamp') navigator.clipboard.writeText(text);
+};
+
+window.nowEpoch = function(){
+  var now = Math.floor(Date.now() / 1000);
+  document.getElementById('ec-ts').value = now;
+  document.getElementById('ec-ts-result').textContent = new Date().toLocaleString();
+};
+
+/* ─── CSV ↔ JSON ─── */
+window.csvToJson = function(){
+  var text = document.getElementById('cj-input').value;
+  if(!text.trim()) return;
+  try {
+    var lines = text.split('\n').filter(function(l){ return l.trim(); });
+    if(lines.length < 2) throw new Error('CSV needs at least a header and one row');
+    var headers = parseCsvLine(lines[0]);
+    var result = [];
+    for(var i=1;i<lines.length;i++){
+      var vals = parseCsvLine(lines[i]);
+      if(vals.length !== headers.length) continue;
+      var obj = {};
+      for(var j=0;j<headers.length;j++) obj[headers[j].trim()] = vals[j].trim();
+      result.push(obj);
+    }
+    document.getElementById('cj-output').value = JSON.stringify(result, null, 2);
+  } catch(e){
+    document.getElementById('cj-output').value = 'Error: ' + e.message;
+  }
+};
+
+window.jsonToCsv = function(){
+  var text = document.getElementById('cj-input').value;
+  if(!text.trim()) return;
+  try {
+    var data = JSON.parse(text);
+    if(!Array.isArray(data)) data = [data];
+    if(!data.length) throw new Error('Empty array');
+    var headers = Object.keys(data[0]);
+    var csv = headers.join(',') + '\n';
+    data.forEach(function(row){
+      csv += headers.map(function(h){
+        var val = (row[h] !== undefined && row[h] !== null) ? String(row[h]) : '';
+        return val.includes(',') || val.includes('"') || val.includes('\n') ? '"' + val.replace(/"/g,'""') + '"' : val;
+      }).join(',') + '\n';
+    });
+    document.getElementById('cj-output').value = csv;
+  } catch(e){
+    document.getElementById('cj-output').value = 'Error: ' + e.message;
+  }
+};
+
+function parseCsvLine(line){
+  var result = [], current = '', inQuotes = false;
+  for(var i=0;i<line.length;i++){
+    var c = line[i];
+    if(inQuotes){
+      if(c === '"' && line[i+1] === '"'){ current += '"'; i++; }
+      else if(c === '"') inQuotes = false;
+      else current += c;
+    } else {
+      if(c === '"') inQuotes = true;
+      else if(c === ','){ result.push(current); current = ''; }
+      else current += c;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+window.copyCjOutput = function(){
+  var el = document.getElementById('cj-output');
+  if(el && el.value) el.select(), navigator.clipboard.writeText(el.value);
+};
+
+/* ─── XML ↔ JSON ─── */
+window.xmlToJson = function(){
+  var text = document.getElementById('xj-input').value;
+  if(!text.trim()) return;
+  try {
+    var parser = new DOMParser();
+    var xml = parser.parseFromString(text, 'text/xml');
+    var errNode = xml.querySelector('parsererror');
+    if(errNode) throw new Error('Invalid XML');
+    var json = xmlToJsonSimple(xml.documentElement);
+    document.getElementById('xj-output').value = JSON.stringify(json, null, 2);
+  } catch(e){
+    document.getElementById('xj-output').value = 'Error: ' + e.message;
+  }
+};
+
+function xmlToJsonSimple(node){
+  var obj = {};
+  if(node.attributes && node.attributes.length){
+    for(var i=0;i<node.attributes.length;i++){
+      obj['@' + node.attributes[i].name] = node.attributes[i].value;
+    }
+  }
+  if(node.children && node.children.length){
+    for(var i=0;i<node.children.length;i++){
+      var child = node.children[i];
+      var key = child.tagName;
+      var val = xmlToJsonSimple(child);
+      if(obj[key]){ if(!Array.isArray(obj[key])) obj[key] = [obj[key]]; obj[key].push(val); }
+      else obj[key] = val;
+    }
+  } else {
+    var txt = node.textContent.trim();
+    return txt || (Object.keys(obj).length ? obj : null);
+  }
+  return obj;
+}
+
+window.jsonToXml = function(){
+  var text = document.getElementById('xj-input').value;
+  if(!text.trim()) return;
+  try {
+    var json = JSON.parse(text);
+    var xml = jsonToXmlSimple(json, 'root');
+    document.getElementById('xj-output').value = xml;
+  } catch(e){
+    document.getElementById('xj-output').value = 'Error: ' + e.message;
+  }
+};
+
+function jsonToXmlSimple(obj, name){
+  var xml = '<' + name;
+  var children = '';
+  if(obj !== null && typeof obj === 'object'){
+    if(Array.isArray(obj)){
+      obj.forEach(function(item){
+        children += jsonToXmlSimple(item, name);
+      });
+      return children;
+    }
+    for(var key in obj){
+      if(key.startsWith('@')) xml += ' ' + key.slice(1) + '="' + String(obj[key]) + '"';
+      else children += jsonToXmlSimple(obj[key], key);
+    }
+  } else {
+    children = String(obj);
+    if(children) children = escapeXml(children);
+  }
+  if(children) xml += '>' + children + '</' + name + '>';
+  else xml += '/>';
+  return xml;
+}
+
+function escapeXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+
+window.copyXjOutput = function(){
+  var el = document.getElementById('xj-output');
+  if(el && el.value) el.select(), navigator.clipboard.writeText(el.value);
+};
+
+/* ─── SPLIT CSV ─── */
+var _scCsvText = '';
+var _scFileName = '';
+
+window.handleScUpload = function(file){
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    _scCsvText = e.target.result;
+    _scFileName = file.name;
+    var lines = _scCsvText.split('\n').filter(function(l){ return l.trim(); });
+    document.getElementById('sc-info').style.display = 'block';
+    document.getElementById('sc-info').textContent = '📊 ' + file.name + ' — ' + lines.length + ' rows';
+    document.getElementById('sc-rows-input').style.display = 'block';
+    document.getElementById('sc-error').style.display = 'none';
+  };
+  reader.readAsText(file);
+};
+
+/* ─── LOAD JSZip (used by split, download-all, create-zip) ─── */
+(function loadJSZip(){
+  if(typeof JSZip !== 'undefined'){ window._jszipReady = true; return; }
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  s.onload = function(){ window._jszipReady = true; };
+  document.head.appendChild(s);
+})();
+
+function ensureJSZip(){
+  if(typeof JSZip !== 'undefined') return Promise.resolve(JSZip);
+  return new Promise(function(resolve){
+    function check(){ if(typeof JSZip !== 'undefined') resolve(JSZip); else setTimeout(check, 100); }
+    check();
+  });
+}
+
+/* ─── FIX FUNCTIONS THAT USE JSZip TO WAIT FOR IT ─── */
+
+window.downloadAllSplitPages = function(){
+  ensureJSZip().then(function(JSZip){
+    var zip = new JSZip();
+    _splitPdfPages.forEach(function(blob,i){
+      zip.file('page_'+(i+1)+'.pdf', blob);
+    });
+    return zip.generateAsync({type:'blob'});
+  }).then(function(content){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = 'split_pages.zip';
+    a.click();
+  });
+};
+
+window.downloadAllPtj = function(){
+  ensureJSZip().then(function(JSZip){
+    var zip = new JSZip();
+    _ptjPages.forEach(function(p,i){
+      var dataUrl = p.canvas.toDataURL('image/jpeg',0.92);
+      var bin = atob(dataUrl.split(',')[1]);
+      var arr = new Uint8Array(bin.length);
+      for(var j=0;j<bin.length;j++) arr[j] = bin.charCodeAt(j);
+      zip.file('page_'+(i+1)+'.jpg', arr);
+    });
+    return zip.generateAsync({type:'blob'});
+  }).then(function(content){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = _ptjFile ? _ptjFile.name.replace(/\.pdf$/i,'') + '_pages.zip' : 'pages.zip';
+    a.click();
+  });
+};
+
+window.splitCsvFile = function(){
+  if(!_scCsvText) return;
+  var rowsPerFile = parseInt(document.getElementById('sc-rows').value) || 100;
+  if(rowsPerFile < 1) rowsPerFile = 1;
+  document.getElementById('sc-progress').style.display = 'block';
+  document.getElementById('sc-rows-input').style.display = 'none';
+  document.getElementById('sc-error').style.display = 'none';
+
+  setTimeout(function(){
+    try {
+      var lines = _scCsvText.split('\n');
+      var header = lines[0] || '';
+      var dataLines = [];
+      for(var i=1;i<lines.length;i++){
+        if(lines[i].trim()) dataLines.push(lines[i]);
+      }
+      var fileCount = Math.ceil(dataLines.length / rowsPerFile);
+      ensureJSZip().then(function(JSZip){
+        var zip = new JSZip();
+        for(var f=0;f<fileCount;f++){
+          var start = f * rowsPerFile;
+          var end = Math.min(start + rowsPerFile, dataLines.length);
+          var chunk = [header].concat(dataLines.slice(start, end)).join('\n');
+          var name = _scFileName.replace(/\.csv$/i, '') + '_part_' + (f+1) + '.csv';
+          zip.file(name, chunk);
+        }
+        return zip.generateAsync({type:'blob'});
+      }).then(function(content){
+        document.getElementById('sc-progress').style.display = 'none';
+        var result = document.getElementById('sc-result');
+        result.style.display = 'block';
+        result.innerHTML = '<div style="font-size:0.65rem;color:var(--green);">Split into ' + fileCount + ' files (' + rowsPerFile + ' rows each)</div>' +
+          '<button onclick="var a=document.createElement(\'a\');a.href=URL.createObjectURL(content);a.download=\'' + _scFileName.replace(/\.csv$/i,'') + '_split.zip\';a.click();" style="margin-top:12px;background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download ZIP</button>';
+      });
+    } catch(err){
+      document.getElementById('sc-progress').style.display = 'none';
+      document.getElementById('sc-error').textContent = 'Error: ' + err.message;
+      document.getElementById('sc-error').style.display = 'block';
+      document.getElementById('sc-rows-input').style.display = 'block';
+    }
+  }, 50);
+};
+
+window.createZipArchive = function(){
+  if(!_czFiles.length) return;
+  document.getElementById('cz-progress').style.display = 'block';
+  document.getElementById('cz-btn').style.display = 'none';
+  document.getElementById('cz-error').style.display = 'none';
+  setTimeout(function(){
+    ensureJSZip().then(function(JSZip){
+      var zip = new JSZip();
+      var readers = _czFiles.map(function(f){
+        return f.arrayBuffer().then(function(buf){
+          zip.file(f.name, buf);
+        });
+      });
+      return Promise.all(readers).then(function(){
+        return zip.generateAsync({type:'blob'});
+      });
+    }).then(function(content){
+      document.getElementById('cz-progress').style.display = 'none';
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = 'archive.zip';
+      a.click();
+    }).catch(function(err){
+      document.getElementById('cz-progress').style.display = 'none';
+      document.getElementById('cz-error').textContent = 'Failed: ' + err.message;
+      document.getElementById('cz-error').style.display = 'block';
+    });
+  }, 50);
+};
+
+/* ─── PDF UNLOCK ─── */
+var _unlockedPdfFile = null;
+
+window.handleUnlockPdfUpload = function(file){
+  if(!file) return;
+  _unlockedPdfFile = file;
+  document.getElementById('unlock-pdf-info').style.display = 'block';
+  document.getElementById('unlock-pdf-info').textContent = '📄 ' + file.name + ' (' + formatSize(file.size) + ')';
+  document.getElementById('unlock-pdf-pw').style.display = 'block';
+  document.getElementById('unlock-pdf-error').style.display = 'none';
+  document.getElementById('unlock-pdf-download').style.display = 'none';
+};
+
+window.unlockPdfFile = function(){
+  var pass = document.getElementById('unlock-pdf-pass').value;
+  if(!pass){ document.getElementById('unlock-pdf-error').textContent = 'Enter a password.'; document.getElementById('unlock-pdf-error').style.display = 'block'; return; }
+  document.getElementById('unlock-pdf-progress').style.display = 'block';
+  document.getElementById('unlock-pdf-error').style.display = 'none';
+  ensurePdfLib().then(function(PDFLib){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      try {
+        var pdfDoc = PDFLib.PDFDocument.load(e.target.result, { password: pass });
+        pdfDoc.then(function(doc){
+          return doc.save();
+        }).then(function(bytes){
+          document.getElementById('unlock-pdf-progress').style.display = 'none';
+          _unlockedPdfFile = new Blob([bytes], {type:'application/pdf'});
+          document.getElementById('unlock-pdf-download').style.display = 'block';
+        }).catch(function(err){
+          document.getElementById('unlock-pdf-progress').style.display = 'none';
+          document.getElementById('unlock-pdf-error').textContent = 'Failed: ' + err.message;
+          document.getElementById('unlock-pdf-error').style.display = 'block';
+        });
+      } catch(err){
+        document.getElementById('unlock-pdf-progress').style.display = 'none';
+        document.getElementById('unlock-pdf-error').textContent = 'Error: ' + err.message;
+        document.getElementById('unlock-pdf-error').style.display = 'block';
+      }
+    };
+    reader.readAsArrayBuffer(_unlockedPdfFile);
+  });
+};
+
+window.downloadUnlockedPdf = function(){
+  if(!_unlockedPdfFile) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(_unlockedPdfFile);
+  a.download = 'unlocked.pdf';
+  a.click();
+};
+
+/* ─── PDF PROTECT ─── */
+var _protectedPdfBytes = null;
+
+window.handleProtectPdfUpload = function(file){
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){ _protectedPdfBytes = e.target.result; };
+  reader.readAsArrayBuffer(file);
+  document.getElementById('protect-pdf-info').style.display = 'block';
+  document.getElementById('protect-pdf-info').textContent = '📄 ' + file.name + ' (' + formatSize(file.size) + ')';
+  document.getElementById('protect-pdf-pw').style.display = 'block';
+  document.getElementById('protect-pdf-error').style.display = 'none';
+  document.getElementById('protect-pdf-download').style.display = 'none';
+};
+
+window.protectPdfFile = function(){
+  var pass = document.getElementById('protect-pdf-pass').value;
+  if(!pass || !_protectedPdfBytes){ document.getElementById('protect-pdf-error').textContent = 'Upload a PDF and enter a password.'; document.getElementById('protect-pdf-error').style.display = 'block'; return; }
+  document.getElementById('protect-pdf-progress').style.display = 'block';
+  document.getElementById('protect-pdf-error').style.display = 'none';
+  ensurePdfLib().then(function(PDFLib){
+    try {
+      PDFLib.PDFDocument.load(_protectedPdfBytes).then(function(doc){
+        return doc.save({ userPassword: pass, ownerPassword: pass });
+      }).then(function(bytes){
+        document.getElementById('protect-pdf-progress').style.display = 'none';
+        _protectedPdfFile = new Blob([bytes], {type:'application/pdf'});
+        document.getElementById('protect-pdf-download').style.display = 'block';
+      }).catch(function(err){
+        document.getElementById('protect-pdf-progress').style.display = 'none';
+        document.getElementById('protect-pdf-error').textContent = 'Failed: ' + err.message;
+        document.getElementById('protect-pdf-error').style.display = 'block';
+      });
+    } catch(err){
+      document.getElementById('protect-pdf-progress').style.display = 'none';
+      document.getElementById('protect-pdf-error').textContent = 'Error: ' + err.message;
+      document.getElementById('protect-pdf-error').style.display = 'block';
+    }
+  });
+};
+
+var _protectedPdfFile = null;
+
+window.downloadProtectedPdf = function(){
+  if(!_protectedPdfFile) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(_protectedPdfFile);
+  a.download = 'protected.pdf';
+  a.click();
+};
+
+/* ─── PDF EXTRACT TEXT ─── */
+window.handleEtUpload = function(file){
+  if(!file) return;
+  document.getElementById('et-progress').style.display = 'block';
+  document.getElementById('et-error').style.display = 'none';
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var pdfjsLib = window.pdfjsLib;
+    if(!pdfjsLib){
+      document.getElementById('et-error').textContent = 'PDF.js library not loaded.';
+      document.getElementById('et-error').style.display = 'block';
+      document.getElementById('et-progress').style.display = 'none';
+      return;
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    var loadingTask = pdfjsLib.getDocument({ data: e.target.result });
+    loadingTask.promise.then(function(pdf){
+      var fullText = '';
+      var pagePromises = [];
+      for(var i=1;i<=pdf.numPages;i++){
+        pagePromises.push(pdf.getPage(i).then(function(page){
+          return page.getTextContent().then(function(textContent){
+            var pageText = textContent.items.map(function(item){ return item.str; }).join(' ');
+            if(pageText) fullText += pageText + '\n';
+          });
+        }));
+      }
+      return Promise.all(pagePromises).then(function(){
+        document.getElementById('et-progress').style.display = 'none';
+        document.getElementById('et-text-output').value = fullText || '(no text found)';
+        document.getElementById('et-result').style.display = 'block';
+      });
+    }).catch(function(err){
+      document.getElementById('et-progress').style.display = 'none';
+      document.getElementById('et-error').textContent = 'Failed to extract text: ' + err.message;
+      document.getElementById('et-error').style.display = 'block';
+    });
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+window.copyEtText = function(){
+  var el = document.getElementById('et-text-output');
+  if(el && el.value) navigator.clipboard.writeText(el.value);
+};
+
+/* ─── CREATE ZIP ─── */
+var _czFiles = [];
+
+window.handleCzUpload = function(files){
+  if(!files || !files.length) return;
+  _czFiles = [];
+  for(var i=0;i<files.length;i++) _czFiles.push(files[i]);
+  var list = document.getElementById('cz-list');
+  list.innerHTML = _czFiles.map(function(f,i){
+    return '<div style="font-size:0.6rem;color:var(--muted);padding:4px 0;">' + (i+1) + '. ' + f.name + ' (' + formatSize(f.size) + ')</div>';
+  }).join('');
+  document.getElementById('cz-btn').style.display = 'block';
+  document.getElementById('cz-error').style.display = 'none';
+};
+
+/* ─── IMAGE TOOLS ─── */
+
+window.addBorderToImage = function(){
+  var file = document.getElementById('ab-upload').files[0];
+  if(!file) return;
+  var width = parseInt(document.getElementById('ab-width').value) || 10;
+  var color = document.getElementById('ab-color').value;
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = img.width + width*2;
+    c.height = img.height + width*2;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img, width, width);
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bordered_' + file.name;
+      a.click();
+    });
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.makeRoundImage = function(){
+  var file = document.getElementById('ri-upload').files[0];
+  if(!file) return;
+  var border = parseInt(document.getElementById('ri-border').value) || 0;
+  var size = parseInt(document.getElementById('ri-size').value) || 400;
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = size + border*2;
+    c.height = size + border*2;
+    var ctx = c.getContext('2d');
+    if(border > 0){
+      ctx.beginPath();
+      ctx.arc(size/2+border, size/2+border, size/2+border, 0, Math.PI*2);
+      ctx.fillStyle = '#39ff14';
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(size/2+border, size/2+border, size/2, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(img, border, border, size, size);
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'round_' + file.name;
+      a.click();
+    });
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.splitImageToPieces = function(){
+  var file = document.getElementById('is-upload').files[0];
+  if(!file) return;
+  var rows = parseInt(document.getElementById('is-rows').value) || 2;
+  var cols = parseInt(document.getElementById('is-cols').value) || 2;
+  var img = new Image();
+  img.onload = function(){
+    var pw = Math.floor(img.width / cols);
+    var ph = Math.floor(img.height / rows);
+    var resultEl = document.getElementById('is-result');
+    resultEl.innerHTML = '';
+    resultEl.style.gridTemplateColumns = 'repeat(' + cols + ', 1fr)';
+    for(var r=0;r<rows;r++){
+      for(var c=0;c<cols;c++){
+        (function(x,y){
+          var ci = document.createElement('canvas');
+          ci.width = pw; ci.height = ph;
+          ci.getContext('2d').drawImage(img, x*pw, y*ph, pw, ph, 0, 0, pw, ph);
+          var link = document.createElement('a');
+          link.href = ci.toDataURL();
+          link.download = 'piece_' + (y+1) + '_' + (x+1) + '.png';
+          link.innerHTML = '<img src="' + ci.toDataURL() + '" style="width:100%;display:block;border:1px solid var(--green-border);">';
+          link.target = '_blank';
+          link.style.cursor = 'pointer';
+          resultEl.appendChild(link);
+        })(c, r);
+      }
+    }
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.pixelateImage = function(){
+  var file = document.getElementById('px-upload').files[0];
+  if(!file) return;
+  var block = parseInt(document.getElementById('px-size').value) || 8;
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    var w = img.width, h = img.height;
+    c.width = w; c.height = h;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    var data = ctx.getImageData(0, 0, w, h);
+    var pixels = data.data;
+    for(var y=0;y<h;y+=block){
+      for(var x=0;x<w;x+=block){
+        var totalR=0, totalG=0, totalB=0, count=0;
+        for(var dy=0;dy<block && y+dy<h;dy++){
+          for(var dx=0;dx<block && x+dx<w;dx++){
+            var idx = ((y+dy)*w + (x+dx)) * 4;
+            totalR += pixels[idx];
+            totalG += pixels[idx+1];
+            totalB += pixels[idx+2];
+            count++;
+          }
+        }
+        var avgR = totalR/count, avgG = totalG/count, avgB = totalB/count;
+        for(var dy=0;dy<block && y+dy<h;dy++){
+          for(var dx=0;dx<block && x+dx<w;dx++){
+            var idx = ((y+dy)*w + (x+dx)) * 4;
+            pixels[idx] = avgR;
+            pixels[idx+1] = avgG;
+            pixels[idx+2] = avgB;
+          }
+        }
+      }
+    }
+    ctx.putImageData(data, 0, 0);
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pixelated_' + file.name;
+      a.click();
+    });
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.combineTwoImages = function(){
+  var f1 = document.getElementById('ci-upload1').files[0];
+  var f2 = document.getElementById('ci-upload2').files[0];
+  if(!f1 || !f2) return;
+  var dir = document.getElementById('ci-dir').value;
+  var gap = parseInt(document.getElementById('ci-gap').value) || 10;
+  var img1 = new Image();
+  var img2 = new Image();
+  var loaded = 0;
+  img1.onload = img2.onload = function(){
+    if(++loaded < 2) return;
+    var c = document.createElement('canvas');
+    var ctx = c.getContext('2d');
+    if(dir === 'horizontal'){
+      c.width = img1.width + gap + img2.width;
+      c.height = Math.max(img1.height, img2.height);
+      ctx.drawImage(img1, 0, 0);
+      ctx.drawImage(img2, img1.width + gap, 0);
+    } else {
+      c.width = Math.max(img1.width, img2.width);
+      c.height = img1.height + gap + img2.height;
+      ctx.drawImage(img1, 0, 0);
+      ctx.drawImage(img2, 0, img1.height + gap);
+    }
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'combined.png';
+      a.click();
+    });
+  };
+  img1.src = URL.createObjectURL(f1);
+  img2.src = URL.createObjectURL(f2);
+};
+
+window.addTextToImage = function(){
+  var file = document.getElementById('at-upload').files[0];
+  if(!file) return;
+  var text = document.getElementById('at-text').value;
+  if(!text) return;
+  var fontSize = parseInt(document.getElementById('at-size').value) || 36;
+  var color = document.getElementById('at-color').value;
+  var pos = document.getElementById('at-pos').value;
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    ctx.fillStyle = color;
+    ctx.font = fontSize + 'px sans-serif';
+    ctx.textAlign = 'center';
+    var x = img.width / 2;
+    var y;
+    if(pos === 'top') y = fontSize + 20;
+    else if(pos === 'bottom') y = img.height - 20;
+    else y = img.height / 2 + fontSize/3;
+    ctx.fillText(text, x, y);
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'text_' + file.name;
+      a.click();
+    });
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.blurBackgroundImage = function(){
+  var file = document.getElementById('bb-upload').files[0];
+  if(!file) return;
+  var amt = parseInt(document.getElementById('bb-amt').value) || 10;
+  document.getElementById('bb-progress').style.display = 'block';
+  document.getElementById('bb-error').style.display = 'none';
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = img.width;
+    c.height = img.height;
+    var ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    var id = ctx.getImageData(0, 0, c.width, c.height);
+    var d = id.data, w = c.width, h = c.height;
+    var r = Math.max(1, Math.floor(amt/2));
+    var copy = new Uint8ClampedArray(d);
+    for(var y=0;y<h;y++){
+      for(var x=0;x<w;x++){
+        var tr=0,tg=0,tb=0,n=0;
+        for(var dy=-r;dy<=r;dy++){
+          for(var dx=-r;dx<=r;dx++){
+            var nx = x+dx, ny = y+dy;
+            if(nx>=0 && nx<w && ny>=0 && ny<h){
+              var i = (ny*w+nx)*4;
+              tr += copy[i]; tg += copy[i+1]; tb += copy[i+2]; n++;
+            }
+          }
+        }
+        var i2 = (y*w+x)*4;
+        d[i2] = tr/n; d[i2+1] = tg/n; d[i2+2] = tb/n;
+      }
+    }
+    ctx.putImageData(id, 0, 0);
+    document.getElementById('bb-progress').style.display = 'none';
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'blurred_' + file.name;
+      a.click();
+    });
+  };
+  img.onerror = function(){
+    document.getElementById('bb-progress').style.display = 'none';
+    document.getElementById('bb-error').textContent = 'Failed to load image.';
+    document.getElementById('bb-error').style.display = 'block';
+  };
+  img.src = URL.createObjectURL(file);
+};
+
+window.makeProfilePhoto = function(){
+  var file = document.getElementById('pp-upload').files[0];
+  if(!file) return;
+  var size = parseInt(document.getElementById('pp-size').value) || 400;
+  var border = parseInt(document.getElementById('pp-border').value) || 3;
+  var bgColor = document.getElementById('pp-bg').value;
+  var img = new Image();
+  img.onload = function(){
+    var c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, size, size);
+    var r = size/2;
+    ctx.beginPath();
+    ctx.arc(r, r, r - border - 2, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+    var s = Math.min(img.width, img.height);
+    var sx = (img.width - s)/2, sy = (img.height - s)/2;
+    ctx.drawImage(img, sx, sy, s, s, border+2, border+2, size - (border+2)*2, size - (border+2)*2);
+    if(border > 0){
+      ctx.beginPath();
+      ctx.arc(r, r, r - 1, 0, Math.PI*2);
+      ctx.strokeStyle = '#39ff14';
+      ctx.lineWidth = border;
+      ctx.stroke();
+    }
+    c.toBlob(function(blob){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'profile_' + file.name;
+      a.click();
+    });
+  };
+  img.src = URL.createObjectURL(file);
+};
 
 buildGrid();
 handleHash();
