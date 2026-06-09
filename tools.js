@@ -668,7 +668,7 @@ window.downloadRemoveBg = function(){
 var _pdfcFile = null;
 var _pdfcQuality = 'medium';
 var _pdfcDownloadToken = null;
-var _pdfcServerUrl = 'https://65cef2ab11b53e.lhr.life';
+var _pdfcServerUrl = 'https://4d0662cc3fe637.lhr.life';
 
 window.handlePdfCompressUpload = function(file){
   if(!file) return;
