@@ -190,7 +190,7 @@ const TOOL_PLACEHOLDER_BODIES = {
     '</div>' +
     '<div id="rbg-error" style="display:none;margin-top:12px;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;"></div>',
 
-  'pdf-compressor': '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload a PDF and compress it using server-side Ghostscript. Files are processed securely and deleted after download.</div>' +
+  'pdf-compressor': '<div style="margin-bottom:16px;font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;">Upload a PDF and compress it using Ghostscript in your browser. Files are never uploaded — everything stays on your device.</div>' +
     '<div id="pdfc-upload-zone" style="border:2px dashed var(--green-border);border-radius:8px;padding:40px;text-align:center;cursor:none;transition:var(--transition);" ' +
     'ondragover="event.preventDefault();this.style.borderColor=\'var(--green)\';this.style.background=\'var(--green-dim)\'" ' +
     'ondragleave="this.style.borderColor=\'\';this.style.background=\'\'" ' +
@@ -340,7 +340,7 @@ function updateToolMeta(tool){
   var desc = '';
   if(tool.id === 'remove-bg') desc = 'Remove image backgrounds for free in your browser. AI-powered, no uploads, privacy-first. Supports JPG, PNG, WEBP.';
   else if(tool.id === 'image-to-pdf') desc = 'Convert images to PDF files instantly in your browser. Free, no upload required.';
-  else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files online. Reduces file size with Ghostscript. Free, secure, files deleted after processing.';
+  else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files in your browser. Reduces file size with Ghostscript WASM. Free, private, no upload required.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
@@ -360,7 +360,6 @@ window.closeTool = function(){
   _rbgOriginalUrl = null;
   _rbgResultBlob = null;
   _pdfcFile = null;
-  _pdfcDownloadToken = null;
   document.title = 'Mahir Velizade — Designer';
   var og = document.querySelector('meta[property="og:title"]');
   if(og) og.setAttribute('content','Mahir Velizade — Designer &amp; Tools');
@@ -664,11 +663,13 @@ window.downloadRemoveBg = function(){
   link.click();
 };
 
-/* ─── PDF COMPRESSOR (server-side via Ghostscript) ─── */
+/* ─── PDF COMPRESSOR (client-side via Ghostscript WASM) ─── */
 var _pdfcFile = null;
 var _pdfcQuality = 'medium';
-var _pdfcDownloadToken = null;
-var _pdfcServerUrl = 'https://7e5a2654b33a61.lhr.life';
+var _pdfcResultBlob = null;
+var _pdfcOrigSize = 0;
+var _pdfcGSModule = null;
+var _pdfcLoadingGS = false;
 
 window.handlePdfCompressUpload = function(file){
   if(!file) return;
@@ -681,7 +682,7 @@ window.handlePdfCompressUpload = function(file){
     return;
   }
   _pdfcFile = file;
-  _pdfcDownloadToken = null;
+  _pdfcResultBlob = null;
   document.getElementById('pdfc-upload-zone').style.display = 'none';
   document.getElementById('pdfc-error').style.display = 'none';
   document.getElementById('pdfc-result').style.display = 'none';
@@ -696,7 +697,7 @@ window.handlePdfCompressUpload = function(file){
 
 window.resetPdfcUpload = function(){
   _pdfcFile = null;
-  _pdfcDownloadToken = null;
+  _pdfcResultBlob = null;
   document.getElementById('pdfc-upload-zone').style.display = '';
   document.getElementById('pdfc-file-info').style.display = 'none';
   document.getElementById('pdfc-quality').style.display = 'none';
@@ -723,6 +724,25 @@ window.selectPdfcQuality = function(q){
   }
 };
 
+var _pdfcGSLoading = null;
+function ensureGS(){
+  if(_pdfcGSModule) return Promise.resolve(_pdfcGSModule);
+  if(_pdfcGSLoading) return _pdfcGSLoading;
+  _pdfcGSLoading = (function(){
+    var est = document.getElementById('pdfc-estimate');
+    est.textContent = 'Downloading Ghostscript engine (~15MB, first time only)...';
+    return import('https://cdn.jsdelivr.net/npm/@jspawn/ghostscript-wasm@0.0.2/gs.mjs').then(function(mod){
+      return mod.default({
+        locateFile: function(f){ return 'https://cdn.jsdelivr.net/npm/@jspawn/ghostscript-wasm@0.0.2/' + f; }
+      });
+    }).then(function(gs){
+      _pdfcGSModule = gs;
+      return gs;
+    });
+  })();
+  return _pdfcGSLoading;
+}
+
 window.compressPdf = function(){
   if(!_pdfcFile) return;
   document.getElementById('pdfc-error').style.display = 'none';
@@ -731,88 +751,93 @@ window.compressPdf = function(){
   document.getElementById('pdfc-quality').style.display = 'none';
   var prog = document.getElementById('pdfc-progress');
   prog.style.display = 'block';
-  document.getElementById('pdfc-upload-bar-wrap').style.display = 'block';
+  document.getElementById('pdfc-upload-bar-wrap').style.display = 'none';
   document.getElementById('pdfc-upload-bar').style.width = '0%';
-  document.getElementById('pdfc-upload-pct').textContent = '0%';
+  document.getElementById('pdfc-upload-pct').textContent = '';
+  document.getElementById('pdfc-progress-text').textContent = '';
   var est = document.getElementById('pdfc-estimate');
-  if(_pdfcFile.size > 10 * 1024 * 1024){
-    est.textContent = 'Large file — this may take up to a minute.';
-  } else {
-    est.textContent = 'Compressing...';
-  }
 
-  var form = new FormData();
-  form.append('pdf', _pdfcFile);
-  form.append('quality', _pdfcQuality);
+  if(!_pdfcGSModule) est.textContent = 'Initializing...';
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', _pdfcServerUrl + '/api/compress', true);
+  var pctEl = document.getElementById('pdfc-upload-pct');
+  pctEl.textContent = '';
 
-  xhr.upload.onprogress = function(e){
-    if(e.lengthComputable){
-      var pct = Math.round(e.loaded / e.total * 100);
-      document.getElementById('pdfc-upload-bar').style.width = pct + '%';
-      document.getElementById('pdfc-upload-pct').textContent = pct + '%';
-      if(pct < 100){
-        document.getElementById('pdfc-progress-text').textContent = ' — Uploading ' + pct + '%';
-      } else {
-        document.getElementById('pdfc-progress-text').textContent = ' — Processing...';
-      }
-    }
-  };
-
-  xhr.onload = function(){
-    if(xhr.status === 200){
-      var data;
-      try { data = JSON.parse(xhr.responseText); } catch(e){ pdfcError('Invalid server response.'); return; }
-      if(data.success){
-        _pdfcDownloadToken = data.downloadToken;
-        document.getElementById('pdfc-progress').style.display = 'none';
-        document.getElementById('pdfc-result').style.display = 'block';
-        document.getElementById('pdfc-orig-size').textContent = formatSize(data.originalSize);
-        document.getElementById('pdfc-comp-size').textContent = formatSize(data.compressedSize);
-        var ratioEl = document.getElementById('pdfc-ratio');
-        if(data.ratio > 0){
-          ratioEl.innerHTML = 'Reduced by <strong style="color:var(--green);">' + data.ratio + '%</strong>';
-        } else if(data.ratio === 0){
-          ratioEl.textContent = 'No size reduction (already optimized).';
-        } else {
-          ratioEl.textContent = 'Size increased by ' + Math.abs(data.ratio) + '% (file may already be optimized).';
-        }
-      } else {
-        pdfcError(data.error || 'Compression failed.');
-      }
-    } else if(xhr.status === 413){
-      pdfcError('File exceeds 70MB limit.');
-    } else if(xhr.status === 503){
-      pdfcError('Server is busy. Please try again in a moment.');
-    } else if(xhr.status === 504){
-      pdfcError('Compression timed out. Try a smaller file or lower quality.');
-    } else {
-      var msg = 'Server error (' + xhr.status + ').';
-      try { var d = JSON.parse(xhr.responseText); if(d.error) msg = d.error; } catch(e){}
-      pdfcError(msg);
-    }
-  };
-
-  xhr.onerror = function(){
-    pdfcError('Connection failed. Is the server running at ' + _pdfcServerUrl + '?');
-  };
-
-  xhr.ontimeout = function(){
-    pdfcError('Request timed out.');
-  };
-
-  xhr.timeout = 130000;
-  xhr.send(form);
+  setTimeout(function(){
+    runPdfcCompression(est);
+  }, 50);
 };
 
+function runPdfcCompression(est){
+  ensureGS().then(function(gs){
+    est.textContent = 'Compressing with Ghostscript...';
+    setTimeout(function(){
+      try {
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var input = new Uint8Array(e.target.result);
+          _pdfcOrigSize = input.length;
+          try {
+            gs.FS.writeFile('input.pdf', input);
+          } catch(writeErr){
+            pdfcError('Failed to write file: ' + writeErr.message);
+            return;
+          }
+          var preset = { low: '/screen', medium: '/ebook', high: '/printer' }[_pdfcQuality] || '/ebook';
+          setTimeout(function(){
+            try {
+              gs.callMain([
+                '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.4',
+                '-dPDFSETTINGS=' + preset,
+                '-dNOPAUSE', '-dQUIET', '-dBATCH',
+                '-sOutputFile=output.pdf', 'input.pdf'
+              ]);
+            } catch(gsErr){
+              pdfcError('Compression failed. The PDF may be corrupted or protected.');
+              try { gs.FS.unlink('input.pdf'); } catch(e){}
+              return;
+            }
+            try {
+              var output = gs.FS.readFile('output.pdf', { encoding: 'binary' });
+              _pdfcResultBlob = new Blob([output.buffer], { type: 'application/pdf' });
+              document.getElementById('pdfc-progress').style.display = 'none';
+              document.getElementById('pdfc-result').style.display = 'block';
+              document.getElementById('pdfc-orig-size').textContent = formatSize(_pdfcOrigSize);
+              document.getElementById('pdfc-comp-size').textContent = formatSize(output.length);
+              var ratio = (1 - output.length / _pdfcOrigSize) * 100;
+              var ratioEl = document.getElementById('pdfc-ratio');
+              if(ratio > 2){
+                ratioEl.innerHTML = 'Reduced by <strong style="color:var(--green);">' + ratio.toFixed(1) + '%</strong>';
+              } else if(ratio > 0){
+                ratioEl.textContent = 'Minimal reduction (' + ratio.toFixed(1) + '%) — file may already be optimized.';
+              } else {
+                ratioEl.textContent = 'Size increased by ' + Math.abs(ratio).toFixed(1) + '% — PDF may already be optimized.';
+              }
+            } catch(readErr){
+              pdfcError('Failed to read compressed output.');
+            }
+            try { gs.FS.unlink('input.pdf'); } catch(e){}
+            try { gs.FS.unlink('output.pdf'); } catch(e){}
+          }, 10);
+        };
+        reader.onerror = function(){
+          pdfcError('Failed to read file.');
+        };
+        reader.readAsArrayBuffer(_pdfcFile);
+      } catch(err){
+        pdfcError('Compression failed: ' + err.message);
+      }
+    }, 10);
+  }).catch(function(err){
+    pdfcError('Failed to load Ghostscript engine: ' + err.message);
+  });
+}
+
 window.downloadCompressedPdf = function(){
-  if(!_pdfcDownloadToken) return;
-  var a = document.createElement('a');
-  a.href = _pdfcServerUrl + '/api/download/' + _pdfcDownloadToken;
-  a.download = '';
-  a.click();
+  if(!_pdfcResultBlob) return;
+  var link = document.createElement('a');
+  link.download = _pdfcFile ? _pdfcFile.name.replace(/\.pdf$/i, '_compressed.pdf') : 'compressed.pdf';
+  link.href = URL.createObjectURL(_pdfcResultBlob);
+  link.click();
 };
 
 function pdfcError(msg){
