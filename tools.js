@@ -284,21 +284,21 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div id="cp-rgb" style="padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.75rem;color:var(--text);margin-bottom:8px;">RGB: 57, 255, 20</div>' +
     '<div id="cp-hsl" style="padding:10px 14px;background:var(--bg);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.75rem;color:var(--text);">HSL: 111, 100%, 54%</div></div></div>',
 
-  'color-converter': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
-    '<div style="display:grid;gap:10px;">' +
+  'color-converter': '<div style="display:grid;grid-template-columns:280px 1fr;gap:20px;">' +
+    '<div style="display:grid;gap:8px;">' +
     '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HEX</label>' +
-    '<input id="cc-hex" value="#39ff14" oninput="window.updateFromHEX(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<input id="cc-hex" value="#39ff14" oninput="window.updateFromHEX(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:6px 10px;outline:none;"></div>' +
     '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">RGB</label>' +
-    '<input id="cc-rgb" value="57, 255, 20" oninput="window.updateFromRGB(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<input id="cc-rgb" value="57, 255, 20" oninput="window.updateFromRGB(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:6px 10px;outline:none;"></div>' +
     '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HSL</label>' +
-    '<input id="cc-hsl" value="111, 100%, 54%" oninput="window.updateFromHSL(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<input id="cc-hsl" value="111, 100%, 54%" oninput="window.updateFromHSL(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:6px 10px;outline:none;"></div>' +
     '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">HSV</label>' +
-    '<input id="cc-hsv" value="111, 100%, 100%" oninput="window.updateFromHSV(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div>' +
+    '<input id="cc-hsv" value="111, 100%, 100%" oninput="window.updateFromHSV(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:6px 10px;outline:none;"></div>' +
     '<div><label style="font-size:0.55rem;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;">CMYK</label>' +
-    '<input id="cc-cmyk" value="78%, 0%, 92%, 0%" oninput="window.updateFromCMYK(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:8px 12px;outline:none;"></div></div>' +
-    '<div>' +
-    '<div id="cc-preview" style="width:100%;aspect-ratio:1;border:2px solid var(--green-border);border-radius:8px;background:#39ff14;margin-bottom:16px;"></div>' +
-    '<div style="font-size:0.6rem;color:var(--muted);line-height:1.8;padding:4px 8px;">' +
+    '<input id="cc-cmyk" value="78%, 0%, 92%, 0%" oninput="window.updateFromCMYK(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.7rem;padding:6px 10px;outline:none;"></div></div>' +
+    '<div style="display:flex;gap:16px;">' +
+    '<div id="cc-preview" style="flex:1;min-width:140px;aspect-ratio:1;border:2px solid var(--green-border);border-radius:8px;background:#39ff14;"></div>' +
+    '<div style="font-size:0.6rem;color:var(--muted);line-height:1.8;padding:4px 8px;flex:1;min-width:140px;">' +
     '<div style="margin-bottom:8px;color:var(--green);font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;">Color Info</div>' +
     '<div id="cc-info-name" style="margin-bottom:4px;">Name: <span id="cc-name">Neon Green</span></div>' +
     '<div id="cc-info-hex"></div>' +
