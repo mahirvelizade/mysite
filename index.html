@@ -1183,6 +1183,7 @@ window.addEventListener('resize', function(){ if(eqCanvas.classList.contains('pl
 
 function onPlayerStateChange(e){
   if(e.data === YT.PlayerState.PLAYING){
+    var _pd = player.getVideoData(); if(_pd && _pd.video_id){ if(!window._plAllIds) window._plAllIds = []; if(window._plAllIds.indexOf(_pd.video_id)===-1) window._plAllIds.push(_pd.video_id); }
     isPlaying = true
     document.getElementById('pp-play').style.display = 'none'
     document.getElementById('pp-pause').style.display = ''

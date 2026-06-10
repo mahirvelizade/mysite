@@ -540,9 +540,16 @@ var _plTitles = {};
 
 window.showPlaylistModal = function showPlaylistModal(){
   if(!player) return;
-  var ids = player.getPlaylist();
-  if(!ids || !ids.length) return;
-  var curIdx = player.getPlaylistIndex();
+  var ids = window._plAllIds && window._plAllIds.length ? window._plAllIds : player.getPlaylist();
+  if(!ids || !ids.length){
+    setTimeout(function(){
+      var pl = player.getPlaylist();
+      if(pl && pl.length){ _plAllIds = pl; showPlaylistModal(); }
+    }, 3000);
+    return;
+  }
+  var curId;
+  try{ curId = player.getVideoData().video_id; }catch(e){}
 
   var existing = document.getElementById('pl-overlay');
   if(existing) existing.remove();
@@ -564,12 +571,12 @@ window.showPlaylistModal = function showPlaylistModal(){
 
   ids.forEach(function(id, i){
     var item = document.createElement('div');
-    item.className = 'pl-item' + (i === curIdx ? ' pl-cur' : '');
+    item.className = 'pl-item' + (id === curId ? ' pl-cur' : '');
     var label = document.createElement('span');
     label.className = 'pl-label';
     label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
     item.appendChild(label);
-    item.onclick = function(){ player.playVideoAt(i); overlay.remove(); };
+    item.onclick = function(){ player.loadVideoById(id); overlay.remove(); };
     list.appendChild(item);
 
     if(!_plTitles[id]){
