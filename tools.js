@@ -584,16 +584,7 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div id="cz-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Creating archive...</div>' +
     '<div id="cz-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
 
-  'ai-image-generator': '<div class="ai-gen-key" style="margin-bottom:16px;">' +
-    '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">HuggingFace API Key</label>' +
-    '<div style="display:flex;gap:8px;">' +
-    '<input id="aig-key" type="password" placeholder="hf_xxxxxxxxxxxxxxxxxx" value="' +
-    ((typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'') +
-    '" style="flex:1;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:8px 12px;outline:none;">' +
-    '<button onclick="window.saveAigKey()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.55rem;padding:8px 14px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Save</button></div>' +
-    '<div style="font-size:0.5rem;color:var(--muted);margin-top:4px;">Your key stays in your browser. Get one at <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--green);">huggingface.co/settings/tokens</a></div></div>' +
-
-    '<div style="margin-bottom:20px;">' +
+  'ai-image-generator': '<div style="margin-bottom:20px;">' +
     '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">Prompt</label>' +
     '<textarea id="aig-prompt" placeholder="Describe the image you want to generate..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:14px;min-height:90px;resize:vertical;outline:none;line-height:1.5;"></textarea></div>' +
 
@@ -3140,12 +3131,7 @@ window.makeProfilePhoto = function(){
 var _aigGenerating = false;
 var _aigLastPrompt = '';
 var _aigLastStyle = '';
-var _aigKey = (typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'';
-
-window.saveAigKey = function(){
-  var key = document.getElementById('aig-key').value.trim();
-  if(key && typeof localStorage!=='undefined'){ localStorage.setItem('hf_key', key); _aigKey = key; }
-};
+var _aigKey = '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';
 
 var AIG_STYLES = {
   'none': '',
@@ -3201,18 +3187,6 @@ var AIG_STYLES = {
 
 window.generateAigImages = function(){
   if(_aigGenerating) return;
-  _aigKey = (typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'';
-  if(!_aigKey){
-    document.getElementById('aig-error').textContent = 'Please enter your HuggingFace API key above and click Save.';
-    document.getElementById('aig-error').style.display = 'block';
-    return;
-  }
-  var prompt = document.getElementById('aig-prompt').value.trim();
-  if(!prompt){
-    document.getElementById('aig-error').textContent = 'Please enter a prompt.';
-    document.getElementById('aig-error').style.display = 'block';
-    return;
-  }
   document.getElementById('aig-error').style.display = 'none';
   var activeChip = document.querySelector('#aig-style-chips .aig-chip.active');
   var styleKey = activeChip ? activeChip.getAttribute('data-style') : 'none';
