@@ -1,0 +1,31 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inject HF Token
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python3 -c "
+import os, sys
+token = os.environ.get('HF_TOKEN', '')
+if not token:
+  print('WARNING: HF_TOKEN secret not set, using placeholder', file=sys.stderr)
+with open('tools.js', 'r') as f:
+  content = f.read()
+content = content.replace('__HF_TOKEN__', token)
+with open('tools.js', 'w') as f:
+  f.write(content)
+"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
