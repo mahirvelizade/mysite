@@ -175,4 +175,57 @@
   - Scroll listener: added `{passive:true}` — prevents scroll jank
   - Chat `openChat()`: added `visualViewport` scrollIntoView for mobile keyboard
   - Skypack CDN → esm.sh via unpkg then esm.sh (unpkg doesn't resolve bare imports like `from 'three'` in GLTFLoader; esm.sh rewrites all internal imports)
-- **Files**: `style.css`, `index.html`, `app.js`, `mysite.md`
+ - **Files**: `style.css`, `index.html`, `app.js`, `mysite.md`
+
+## 🗺️ Session Summary (09 Jun 2026) — TinyWow-style tools + Color Converter + QR bug
+- **PDF Compressor rewritten**: Ghostscript WASM client-side (was server XHR). Removed `_pdfcServerUrl`, server scripts (`update-url.sh`, `server.sh`, `tunnel.sh`, launchd plists)
+- **Tool tabs**: 4 categories (PDF, Image, Dev, Converter) with tab bar UI (`buildTabs`, `filterTools`, CSS `.tools-tabs`). Old 3 categories collapsed into new 4.
+- **New PDF tools** (all client-side via pdf-lib, pdf.js):
+  - Merge PDF, Split PDF, Create PDF, PDF to JPG, Unlock PDF, Protect PDF, Extract Text
+- **New Image tools** (all client-side via Canvas):
+  - Add Border, Make Round, Image Splitter, Pixelate, Combine Images, Add Text, Blur Background, Profile Photo
+- **New Dev/Converter tools**:
+  - Epoch Converter, CSV↔JSON, XML↔JSON, Split CSV, Create ZIP
+- **Color Converter** (added later): HEX / RGB / HSL / HSV / CMYK bidirectional inputs, all editable, color preview, color name lookup, W3Schools link
+- **QR Code bug** (unresolved): Hand-written QR generator produces unscannable codes. Two fixes attempted:
+  1. Fixed data placement column traversal (was processing 2 cols per loop stepping 1 → overlapping pairs). Changed to 1 col per loop.
+  2. Fixed direction alternation (was using `(n-1-col)%2` parity → breaks when col 6 skipped). Changed to boolean toggle.
+  3. Fixed quiet zone (was ~0.7 modules → 4 modules).
+  - **Still broken** after both fixes — needs deeper debugging (suspect: RS encoding, format info BCH, or mask application logic)
+- **Key deps**: pdf-lib (CDN dynamic import), pdf.js, JSZip, Ghostscript WASM
+- **Headers**: `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: require-corp` in `_headers` for WASM SharedArrayBuffer
+- **Version**: commit `02d4c09`
+- **Commits**: `0e41afb` → `554a4bf` → `1a499e5` → `b05c54f` → `2c5b5f2` → `02d4c09`
+- **Files**: `tools.js` (new all tool definitions, templates, JS logic), `style.css` (tool tabs CSS)
+
+## 🗺️ Session Summary (10 Jun 2026) — AI Image Generator + Player SVGs + Playlist Modal (reverted)
+- **AI Image Generator**: New 27th tool — FLUX.1-schnell via HuggingFace Inference API
+  - API URL fixed: `api-inference.huggingface.co` (dead DNS) → `router.huggingface.co/hf-inference/models/`
+  - Missing `prompt` variable fixed (was never read from textarea)
+  - Chip click fixed: IIFE → inline `onclick` (DOM wasn't ready)
+  - Batch count fixed: replaced `next()` with `pending` counter (prevented extra requests when 503 retries overlapped)
+  - Preview fixed: blob → base64 data URL via FileReader (COEP `require-corp` blocks blob: URLs)
+- **Token security**: Hardcoded HF token replaced with `__HF_TOKEN__` placeholder + GitHub Actions + Secret
+- **Workflow**: Created `.github/workflows/deploy.yml` — checkout → Python token injection → deploy-pages
+  - Fixed YAML indentation (literal block scalar issue)
+  - Added `contents: write` + `pages: write` + `id-token: write` permissions
+- **`_headers` not deployed**: `actions/deploy-pages` may not process `_headers` file — COEP/COOP headers missing from live site, may affect PDF compressor (SharedArrayBuffer) and AI preview
+- **Version**: v4.6 → v4.7
+- **Commits**: `7838080` → `96e35d6` → `5058c85` → `d4e237e` → `274ebc3` → `9e92c42` → `a050128` → `5541f8d` → `be087e6` → `918abed` → `b2c9fe5`
+
+### 19. Player SVG Icons (Tabler)
+- **What**: Replaced unicode chars (`‹‹`, `▸`, `››`, `▌▌`) with inline Tabler SVG icons
+- **Icons**: `player-skip-back`, `player-play`/`player-pause` (toggle), `player-skip-forward`
+- **Files**: `index.html:406-416`, `app.js:489-496`, `style.css:1013-1020`
+- **Details**: SVGs use `currentColor`, `fill="none" stroke-width="2"`, buttons get `display:inline-flex` for centering
+- **Bug**: Two `onPlayerStateChange` existed — app.js (SVG toggle) overridden by index.html (`.textContent` with unicode). Fixed index.html to use SVG toggle.
+- **Files**: `index.html:1183-1199`
+
+### 20. Playlist Modal — Attempted & Reverted
+- **Goal**: Click song title → open modal showing playlist with titles
+- **Problems**:
+  1. `player.getPlaylist()` returns undefined for RD (radio mix) playlists
+  2. Two `let player` declarations: app.js IIFE (never initialized, used by `showPlaylistModal` via closure) vs index.html (actually works). `let` doesn't set `window.player` → function always saw undefined `player` → early return
+- **Fixes attempted**: `var player` + `window.player`, inline HTML modal, inline `onclick` — still didn't work
+- **Lesson**: Next time start minimal — one static HTML div + one toggle function. Avoid IIFE scope complexity.
+- **Status**: **REVERTED** (commit `b2c9fe5`)
