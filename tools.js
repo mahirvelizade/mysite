@@ -55,6 +55,16 @@ const TOOLS = [
   { id:'split-csv',          name:'Split CSV',           icon:'✂️', cat:'converter' },
   { id:'create-zip',         name:'Create ZIP',          icon:'🗜️', cat:'converter' },
   { id:'ai-image-generator', name:'AI Image Generator',  icon:'🎨', cat:'ai' },
+  { id:'ai-prompt-enhancer', name:'AI Prompt Enhancer',  icon:'🚀', cat:'ai' },
+  { id:'ai-text-summarizer', name:'AI Text Summarizer',  icon:'📝', cat:'ai' },
+  { id:'ai-grammar-rewrite', name:'AI Grammar & Rewrite',icon:'✏️', cat:'ai' },
+  { id:'ai-cv-generator',    name:'AI CV Generator',     icon:'📄', cat:'ai' },
+  { id:'ai-resume-analyzer', name:'AI Resume Analyzer',  icon:'🔍', cat:'ai' },
+  { id:'ai-cover-letter',    name:'AI Cover Letter',     icon:'💼', cat:'ai' },
+  { id:'photo-enhancer',     name:'Photo Enhancer',      icon:'🖼️', cat:'ai' },
+  { id:'ai-ocr',             name:'AI Image to Text (OCR)',icon:'👁️',cat:'ai' },
+  { id:'object-remover',     name:'Object Remover',      icon:'🧹', cat:'ai' },
+  { id:'image-cleanup',      name:'Image Cleanup Tool',  icon:'✨', cat:'ai' },
 ];
 
 const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter', ai:'AI' };
@@ -721,7 +731,7 @@ function openTool(toolId){
   }
   detail.className = 'tool-detail active';
   grid.style.display = 'none';
-  var body = TOOL_PLACEHOLDER_BODIES[toolId] || '<p class="tool-detail-placeholder">' + tool.name + ' — coming soon.</p>';
+  var body = TOOL_PLACEHOLDER_BODIES[toolId] || (window._aiToolsData && window._aiToolsData[toolId]) || '<p class="tool-detail-placeholder">' + tool.name + ' — coming soon.</p>';
   detail.innerHTML =
     '<button class="tool-detail-back" onclick="window.closeTool()">← Back to Tools</button>' +
     '<h3 class="tool-detail-title">' + tool.icon + ' ' + tool.name + '</h3>' +
