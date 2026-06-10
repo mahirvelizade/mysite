@@ -3131,7 +3131,7 @@ window.makeProfilePhoto = function(){
 var _aigGenerating = false;
 var _aigLastPrompt = '';
 var _aigLastStyle = '';
-var _aigKey = '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';
+var _aigKey = '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';
 
 var AIG_STYLES = {
   'none': '',
