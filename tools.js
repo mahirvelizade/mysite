@@ -3212,13 +3212,14 @@ window.generateAigImages = function(){
   var results = [];
   var errors = [];
   var completed = 0;
+  var pending = count;
 
   function updateProgress(){
     document.getElementById('aig-progress').textContent = completed + '/' + count;
   }
 
   function generateOne(){
-    if(!_aigGenerating) return finish();
+    if(!_aigGenerating){ pending = 0; return maybeFinish(); }
     fetch(
       'https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell',
       {
@@ -3239,7 +3240,7 @@ window.generateAigImages = function(){
     ).then(function(res){
       if(!res.ok){
         if(res.status === 503){
-          // Model loading - retry after delay
+          // Model loading - retry after delay (pending stays same - retry replaces this slot)
           return new Promise(function(resolve){
             setTimeout(function(){
               generateOne().then(resolve);
@@ -3249,40 +3250,37 @@ window.generateAigImages = function(){
         if(res.status === 429){
           errors.push('Rate limited (429). Please wait and try again.');
           completed++;
+          pending--;
           updateProgress();
-          next();
+          maybeFinish();
           return;
         }
         return res.text().then(function(text){
           errors.push('API error (' + res.status + '): ' + text.slice(0, 100));
           completed++;
+          pending--;
           updateProgress();
-          next();
+          maybeFinish();
         });
       }
       return res.blob().then(function(blob){
         results.push(blob);
         completed++;
+        pending--;
         updateProgress();
-        next();
+        maybeFinish();
       });
     }).catch(function(err){
       errors.push('Network error: ' + err.message);
       completed++;
+      pending--;
       updateProgress();
-      next();
+      maybeFinish();
     });
   }
 
-  function next(){
-    if(completed + errors.length < count){
-      setTimeout(generateOne, 300);
-    } else {
-      finish();
-    }
-  }
-
-  function finish(){
+  function maybeFinish(){
+    if(pending > 0) return;
     _aigGenerating = false;
     document.getElementById('aig-gen-btn').disabled = false;
     document.getElementById('aig-gen-btn').style.opacity = '';
@@ -3302,7 +3300,7 @@ window.generateAigImages = function(){
     renderAigResults(results, prompt, styleKey);
   }
 
-  // Start all generation requests with a small stagger
+  // Start exactly count requests; nothing schedules extras
   for(var i=0;i<count;i++){
     setTimeout(generateOne, i * 500);
   }
