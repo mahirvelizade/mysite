@@ -8,7 +8,7 @@ aiToolsData['ai-prompt-enhancer'] =
   '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:12px;letter-spacing:0.05em;">Enter a basic prompt and enhance it for better AI results. Choose a mode below.</div>' +
   '<textarea id="pe-input" placeholder="Enter your prompt here..." style="width:100%;min-height:100px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);padding:12px;font-family:var(--mono);font-size:0.6rem;resize:vertical;border-radius:2px;"></textarea>' +
   '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;">' +
-  '<button class="pe-mode" data-mode="professional" onclick="window.selectPeMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Professional</button>' +
+  '<button class="pe-mode active" data-mode="professional" onclick="window.selectPeMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Professional</button>' +
   '<button class="pe-mode" data-mode="creative" onclick="window.selectPeMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Creative</button>' +
   '<button class="pe-mode" data-mode="marketing" onclick="window.selectPeMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Marketing</button>' +
   '<button class="pe-mode" data-mode="coding" onclick="window.selectPeMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Coding</button>' +
@@ -27,7 +27,7 @@ aiToolsData['ai-text-summarizer'] =
   '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:12px;letter-spacing:0.05em;">Paste a long text and get a concise summary.</div>' +
   '<textarea id="ts-input" placeholder="Paste text to summarize..." style="width:100%;min-height:150px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);padding:12px;font-family:var(--mono);font-size:0.6rem;resize:vertical;border-radius:2px;"></textarea>' +
   '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;">' +
-  '<button class="ts-mode" data-mode="short" onclick="window.selectTsMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Short</button>' +
+  '<button class="ts-mode active" data-mode="short" onclick="window.selectTsMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Short</button>' +
   '<button class="ts-mode" data-mode="detailed" onclick="window.selectTsMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Detailed</button>' +
   '<button class="ts-mode" data-mode="bullets" onclick="window.selectTsMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Bullet Points</button>' +
   '</div>' +
@@ -44,7 +44,7 @@ aiToolsData['ai-grammar-rewrite'] =
   '<div style="font-size:0.65rem;color:var(--muted);margin-bottom:12px;letter-spacing:0.05em;">Fix grammar or rewrite text in your preferred style.</div>' +
   '<textarea id="gr-input" placeholder="Enter text to fix or rewrite..." style="width:100%;min-height:120px;background:var(--bg);border:1px solid var(--green-border);color:var(--text);padding:12px;font-family:var(--mono);font-size:0.6rem;resize:vertical;border-radius:2px;"></textarea>' +
   '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;">' +
-  '<button class="gr-mode" data-mode="grammar" onclick="window.selectGrMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Grammar Fix</button>' +
+  '<button class="gr-mode active" data-mode="grammar" onclick="window.selectGrMode(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Grammar Fix</button>' +
   '<button class="gr-mode" data-mode="professional" onclick="window.selectGrMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Professional</button>' +
   '<button class="gr-mode" data-mode="formal" onclick="window.selectGrMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Formal</button>' +
   '<button class="gr-mode" data-mode="simple" onclick="window.selectGrMode(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Simple</button>' +
@@ -111,7 +111,7 @@ aiToolsData['ai-cover-letter'] =
   '<textarea id="cl-notes" placeholder="Additional notes / why you want this role" style="grid-column:1/-1;background:var(--bg);border:1px solid var(--green-border);color:var(--text);padding:8px 10px;font-family:var(--mono);font-size:0.55rem;border-radius:2px;min-height:60px;resize:vertical;"></textarea>' +
   '</div>' +
   '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;">' +
-  '<button class="cl-tone" data-tone="professional" onclick="window.selectClTone(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Professional</button>' +
+  '<button class="cl-tone active" data-tone="professional" onclick="window.selectClTone(this)" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Professional</button>' +
   '<button class="cl-tone" data-tone="enthusiastic" onclick="window.selectClTone(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Enthusiastic</button>' +
   '<button class="cl-tone" data-tone="concise" onclick="window.selectClTone(this)" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 12px;cursor:pointer;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Concise</button>' +
   '</div>' +
@@ -229,10 +229,12 @@ function selectMode(btn, cls, prefix){
     btns[i].style.background = 'var(--surface)';
     btns[i].style.color = 'var(--green)';
     btns[i].style.border = '1px solid var(--green-border)';
+    btns[i].classList.remove('active');
   }
   btn.style.background = 'var(--green)';
   btn.style.color = '#000';
   btn.style.border = 'none';
+  btn.classList.add('active');
 }
 
 /* ─── 1. AI PROMPT ENHANCER ─── */
@@ -241,7 +243,7 @@ window.enhancePrompt = function(){
   var input = document.getElementById('pe-input');
   var text = input && input.value.trim();
   if(!text){ showError('pe', 'Please enter a prompt.'); return; }
-  var modeEl = document.querySelector('.pe-mode[style*="var(--green)"]');
+  var modeEl = document.querySelector('.pe-mode.active');
   var mode = modeEl ? modeEl.getAttribute('data-mode') : 'professional';
   showLoading('pe', true);
   hideError('pe');
@@ -295,7 +297,7 @@ window.summarizeText = function(){
   var input = document.getElementById('ts-input');
   var text = input && input.value.trim();
   if(!text || text.split(/\s+/).length < 10){ showError('ts', 'Please enter at least 10 words to summarize.'); return; }
-  var modeEl = document.querySelector('.ts-mode[style*="var(--green)"]');
+  var modeEl = document.querySelector('.ts-mode.active');
   var mode = modeEl ? modeEl.getAttribute('data-mode') : 'short';
   showLoading('ts', true);
   hideError('ts');
@@ -329,7 +331,7 @@ window.rewriteText = function(){
   var input = document.getElementById('gr-input');
   var text = input && input.value.trim();
   if(!text){ showError('gr', 'Please enter some text.'); return; }
-  var modeEl = document.querySelector('.gr-mode[style*="var(--green)"]');
+  var modeEl = document.querySelector('.gr-mode.active');
   var mode = modeEl ? modeEl.getAttribute('data-mode') : 'grammar';
   showLoading('gr', true);
   hideError('gr');
@@ -525,7 +527,7 @@ window.generateCoverLetter = function(){
   var skills = document.getElementById('cl-skills').value.trim();
   var notes = document.getElementById('cl-notes').value.trim();
   if(!name || !jobTitle || !company){ showError('cl', 'Name, Job Title, and Company are required.'); return; }
-  var toneEl = document.querySelector('.cl-tone[style*="var(--green)"]');
+  var toneEl = document.querySelector('.cl-tone.active');
   var tone = toneEl ? toneEl.getAttribute('data-tone') : 'professional';
   showLoading('cl', true);
   hideError('cl');
