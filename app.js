@@ -412,7 +412,6 @@ function onPlayerReady(){
     document.getElementById('play-pause').onclick = togglePlay;
     document.getElementById('next').onclick = () => { try{ player.nextVideo() }catch(e){} updateTitle() };
     document.getElementById('prev').onclick = () => { try{ player.previousVideo() }catch(e){} updateTitle() };
-    document.getElementById('music-title').onclick = showPlaylistModal;
   } catch(e){ console.warn('YT ready:', e) }
 }
 
@@ -539,7 +538,14 @@ function updateTime(){
 var _plTitles = {};
 
 window.showPlaylistModal = function showPlaylistModal(){
-  if(!window.player) return;
+  var overlay = document.getElementById('pl-overlay');
+  var list = document.getElementById('pl-list');
+  if(!overlay || !list) return;
+  if(!window.player){
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:0.55rem;letter-spacing:.1em;color:rgba(57,255,20,.5);">player not ready yet</div>';
+    overlay.style.display = 'flex';
+    return;
+  }
 
   var curId;
   try{ curId = window.player.getVideoData().video_id; }catch(e){}
@@ -550,54 +556,43 @@ window.showPlaylistModal = function showPlaylistModal(){
     try{ var pl = window.player.getPlaylist(); if(pl && pl.length) ids = pl; }catch(e){}
   }
 
-  var existing = document.getElementById('pl-overlay');
-  if(existing) existing.remove();
-
-  var overlay = document.createElement('div');
-  overlay.id = 'pl-overlay';
-  var box = document.createElement('div');
-  box.id = 'pl-box';
-  var head = document.createElement('div');
-  head.id = 'pl-head';
-  head.innerHTML = '<span>PLAYLIST</span><span id="pl-close">&times;</span>';
-  var list = document.createElement('div');
-  list.id = 'pl-list';
-
   if(!ids.length){
-    var msg = document.createElement('div');
-    msg.style.cssText = 'padding:20px;text-align:center;font-size:0.55rem;letter-spacing:.1em;color:rgba(57,255,20,.5);';
-    msg.textContent = 'loading playlist... play a few songs to build the list';
-    list.appendChild(msg);
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:0.55rem;letter-spacing:.1em;color:rgba(57,255,20,.5);">loading playlist... play a few songs to build the list</div>';
   } else {
+    var html = '';
     ids.forEach(function(id, i){
-      var item = document.createElement('div');
-      item.className = 'pl-item' + (id === curId ? ' pl-cur' : '');
-      var label = document.createElement('span');
-      label.className = 'pl-label';
-      label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
-      item.appendChild(label);
-      item.onclick = function(){ window.player.loadVideoById(id); overlay.remove(); };
-      list.appendChild(item);
+      var cls = id === curId ? ' pl-cur' : '';
+      var title = _plTitles[id] || '#' + (i+1) + ' loading...';
+      html += '<div class="pl-item' + cls + '" data-vid="' + id + '"><span class="pl-label">' + title + '</span></div>';
+    });
+    list.innerHTML = html;
 
+    var items = list.querySelectorAll('.pl-item');
+    for(var j=0;j<items.length;j++){
+      (function(item, id){
+        item.onclick = function(){
+          window.player.loadVideoById(id);
+          overlay.style.display = 'none';
+        };
+      })(items[j], ids[j]);
+    }
+
+    // fetch titles async
+    ids.forEach(function(id, i){
       if(!_plTitles[id]){
         fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + id + '&format=json')
           .then(function(r){ return r.json(); })
           .then(function(d){
             if(d && d.title){
               _plTitles[id] = d.title;
-              label.textContent = d.title;
+              var el = list.querySelector('[data-vid="' + id + '"] .pl-label');
+              if(el) el.textContent = d.title;
             }
           })
-          .catch(function(){ label.textContent = '#' + (i+1); });
+          .catch(function(){});
       }
     });
   }
 
-  box.appendChild(head);
-  box.appendChild(list);
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-
-  document.getElementById('pl-close').onclick = function(){ overlay.remove(); };
-  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
-}
+  overlay.style.display = 'flex';
+};
