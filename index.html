@@ -413,15 +413,8 @@ setTimeout(function(){
     <button id="next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5v14l12-7zm16 0v14"/></svg></button>
   </div>
   <div id="music-info">
-    <span id="music-title" onclick="showPlaylistModal()">loading...</span>
+    <span id="music-title">loading...</span>
     <span id="music-time">0:00 / 0:00</span>
-  </div>
-</div>
-
-<div id="pl-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-  <div id="pl-box">
-    <div id="pl-head"><span>PLAYLIST</span><span id="pl-close" onclick="document.getElementById('pl-overlay').style.display='none'">&times;</span></div>
-    <div id="pl-list"></div>
   </div>
 </div>
 </div>
@@ -1103,8 +1096,6 @@ function onPlayerReady(){
     player.setVolume(100)
     player.unMute()
     updateTitle()
-    // track first video
-    try{ var d=player.getVideoData(); if(d&&d.video_id){if(!window._plAllIds)window._plAllIds=[];window._plAllIds.push(d.video_id);} }catch(e){}
     document.getElementById('play-pause').onclick = togglePlay
     document.getElementById('next').onclick = () => { try{ player.nextVideo() }catch(e){} updateTitle() }
     document.getElementById('prev').onclick = () => { try{ player.previousVideo() }catch(e){} updateTitle() }
@@ -1192,7 +1183,6 @@ window.addEventListener('resize', function(){ if(eqCanvas.classList.contains('pl
 
 function onPlayerStateChange(e){
   if(e.data === YT.PlayerState.PLAYING){
-    var _pd = player.getVideoData(); if(_pd && _pd.video_id){ if(!window._plAllIds) window._plAllIds = []; if(window._plAllIds.indexOf(_pd.video_id)===-1) window._plAllIds.push(_pd.video_id); }
     isPlaying = true
     document.getElementById('pp-play').style.display = 'none'
     document.getElementById('pp-pause').style.display = ''
