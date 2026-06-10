@@ -3131,7 +3131,7 @@ window.makeProfilePhoto = function(){
 var _aigGenerating = false;
 var _aigLastPrompt = '';
 var _aigLastStyle = '';
-var _aigKey = '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';
+var _aigKey = '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';
 
 var AIG_STYLES = {
   'none': '',
@@ -3220,7 +3220,7 @@ window.generateAigImages = function(){
   function generateOne(){
     if(!_aigGenerating) return finish();
     fetch(
-      'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+      'https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell',
       {
         method: 'POST',
         headers: {
