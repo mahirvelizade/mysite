@@ -3308,32 +3308,45 @@ window.generateAigImages = function(){
 
 function renderAigResults(blobs, prompt, styleKey){
   var output = document.getElementById('aig-output');
-  output.style.display = 'block';
   var cols = blobs.length <= 2 ? 2 : blobs.length <= 4 ? 2 : 3;
-  var html = '<div style="font-size:0.65rem;color:var(--green);margin-bottom:12px;letter-spacing:0.05em;">Generated ' + blobs.length + ' image(s)</div>';
-  html += '<div class="aig-results-grid" style="display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:16px;">';
+  var pending = blobs.length;
+  var cards = [];
   blobs.forEach(function(blob, i){
-    var url = URL.createObjectURL(blob);
-    var promptForCopy = prompt;
-    if(styleKey && styleKey !== 'none' && AIG_STYLES[styleKey]){
-      promptForCopy += ', ' + AIG_STYLES[styleKey] + ', high quality, detailed, sharp focus';
-    } else if(promptForCopy) {
-      promptForCopy += ', high quality, detailed, sharp focus';
-    }
-    html += '<div class="aig-image-card" style="background:var(--surface);border:1px solid var(--green-border);border-radius:4px;overflow:hidden;">' +
-      '<div style="position:relative;width:100%;aspect-ratio:1;background:var(--bg);overflow:hidden;">' +
-      '<img src="' + url + '" alt="Generated image ' + (i+1) + '" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy">' +
-      '</div>' +
-      '<div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">' +
-      '<button onclick="window.aigDownload(this)" data-url="' + url + '" data-idx="' + (i+1) + '" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Download</button>' +
-      '<button onclick="window.aigCopyPrompt(this)" data-prompt="' + escapeAttr(promptForCopy) + '" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Copy Prompt</button>' +
-      '</div></div>';
+    var reader = new FileReader();
+    reader.onload = function(){
+      var dataUrl = reader.result;
+      var promptForCopy = prompt;
+      if(styleKey && styleKey !== 'none' && AIG_STYLES[styleKey]){
+        promptForCopy += ', ' + AIG_STYLES[styleKey] + ', high quality, detailed, sharp focus';
+      } else if(promptForCopy) {
+        promptForCopy += ', high quality, detailed, sharp focus';
+      }
+      cards[i] = '<div class="aig-image-card" style="background:var(--surface);border:1px solid var(--green-border);border-radius:4px;overflow:hidden;">' +
+        '<div style="position:relative;width:100%;aspect-ratio:1;background:var(--bg);overflow:hidden;">' +
+        '<img src="' + dataUrl + '" alt="Generated image ' + (i+1) + '" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy">' +
+        '</div>' +
+        '<div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">' +
+        '<button onclick="window.aigDownload(this)" data-url="' + dataUrl + '" data-idx="' + (i+1) + '" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Download</button>' +
+        '<button onclick="window.aigCopyPrompt(this)" data-prompt="' + escapeAttr(promptForCopy) + '" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Copy Prompt</button>' +
+        '</div></div>';
+      pending--;
+      if(pending === 0) done();
+    };
+    reader.readAsDataURL(blob);
   });
-  html += '</div>';
-  html += '<div style="text-align:center;margin-top:20px;">' +
-    '<button onclick="window.aigDownloadAll()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download All</button></div>';
-  output.innerHTML = html;
-  window._aigBlobs = blobs;
+  function done(){
+    output.style.display = 'block';
+    var html = '<div style="font-size:0.65rem;color:var(--green);margin-bottom:12px;letter-spacing:0.05em;">Generated ' + blobs.length + ' image(s)</div>';
+    html += '<div class="aig-results-grid" style="display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:16px;">' + cards.join('') + '</div>';
+    html += '<div style="text-align:center;margin-top:20px;">' +
+      '<button onclick="window.aigDownloadAll()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download All</button></div>';
+    output.innerHTML = html;
+    window._aigBlobs = blobs;
+    window._aigDataUrls = cards.map(function(c,i){
+      var m = c.match(/src="([^"]+)"/);
+      return m ? m[1] : '';
+    });
+  }
 }
 
 function escapeAttr(s){
@@ -3341,11 +3354,9 @@ function escapeAttr(s){
 }
 
 window.aigDownload = function(btn){
-  var url = btn.getAttribute('data-url');
-  var idx = btn.getAttribute('data-idx');
   var a = document.createElement('a');
-  a.href = url;
-  a.download = 'ai_image_' + idx + '.png';
+  a.href = btn.getAttribute('data-url');
+  a.download = 'ai_image_' + btn.getAttribute('data-idx') + '.png';
   a.click();
 };
 
