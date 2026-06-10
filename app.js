@@ -412,6 +412,7 @@ function onPlayerReady(){
     document.getElementById('play-pause').onclick = togglePlay;
     document.getElementById('next').onclick = () => { try{ player.nextVideo() }catch(e){} updateTitle() };
     document.getElementById('prev').onclick = () => { try{ player.previousVideo() }catch(e){} updateTitle() };
+    document.getElementById('music-title').onclick = showPlaylistModal;
   } catch(e){ console.warn('YT ready:', e) }
 }
 
@@ -533,4 +534,57 @@ function updateTime(){
     const dur = player.getDuration();
     document.getElementById('music-time').textContent = fmt(cur) + ' / ' + fmt(dur);
   } catch(e){}
+}
+
+var _plTitles = {};
+
+window.showPlaylistModal = function showPlaylistModal(){
+  if(!player) return;
+  var ids = player.getPlaylist();
+  if(!ids || !ids.length) return;
+  var curIdx = player.getPlaylistIndex();
+
+  var existing = document.getElementById('pl-overlay');
+  if(existing) existing.remove();
+
+  var overlay = document.createElement('div');
+  overlay.id = 'pl-overlay';
+  var box = document.createElement('div');
+  box.id = 'pl-box';
+  var head = document.createElement('div');
+  head.id = 'pl-head';
+  head.innerHTML = '<span>PLAYLIST</span><span id="pl-close">&times;</span>';
+  var list = document.createElement('div');
+  list.id = 'pl-list';
+
+  box.appendChild(head);
+  box.appendChild(list);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  ids.forEach(function(id, i){
+    var item = document.createElement('div');
+    item.className = 'pl-item' + (i === curIdx ? ' pl-cur' : '');
+    var label = document.createElement('span');
+    label.className = 'pl-label';
+    label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
+    item.appendChild(label);
+    item.onclick = function(){ player.playVideoAt(i); overlay.remove(); };
+    list.appendChild(item);
+
+    if(!_plTitles[id]){
+      fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + id + '&format=json')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(d && d.title){
+            _plTitles[id] = d.title;
+            label.textContent = d.title;
+          }
+        })
+        .catch(function(){ label.textContent = '#' + (i+1); });
+    }
+  });
+
+  document.getElementById('pl-close').onclick = function(){ overlay.remove(); };
+  overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
 }

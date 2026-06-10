@@ -1098,6 +1098,7 @@ function onPlayerReady(){
     document.getElementById('play-pause').onclick = togglePlay
     document.getElementById('next').onclick = () => { try{ player.nextVideo() }catch(e){} updateTitle() }
     document.getElementById('prev').onclick = () => { try{ player.previousVideo() }catch(e){} updateTitle() }
+    document.getElementById('music-title').onclick = showPlaylistModal
   } catch(e){ console.warn('YT ready:', e) }
 }
 </script>

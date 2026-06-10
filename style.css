@@ -1028,5 +1028,32 @@ nav.scrolled {
     color: rgba(57,255,20,.5);
     text-transform: uppercase; white-space: nowrap;
 }
-#music-title { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+#music-title { max-width: 180px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+#music-title:hover { color: #fff; }
+
+#pl-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.7); z-index: 100000;
+  display: flex; align-items: center; justify-content: center;
+}
+#pl-box {
+  background: #111; border: 1px solid var(--green-border); border-radius: 4px;
+  max-height: 70vh; width: 340px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+#pl-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; border-bottom: 1px solid var(--green-border);
+  font-size: 0.55rem; letter-spacing: .15em; color: var(--green);
+}
+#pl-close { font-size: 1.1rem; cursor: pointer; color: var(--green); }
+#pl-list { overflow-y: auto; padding: 4px 0; }
+.pl-item {
+  padding: 8px 14px; cursor: pointer; font-size: 0.55rem;
+  letter-spacing: .05em; transition: background .15s;
+  color: var(--text);
+}
+.pl-item:hover { background: rgba(57,255,20,.08); }
+.pl-item.pl-cur { background: rgba(57,255,20,.12); color: var(--green); }
+
 #player { position: fixed; bottom: 0; right: 0; width: 1px; height: 1px; overflow: hidden; }
