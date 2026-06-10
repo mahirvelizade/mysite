@@ -229,3 +229,29 @@
 - **Fixes attempted**: `var player` + `window.player`, inline HTML modal, inline `onclick` — still didn't work
 - **Lesson**: Next time start minimal — one static HTML div + one toggle function. Avoid IIFE scope complexity.
 - **Status**: **REVERTED** (commit `b2c9fe5`)
+
+## 🗺️ Session Summary (11 Jun 2026) — 10 new AI tools + fixes
+- **New file**: `tools-ai.js` — all 10 AI tool HTML bodies + functions, loaded via `<script>` in `index.html`
+- **Architecture**: AI tool IDs added to TOOLS array in `tools.js`, `openTool()` falls back to `window._aiToolsData[toolId]` for bodies
+- **10 AI tools added**:
+  1. **AI Prompt Enhancer** — 5 modes (Professional/Creative/Marketing/Coding/SEO), real client-side template-based enhancement
+  2. **AI Text Summarizer** — 3 modes (Short/Detailed/Bullet Points), extracts sentences by ratio
+  3. **AI Grammar & Rewrite** — 6 modes (Grammar Fix/Professional/Formal/Simple/Shorten/Expand), text transformation
+  4. **AI CV Generator** — Form + live preview + print (window.print) + PDF download
+  5. **AI Resume Analyzer** — Text analysis, keyword scoring, improvement suggestions, download report
+  6. **AI Cover Letter Generator** — 3 tones (Professional/Enthusiastic/Concise), PDF download
+  7. **Photo Enhancer** — Sharpen/enhance/upscale 2x via Canvas (convolution kernels)
+  8. **AI Image to Text (OCR)** — HuggingFace Inference API (TrOCR)
+  9. **Object Remover** — Canvas brush + mask + median filter inpainting
+  10. **Image Cleanup Tool** — Median filter denoising (light/medium/strong)
+- **Bugs fixed**:
+  1. `tools-ai.js` wasn't loaded in `index.html` — added `<script src="tools-ai.js">` → AI tools showed "coming soon"
+  2. `enhancePrompt()` was just prepending a template sentence (not real enhancement) — rewritten with per-mode structured prompt generation
+  3. Mode selector broken: `[style*="var(--green)"]` matched ALL buttons (inactive ones have `color:var(--green)`) → always selected first mode. Fixed: `selectMode()` now uses `.active` class, `querySelector('.pe-mode.active')` instead
+- **Shared helpers**: `copyResult()`, `selectMode()`, `showLoading/hideLoading/showError/hideError/showResult/hideResult`
+- **Files**: `tools-ai.js` (new, ~975 lines), `tools.js` (+10 TOOLS entries + 1-line openTool fallback), `index.html` (+1 script tag), `mysite.md`
+- **Commits**:
+  - `3234022` — feat: add 10 AI tools
+  - `95e946d` — fix: load tools-ai.js (was missing from HTML)
+  - `3ceb8be` — fix: real prompt enhancement (was template passthrough)
+  - `f1e5e5b` — fix: use .active class for mode detection (was matching all buttons)
