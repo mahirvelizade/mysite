@@ -539,16 +539,15 @@ function updateTime(){
 var _plTitles = {};
 
 window.showPlaylistModal = function showPlaylistModal(){
-  if(!player) return;
+  if(!window.player) return;
 
   var curId;
-  try{ curId = player.getVideoData().video_id; }catch(e){}
+  try{ curId = window.player.getVideoData().video_id; }catch(e){}
 
   var ids = window._plAllIds ? window._plAllIds.slice() : [];
   if(curId && ids.indexOf(curId) === -1) ids.push(curId);
   if(!ids.length){
-    var pl = player.getPlaylist();
-    if(pl && pl.length) ids = pl;
+    try{ var pl = window.player.getPlaylist(); if(pl && pl.length) ids = pl; }catch(e){}
   }
 
   var existing = document.getElementById('pl-overlay');
@@ -577,7 +576,7 @@ window.showPlaylistModal = function showPlaylistModal(){
       label.className = 'pl-label';
       label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
       item.appendChild(label);
-      item.onclick = function(){ player.loadVideoById(id); overlay.remove(); };
+      item.onclick = function(){ window.player.loadVideoById(id); overlay.remove(); };
       list.appendChild(item);
 
       if(!_plTitles[id]){
