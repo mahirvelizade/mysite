@@ -247,19 +247,44 @@ window.enhancePrompt = function(){
   hideError('pe');
   hideResult('pe');
 
-  var templates = {
-    professional: 'As a professional, enhance the following prompt to be more precise and effective. Maintain a professional tone and add relevant context:\n\n' + text,
-    creative: 'As a creative writer, expand the following prompt with imaginative details and vivid descriptions. Make it inspiring and original:\n\n' + text,
-    marketing: 'As a marketing expert, optimize the following prompt for maximum engagement and persuasive impact. Use power words and clear calls to action:\n\n' + text,
-    coding: 'As a senior software engineer, refine the following prompt to be technically precise and comprehensive. Include relevant technical context:\n\n' + text,
-    seo: 'As an SEO specialist, enhance the following prompt with keywords and search-optimized phrasing. Focus on discoverability:\n\n' + text,
-  };
-  var result = templates[mode] || templates.professional;
-
   setTimeout(function(){
     showLoading('pe', false);
     var out = document.getElementById('pe-output');
-    if(out) out.value = result;
+    if(!out) return;
+
+    var words = text.split(/\s+/);
+    var result = '';
+
+    if(mode === 'professional'){
+      var adj = ['detailed', 'comprehensive', 'structured', 'specific', 'actionable'];
+      result = 'I need you to act as an expert consultant. Provide a ' + adj[Math.floor(Math.random()*adj.length)] + ' and well-structured response. ';
+      result += 'Context: ' + text + '. ';
+      result += 'Please include concrete examples, step-by-step reasoning, and cite relevant best practices. Format the output with clear headings and bullet points where appropriate.';
+    } else if(mode === 'creative'){
+      var styles = ['vivid and imaginative', 'atmospheric and sensory-rich', 'whimsical and surprising', 'cinematic and dramatic', 'poetic and evocative'];
+      result = 'Write in a ' + styles[Math.floor(Math.random()*styles.length)] + ' style. ';
+      result += 'Explore the following idea with original metaphors, unexpected angles, and emotional depth: ' + text + '. ';
+      result += 'Use strong imagery, varied sentence structure, and a distinctive narrative voice. Aim to captivate and inspire.';
+    } else if(mode === 'marketing'){
+      var hooks = ['attention-grabbing', 'curiosity-piquing', 'urgency-creating', 'benefit-driven', 'story-based'];
+      result = 'Write persuasive marketing copy using a ' + hooks[Math.floor(Math.random()*hooks.length)] + ' hook. ';
+      result += 'Topic: ' + text + '. ';
+      result += 'Include a clear value proposition, social proof elements, a compelling call-to-action, and emotional triggers. Use power words and keep sentences punchy. Format with a headline, subheadline, bullet benefits, and CTA.';
+    } else if(mode === 'coding'){
+      result = 'Act as a senior engineer reviewing the following requirement. Provide a technically precise solution with: ';
+      result += '(1) architecture/approach overview, (2) code implementation with best practices, (3) edge case handling, (4) performance considerations. ';
+      result += 'Requirement: ' + text + '. ';
+      result += 'Include error handling, input validation, and comments explaining key decisions. Consider scalability and maintainability.';
+    } else if(mode === 'seo'){
+      result = 'Write SEO-optimized content for the following topic. Target a featured snippet position. ';
+      result += 'Topic: ' + text + '. ';
+      result += 'Include: (1) keyword-optimized H1 and H2 headings, (2) meta description under 160 chars, (3) FAQ schema-ready Q&A pairs, (4) internal linking suggestions, (5) related long-tail keyword variations. ';
+      result += 'Maintain natural readability while achieving high keyword density for primary terms. Structure with short paragraphs and scannable sections.';
+    } else {
+      result = 'I need a comprehensive response regarding: ' + text + '. Please provide detailed analysis with examples and actionable takeaways.';
+    }
+
+    out.value = result;
     showResult('pe');
   }, 400);
 };
