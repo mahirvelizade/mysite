@@ -486,14 +486,16 @@ window.addEventListener('resize', function(){ if(eqCanvas && eqCanvas.classList.
 function onPlayerStateChange(e){
   if(e.data === YT.PlayerState.PLAYING){
     isPlaying = true;
-    document.getElementById('play-pause').textContent = '⏸\uFE0E';
+    document.getElementById('pp-play').style.display = 'none';
+    document.getElementById('pp-pause').style.display = '';
     clearInterval(timeInterval);
     timeInterval = setInterval(updateTime, 500);
     eq(true);
     try{ player.unMute(); player.setVolume(100); }catch(e){}
   } else if(e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED){
     isPlaying = false;
-    document.getElementById('play-pause').textContent = '▶\uFE0E';
+    document.getElementById('pp-play').style.display = '';
+    document.getElementById('pp-pause').style.display = 'none';
     clearInterval(timeInterval);
     eq(false);
   }

@@ -405,9 +405,12 @@ setTimeout(function(){
 </div>
 <div id="music-player">
   <div id="music-controls">
-    <button id="prev">&#x2039;&#x2039;</button>
-    <button id="play-pause">&#x25B8;</button>
-    <button id="next">&#x203A;&#x203A;</button>
+    <button id="prev"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 5v14L8 12zM4 5v14"/></svg></button>
+    <button id="play-pause">
+      <svg id="pp-play" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16l13-8z"/></svg>
+      <svg id="pp-pause" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M6 6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm8 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1z"/></svg>
+    </button>
+    <button id="next"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5v14l12-7zm16 0v14"/></svg></button>
   </div>
   <div id="music-info">
     <span id="music-title">loading...</span>
