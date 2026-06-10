@@ -591,42 +591,42 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div class="ai-gen-section" style="margin-bottom:16px;">' +
     '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:8px;">Style</label>' +
     '<div class="aig-style-chips" id="aig-style-chips">' +
-    '<button class="aig-chip active" data-style="none">No Style</button>' +
-    '<button class="aig-chip" data-style="anime_painted">Painted Anime</button>' +
-    '<button class="aig-chip" data-style="casual_photo">Casual Photo</button>' +
-    '<button class="aig-chip" data-style="cinematic">Cinematic</button>' +
-    '<button class="aig-chip" data-style="digital_painting">Digital Painting</button>' +
-    '<button class="aig-chip" data-style="concept_art">Concept Art</button>' +
-    '<button class="aig-chip" data-style="disney_3d">3D Disney Character</button>' +
-    '<button class="aig-chip" data-style="disney_2d">2D Disney Character</button>' +
-    '<button class="aig-chip" data-style="disney_sketch">Disney Sketch</button>' +
-    '<button class="aig-chip" data-style="concept_sketch">Concept Sketch</button>' +
-    '<button class="aig-chip" data-style="painterly">Painterly</button>' +
-    '<button class="aig-chip" data-style="oil_painting">Oil Painting</button>' +
-    '<button class="aig-chip" data-style="oil_realism">Oil Painting - Realism</button>' +
-    '<button class="aig-chip" data-style="oil_old">Oil Painting - Old</button>' +
-    '<button class="aig-chip" data-style="oil_70s">Oil Painting - 70s Pulp</button>' +
-    '<button class="aig-chip" data-style="pro_photo">Professional Photo</button>' +
-    '<button class="aig-chip" data-style="anime">Anime</button>' +
-    '<button class="aig-chip" data-style="anime_drawn">Drawn Anime</button>' +
-    '<button class="aig-chip" data-style="anime_screencap">Anime Screencap</button>' +
-    '<button class="aig-chip" data-style="anime_cute">Cute Anime</button>' +
-    '<button class="aig-chip" data-style="anime_soft">Soft Anime</button>' +
-    '<button class="aig-chip" data-style="fantasy_painting">Fantasy Painting</button>' +
-    '<button class="aig-chip" data-style="fantasy_landscape">Fantasy Landscape</button>' +
-    '<button class="aig-chip" data-style="fantasy_portrait">Fantasy Portrait</button>' +
-    '<button class="aig-chip" data-style="ghibli">Studio Ghibli</button>' +
-    '<button class="aig-chip" data-style="pixel_art">Pixel Art</button>' +
-    '<button class="aig-chip" data-style="vintage_comic">Vintage Comic</button>' +
-    '<button class="aig-chip" data-style="medieval">Medieval</button>' +
-    '<button class="aig-chip" data-style="watercolor">Watercolor</button>' +
-    '<button class="aig-chip" data-style="pencil">Pencil</button>' +
-    '<button class="aig-chip" data-style="tattoo">Tattoo Design</button>' +
-    '<button class="aig-chip" data-style="cartoon">Cartoon</button>' +
-    '<button class="aig-chip" data-style="claymation">Claymation</button>' +
-    '<button class="aig-chip" data-style="flat">Flat Illustration</button>' +
-    '<button class="aig-chip" data-style="emoji_3d">3D Emoji</button>' +
-    '<button class="aig-chip" data-style="fantasy_map">Fantasy World Map</button>' +
+    '<button class="aig-chip active" data-style="none" onclick="window.selectAigStyle(this)">No Style</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime_painted">Painted Anime</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="casual_photo">Casual Photo</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="cinematic">Cinematic</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="digital_painting">Digital Painting</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="concept_art">Concept Art</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="disney_3d">3D Disney Character</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="disney_2d">2D Disney Character</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="disney_sketch">Disney Sketch</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="concept_sketch">Concept Sketch</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="painterly">Painterly</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="oil_painting">Oil Painting</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="oil_realism">Oil Painting - Realism</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="oil_old">Oil Painting - Old</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="oil_70s">Oil Painting - 70s Pulp</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="pro_photo">Professional Photo</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime">Anime</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime_drawn">Drawn Anime</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime_screencap">Anime Screencap</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime_cute">Cute Anime</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="anime_soft">Soft Anime</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="fantasy_painting">Fantasy Painting</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="fantasy_landscape">Fantasy Landscape</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="fantasy_portrait">Fantasy Portrait</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="ghibli">Studio Ghibli</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="pixel_art">Pixel Art</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="vintage_comic">Vintage Comic</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="medieval">Medieval</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="watercolor">Watercolor</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="pencil">Pencil</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="tattoo">Tattoo Design</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="cartoon">Cartoon</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="claymation">Claymation</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="flat">Flat Illustration</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="emoji_3d">3D Emoji</button>' +
+    '<button class="aig-chip" onclick="window.selectAigStyle(this)" data-style="fantasy_map">Fantasy World Map</button>' +
     '</div></div>' +
 
     '<div class="ai-gen-controls" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end;">' +
@@ -3172,21 +3172,19 @@ var AIG_STYLES = {
   'fantasy_map': 'fantasy map illustration, detailed cartography'
 };
 
-(function initAigChips(){
-  setTimeout(function(){
-    var container = document.getElementById('aig-style-chips');
-    if(!container) return;
-    container.addEventListener('click', function(e){
-      var chip = e.target.closest('.aig-chip');
-      if(!chip) return;
-      container.querySelectorAll('.aig-chip').forEach(function(c){ c.classList.remove('active'); });
-      chip.classList.add('active');
-    });
-  }, 100);
-})();
+window.selectAigStyle = function(el){
+  document.querySelectorAll('#aig-style-chips .aig-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+};
 
 window.generateAigImages = function(){
   if(_aigGenerating) return;
+  var prompt = document.getElementById('aig-prompt').value.trim();
+  if(!prompt){
+    document.getElementById('aig-error').textContent = 'Please enter a prompt.';
+    document.getElementById('aig-error').style.display = 'block';
+    return;
+  }
   document.getElementById('aig-error').style.display = 'none';
   var activeChip = document.querySelector('#aig-style-chips .aig-chip.active');
   var styleKey = activeChip ? activeChip.getAttribute('data-style') : 'none';
