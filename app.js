@@ -540,16 +540,16 @@ var _plTitles = {};
 
 window.showPlaylistModal = function showPlaylistModal(){
   if(!player) return;
-  var ids = window._plAllIds && window._plAllIds.length ? window._plAllIds : player.getPlaylist();
-  if(!ids || !ids.length){
-    setTimeout(function(){
-      var pl = player.getPlaylist();
-      if(pl && pl.length){ _plAllIds = pl; showPlaylistModal(); }
-    }, 3000);
-    return;
-  }
+
   var curId;
   try{ curId = player.getVideoData().video_id; }catch(e){}
+
+  var ids = window._plAllIds ? window._plAllIds.slice() : [];
+  if(curId && ids.indexOf(curId) === -1) ids.push(curId);
+  if(!ids.length){
+    var pl = player.getPlaylist();
+    if(pl && pl.length) ids = pl;
+  }
 
   var existing = document.getElementById('pl-overlay');
   if(existing) existing.remove();
@@ -564,33 +564,40 @@ window.showPlaylistModal = function showPlaylistModal(){
   var list = document.createElement('div');
   list.id = 'pl-list';
 
+  if(!ids.length){
+    var msg = document.createElement('div');
+    msg.style.cssText = 'padding:20px;text-align:center;font-size:0.55rem;letter-spacing:.1em;color:rgba(57,255,20,.5);';
+    msg.textContent = 'loading playlist... play a few songs to build the list';
+    list.appendChild(msg);
+  } else {
+    ids.forEach(function(id, i){
+      var item = document.createElement('div');
+      item.className = 'pl-item' + (id === curId ? ' pl-cur' : '');
+      var label = document.createElement('span');
+      label.className = 'pl-label';
+      label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
+      item.appendChild(label);
+      item.onclick = function(){ player.loadVideoById(id); overlay.remove(); };
+      list.appendChild(item);
+
+      if(!_plTitles[id]){
+        fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + id + '&format=json')
+          .then(function(r){ return r.json(); })
+          .then(function(d){
+            if(d && d.title){
+              _plTitles[id] = d.title;
+              label.textContent = d.title;
+            }
+          })
+          .catch(function(){ label.textContent = '#' + (i+1); });
+      }
+    });
+  }
+
   box.appendChild(head);
   box.appendChild(list);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
-
-  ids.forEach(function(id, i){
-    var item = document.createElement('div');
-    item.className = 'pl-item' + (id === curId ? ' pl-cur' : '');
-    var label = document.createElement('span');
-    label.className = 'pl-label';
-    label.textContent = _plTitles[id] || '#' + (i+1) + ' loading...';
-    item.appendChild(label);
-    item.onclick = function(){ player.loadVideoById(id); overlay.remove(); };
-    list.appendChild(item);
-
-    if(!_plTitles[id]){
-      fetch('https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + id + '&format=json')
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          if(d && d.title){
-            _plTitles[id] = d.title;
-            label.textContent = d.title;
-          }
-        })
-        .catch(function(){ label.textContent = '#' + (i+1); });
-    }
-  });
 
   document.getElementById('pl-close').onclick = function(){ overlay.remove(); };
   overlay.onclick = function(e){ if(e.target === overlay) overlay.remove(); };
