@@ -54,10 +54,11 @@ const TOOLS = [
   { id:'xml-json',           name:'XML ↔ JSON',          icon:'🔀', cat:'converter' },
   { id:'split-csv',          name:'Split CSV',           icon:'✂️', cat:'converter' },
   { id:'create-zip',         name:'Create ZIP',          icon:'🗜️', cat:'converter' },
+  { id:'ai-image-generator', name:'AI Image Generator',  icon:'🎨', cat:'ai' },
 ];
 
-const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter' };
-const CATEGORY_ORDER = ['pdf', 'image', 'dev', 'converter'];
+const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter', ai:'AI' };
+const CATEGORY_ORDER = ['pdf', 'image', 'dev', 'converter', 'ai'];
 
 function imgUploadHTML(id, cacheKey, accept){
   return '<div style="text-align:center;padding:40px;border:2px dashed var(--green-border);border-radius:8px;cursor:none;" onclick="document.getElementById(\''+id+'\').click()">' +
@@ -582,6 +583,80 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<button onclick="window.createZipArchive()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:12px 28px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Create ZIP</button></div>' +
     '<div id="cz-progress" style="display:none;text-align:center;padding:16px;font-size:0.65rem;color:var(--green);">Creating archive...</div>' +
     '<div id="cz-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-top:12px;"></div>',
+
+  'ai-image-generator': '<div class="ai-gen-key" style="margin-bottom:16px;">' +
+    '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">HuggingFace API Key</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input id="aig-key" type="password" placeholder="hf_xxxxxxxxxxxxxxxxxx" value="' +
+    ((typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'') +
+    '" style="flex:1;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.65rem;padding:8px 12px;outline:none;">' +
+    '<button onclick="window.saveAigKey()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.55rem;padding:8px 14px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Save</button></div>' +
+    '<div style="font-size:0.5rem;color:var(--muted);margin-top:4px;">Your key stays in your browser. Get one at <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--green);">huggingface.co/settings/tokens</a></div></div>' +
+
+    '<div style="margin-bottom:20px;">' +
+    '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">Prompt</label>' +
+    '<textarea id="aig-prompt" placeholder="Describe the image you want to generate..." style="width:100%;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:14px;min-height:90px;resize:vertical;outline:none;line-height:1.5;"></textarea></div>' +
+
+    '<div class="ai-gen-section" style="margin-bottom:16px;">' +
+    '<label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:8px;">Style</label>' +
+    '<div class="aig-style-chips" id="aig-style-chips">' +
+    '<button class="aig-chip active" data-style="none">No Style</button>' +
+    '<button class="aig-chip" data-style="anime_painted">Painted Anime</button>' +
+    '<button class="aig-chip" data-style="casual_photo">Casual Photo</button>' +
+    '<button class="aig-chip" data-style="cinematic">Cinematic</button>' +
+    '<button class="aig-chip" data-style="digital_painting">Digital Painting</button>' +
+    '<button class="aig-chip" data-style="concept_art">Concept Art</button>' +
+    '<button class="aig-chip" data-style="disney_3d">3D Disney Character</button>' +
+    '<button class="aig-chip" data-style="disney_2d">2D Disney Character</button>' +
+    '<button class="aig-chip" data-style="disney_sketch">Disney Sketch</button>' +
+    '<button class="aig-chip" data-style="concept_sketch">Concept Sketch</button>' +
+    '<button class="aig-chip" data-style="painterly">Painterly</button>' +
+    '<button class="aig-chip" data-style="oil_painting">Oil Painting</button>' +
+    '<button class="aig-chip" data-style="oil_realism">Oil Painting - Realism</button>' +
+    '<button class="aig-chip" data-style="oil_old">Oil Painting - Old</button>' +
+    '<button class="aig-chip" data-style="oil_70s">Oil Painting - 70s Pulp</button>' +
+    '<button class="aig-chip" data-style="pro_photo">Professional Photo</button>' +
+    '<button class="aig-chip" data-style="anime">Anime</button>' +
+    '<button class="aig-chip" data-style="anime_drawn">Drawn Anime</button>' +
+    '<button class="aig-chip" data-style="anime_screencap">Anime Screencap</button>' +
+    '<button class="aig-chip" data-style="anime_cute">Cute Anime</button>' +
+    '<button class="aig-chip" data-style="anime_soft">Soft Anime</button>' +
+    '<button class="aig-chip" data-style="fantasy_painting">Fantasy Painting</button>' +
+    '<button class="aig-chip" data-style="fantasy_landscape">Fantasy Landscape</button>' +
+    '<button class="aig-chip" data-style="fantasy_portrait">Fantasy Portrait</button>' +
+    '<button class="aig-chip" data-style="ghibli">Studio Ghibli</button>' +
+    '<button class="aig-chip" data-style="pixel_art">Pixel Art</button>' +
+    '<button class="aig-chip" data-style="vintage_comic">Vintage Comic</button>' +
+    '<button class="aig-chip" data-style="medieval">Medieval</button>' +
+    '<button class="aig-chip" data-style="watercolor">Watercolor</button>' +
+    '<button class="aig-chip" data-style="pencil">Pencil</button>' +
+    '<button class="aig-chip" data-style="tattoo">Tattoo Design</button>' +
+    '<button class="aig-chip" data-style="cartoon">Cartoon</button>' +
+    '<button class="aig-chip" data-style="claymation">Claymation</button>' +
+    '<button class="aig-chip" data-style="flat">Flat Illustration</button>' +
+    '<button class="aig-chip" data-style="emoji_3d">3D Emoji</button>' +
+    '<button class="aig-chip" data-style="fantasy_map">Fantasy World Map</button>' +
+    '</div></div>' +
+
+    '<div class="ai-gen-controls" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end;">' +
+    '<div><label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">Shape</label>' +
+    '<select id="aig-shape" style="background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 12px;outline:none;">' +
+    '<option value="1024x1024">Square (1024×1024)</option>' +
+    '<option value="768x1024">Portrait (768×1024)</option>' +
+    '<option value="1024x768">Landscape (1024×768)</option></select></div>' +
+    '<div><label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">Images</label>' +
+    '<select id="aig-count" style="background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 12px;outline:none;">' +
+    '<option value="2">2 images</option><option value="4" selected>4 images</option><option value="6">6 images</option></select></div>' +
+    '<div><button onclick="window.generateAigImages()" id="aig-gen-btn" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:10px 24px;cursor:none;letter-spacing:0.15em;text-transform:uppercase;transition:var(--transition);">Generate</button></div></div>' +
+
+    '<div id="aig-loading" style="display:none;text-align:center;padding:40px;">' +
+    '<div class="loader-ring" style="margin:0 auto 20px;"></div>' +
+    '<div id="aig-loading-text" style="font-size:0.65rem;color:var(--green);letter-spacing:0.1em;">Generating images... <span id="aig-progress">0/' + '0</span></div>' +
+    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">This may take 30–60 seconds per image</div></div>' +
+
+    '<div id="aig-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-bottom:16px;"></div>' +
+
+    '<div id="aig-output" style="display:none;"></div>',
 };
 
 var _activeCategory = 'all';
@@ -674,6 +749,7 @@ function updateToolMeta(tool){
   else if(tool.id === 'image-to-pdf') desc = 'Convert images to PDF files instantly in your browser. Free, no upload required.';
   else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files in your browser. Reduces file size with Ghostscript WASM. Free, private, no upload required.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
+  else if(tool.id === 'ai-image-generator') desc = 'Generate AI images with FLUX.1-schnell. Powered by HuggingFace Inference API. Free online AI image generator.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
   if(md) md.setAttribute('content', desc);
@@ -692,6 +768,7 @@ window.closeTool = function(){
   _rbgOriginalUrl = null;
   _rbgResultBlob = null;
   _pdfcFile = null;
+  _aigGenerating = false;
   document.title = 'Mahir Velizade — Designer';
   var og = document.querySelector('meta[property="og:title"]');
   if(og) og.setAttribute('content','Mahir Velizade — Designer &amp; Tools');
@@ -3057,6 +3134,283 @@ window.makeProfilePhoto = function(){
     });
   };
   img.src = URL.createObjectURL(file);
+};
+
+/* ─── AI IMAGE GENERATOR (FLUX.1-schnell via HuggingFace) ─── */
+var _aigGenerating = false;
+var _aigLastPrompt = '';
+var _aigLastStyle = '';
+var _aigKey = (typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'';
+
+window.saveAigKey = function(){
+  var key = document.getElementById('aig-key').value.trim();
+  if(key && typeof localStorage!=='undefined'){ localStorage.setItem('hf_key', key); _aigKey = key; }
+};
+
+var AIG_STYLES = {
+  'none': '',
+  'anime_painted': 'anime style, detailed, painted illustration',
+  'casual_photo': 'casual photography, natural lighting',
+  'cinematic': 'cinematic lighting, movie scene, dramatic',
+  'digital_painting': 'digital painting, highly detailed',
+  'concept_art': 'concept art, design sketch, professional',
+  'disney_3d': '3D cartoon character, pixar-like style',
+  'disney_2d': '2D cartoon style, animated film look',
+  'disney_sketch': 'pencil sketch, character design',
+  'concept_sketch': 'rough concept sketch, design draft',
+  'painterly': 'painterly style, artistic brush strokes',
+  'oil_painting': 'oil painting style, textured canvas',
+  'oil_realism': 'realistic oil painting, detailed portrait',
+  'oil_old': 'old classical oil painting style',
+  'oil_70s': 'vintage pulp art style, retro illustration',
+  'pro_photo': 'professional studio photography, high quality',
+  'anime': 'anime style illustration',
+  'anime_drawn': 'hand-drawn anime style',
+  'anime_screencap': 'anime screenshot style, film frame',
+  'anime_cute': 'cute anime style, soft colors',
+  'anime_soft': 'soft shaded anime illustration',
+  'fantasy_painting': 'fantasy art, magical scene',
+  'fantasy_landscape': 'fantasy landscape, epic environment',
+  'fantasy_portrait': 'fantasy character portrait',
+  'ghibli': 'ghibli style, soft lighting, detailed background',
+  'pixel_art': 'pixel art, 8-bit style',
+  'vintage_comic': 'retro comic book style',
+  'medieval': 'medieval art style, historical illustration',
+  'watercolor': 'watercolor painting style',
+  'pencil': 'pencil sketch drawing',
+  'tattoo': 'tattoo design, black ink illustration',
+  'cartoon': 'cartoon style illustration',
+  'claymation': 'clay animation style, 3D stop motion',
+  'flat': 'flat design illustration',
+  'emoji_3d': '3D emoji style render',
+  'fantasy_map': 'fantasy map illustration, detailed cartography'
+};
+
+(function initAigChips(){
+  setTimeout(function(){
+    var container = document.getElementById('aig-style-chips');
+    if(!container) return;
+    container.addEventListener('click', function(e){
+      var chip = e.target.closest('.aig-chip');
+      if(!chip) return;
+      container.querySelectorAll('.aig-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+    });
+  }, 100);
+})();
+
+window.generateAigImages = function(){
+  if(_aigGenerating) return;
+  _aigKey = (typeof localStorage!=='undefined'&&localStorage.getItem('hf_key'))||'';
+  if(!_aigKey){
+    document.getElementById('aig-error').textContent = 'Please enter your HuggingFace API key above and click Save.';
+    document.getElementById('aig-error').style.display = 'block';
+    return;
+  }
+  var prompt = document.getElementById('aig-prompt').value.trim();
+  if(!prompt){
+    document.getElementById('aig-error').textContent = 'Please enter a prompt.';
+    document.getElementById('aig-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('aig-error').style.display = 'none';
+  var activeChip = document.querySelector('#aig-style-chips .aig-chip.active');
+  var styleKey = activeChip ? activeChip.getAttribute('data-style') : 'none';
+  var styleMod = AIG_STYLES[styleKey] || '';
+  var shape = document.getElementById('aig-shape').value;
+  var count = parseInt(document.getElementById('aig-count').value) || 4;
+  var dims = shape.split('x');
+  var width = parseInt(dims[0]);
+  var height = parseInt(dims[1]);
+
+  _aigLastPrompt = prompt;
+  _aigLastStyle = styleKey;
+
+  var finalPrompt = prompt;
+  if(styleMod) finalPrompt += ', ' + styleMod;
+  finalPrompt += ', high quality, detailed, sharp focus';
+
+  document.getElementById('aig-gen-btn').disabled = true;
+  document.getElementById('aig-gen-btn').style.opacity = '0.5';
+  document.getElementById('aig-loading').style.display = 'block';
+  document.getElementById('aig-output').style.display = 'none';
+  document.getElementById('aig-progress').textContent = '0/' + count;
+  _aigGenerating = true;
+
+  var results = [];
+  var errors = [];
+  var completed = 0;
+
+  function updateProgress(){
+    document.getElementById('aig-progress').textContent = completed + '/' + count;
+  }
+
+  function generateOne(){
+    if(!_aigGenerating) return finish();
+    fetch(
+      'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + _aigKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: finalPrompt,
+          parameters: {
+            width: width,
+            height: height,
+            num_inference_steps: 4,
+          }
+        })
+      }
+    ).then(function(res){
+      if(!res.ok){
+        if(res.status === 503){
+          // Model loading - retry after delay
+          return new Promise(function(resolve){
+            setTimeout(function(){
+              generateOne().then(resolve);
+            }, 5000);
+          });
+        }
+        if(res.status === 429){
+          errors.push('Rate limited (429). Please wait and try again.');
+          completed++;
+          updateProgress();
+          next();
+          return;
+        }
+        return res.text().then(function(text){
+          errors.push('API error (' + res.status + '): ' + text.slice(0, 100));
+          completed++;
+          updateProgress();
+          next();
+        });
+      }
+      return res.blob().then(function(blob){
+        results.push(blob);
+        completed++;
+        updateProgress();
+        next();
+      });
+    }).catch(function(err){
+      errors.push('Network error: ' + err.message);
+      completed++;
+      updateProgress();
+      next();
+    });
+  }
+
+  function next(){
+    if(completed + errors.length < count){
+      setTimeout(generateOne, 300);
+    } else {
+      finish();
+    }
+  }
+
+  function finish(){
+    _aigGenerating = false;
+    document.getElementById('aig-gen-btn').disabled = false;
+    document.getElementById('aig-gen-btn').style.opacity = '';
+    document.getElementById('aig-loading').style.display = 'none';
+
+    if(results.length === 0 && errors.length > 0){
+      document.getElementById('aig-error').textContent = errors[0];
+      document.getElementById('aig-error').style.display = 'block';
+      return;
+    }
+
+    if(errors.length > 0){
+      document.getElementById('aig-error').textContent = results.length + ' succeeded, ' + errors.length + ' failed. ' + errors[0];
+      document.getElementById('aig-error').style.display = 'block';
+    }
+
+    renderAigResults(results, prompt, styleKey);
+  }
+
+  // Start all generation requests with a small stagger
+  for(var i=0;i<count;i++){
+    setTimeout(generateOne, i * 500);
+  }
+};
+
+function renderAigResults(blobs, prompt, styleKey){
+  var output = document.getElementById('aig-output');
+  output.style.display = 'block';
+  var cols = blobs.length <= 2 ? 2 : blobs.length <= 4 ? 2 : 3;
+  var html = '<div style="font-size:0.65rem;color:var(--green);margin-bottom:12px;letter-spacing:0.05em;">Generated ' + blobs.length + ' image(s)</div>';
+  html += '<div class="aig-results-grid" style="display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:16px;">';
+  blobs.forEach(function(blob, i){
+    var url = URL.createObjectURL(blob);
+    var promptForCopy = prompt;
+    if(styleKey && styleKey !== 'none' && AIG_STYLES[styleKey]){
+      promptForCopy += ', ' + AIG_STYLES[styleKey] + ', high quality, detailed, sharp focus';
+    } else if(promptForCopy) {
+      promptForCopy += ', high quality, detailed, sharp focus';
+    }
+    html += '<div class="aig-image-card" style="background:var(--surface);border:1px solid var(--green-border);border-radius:4px;overflow:hidden;">' +
+      '<div style="position:relative;width:100%;aspect-ratio:1;background:var(--bg);overflow:hidden;">' +
+      '<img src="' + url + '" alt="Generated image ' + (i+1) + '" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy">' +
+      '</div>' +
+      '<div style="padding:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">' +
+      '<button onclick="window.aigDownload(this)" data-url="' + url + '" data-idx="' + (i+1) + '" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Download</button>' +
+      '<button onclick="window.aigCopyPrompt(this)" data-prompt="' + escapeAttr(promptForCopy) + '" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.5rem;padding:6px 10px;cursor:none;letter-spacing:0.05em;text-transform:uppercase;border-radius:2px;">Copy Prompt</button>' +
+      '</div></div>';
+  });
+  html += '</div>';
+  html += '<div style="text-align:center;margin-top:20px;">' +
+    '<button onclick="window.aigDownloadAll()" style="background:var(--surface);color:var(--green);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Download All</button></div>';
+  output.innerHTML = html;
+  window._aigBlobs = blobs;
+}
+
+function escapeAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.aigDownload = function(btn){
+  var url = btn.getAttribute('data-url');
+  var idx = btn.getAttribute('data-idx');
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'ai_image_' + idx + '.png';
+  a.click();
+};
+
+window.aigCopyPrompt = function(btn){
+  var text = btn.getAttribute('data-prompt');
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){
+      var orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(function(){ btn.textContent = orig; }, 1500);
+    });
+  }
+};
+
+window.aigDownloadAll = function(){
+  if(!window._aigBlobs || !window._aigBlobs.length) return;
+  if(window._aigBlobs.length === 1){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(window._aigBlobs[0]);
+    a.download = 'ai_image_1.png';
+    a.click();
+    return;
+  }
+  ensureJSZip().then(function(JSZip){
+    var zip = new JSZip();
+    window._aigBlobs.forEach(function(blob, i){
+      zip.file('ai_image_' + (i+1) + '.png', blob);
+    });
+    return zip.generateAsync({type:'blob'});
+  }).then(function(content){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = 'ai_images.zip';
+    a.click();
+  });
 };
 
 buildGrid();
