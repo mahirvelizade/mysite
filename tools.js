@@ -1317,42 +1317,18 @@ function loadQRLib(cb){
   if(_qrLoading) return;
   _qrLoading = true;
   var s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
-  s.onload = function(){
-    if(window.qrcode){
-      _qrLibLoaded = true;
-      _qrLoading = false;
-      if(cb) cb();
-    } else {
-      setTimeout(function(){
-        if(window.qrcode){
-          _qrLibLoaded = true;
-          _qrLoading = false;
-          if(cb) cb();
-        } else {
-          _qrLoading = false;
-          loadQRLibFallback(cb);
-        }
-      }, 500);
-    }
-  };
-  s.onerror = function(){ _qrLoading = false; loadQRLibFallback(cb); };
-  document.head.appendChild(s);
-}
-
-function loadQRLibFallback(cb){
-  var s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
   s.onload = function(){
     _qrLibLoaded = true;
+    _qrLoading = false;
     if(cb) cb();
   };
   s.onerror = function(){
-    // Last resort: try a third CDN
-    var s3 = document.createElement('script');
-    s3.src = 'https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js';
-    s3.onload = function(){ _qrLibLoaded = true; if(cb) cb(); };
-    document.head.appendChild(s3);
+    _qrLoading = false;
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+    s2.onload = function(){ _qrLibLoaded = true; if(cb) cb(); };
+    document.head.appendChild(s2);
   };
   document.head.appendChild(s);
 }
@@ -1376,35 +1352,22 @@ window.generateQR = function(){
     qr.addData(txt);
     qr.make();
 
-    var dataUrl = qr.createDataURL(4, 4);
-    if(!dataUrl){
-      out.innerHTML = '<div style="color:#ff4444;font-size:0.7rem;">Failed to create QR code.</div>';
-      return;
-    }
+    var imgHtml = qr.createImgTag(5, 4);
+    out.innerHTML =
+      '<div style="text-align:center;">' +
+        imgHtml.replace('<img ', '<img style="max-width:100%;height:auto;border-radius:4px;" ') +
+      '</div>';
 
-    var cv = document.createElement('canvas');
-    var img = new Image();
-    img.onload = function(){
-      cv.width = img.width;
-      cv.height = img.height;
-      cv.getContext('2d').drawImage(img, 0, 0);
-      cv.style.maxWidth = '100%';
-      cv.style.height = 'auto';
-      cv.style.borderRadius = '4px';
-      out.innerHTML = '';
-      out.appendChild(cv);
+    // Extract data URL for download
+    var tmpImg = out.querySelector('img');
+    var dataUrl = tmpImg ? tmpImg.src : '';
+    if(dataUrl){
       var dl = document.createElement('div');
       dl.style.marginTop = '12px';
       dl.innerHTML =
-        '<a href="' + cv.toDataURL() + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a>';
+        '<a href="' + dataUrl + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a>';
       out.appendChild(dl);
-    };
-    img.onerror = function(){
-      // Fallback: render img directly
-      out.innerHTML = '<div style="text-align:center;"><img src="' + dataUrl + '" alt="QR Code" style="max-width:100%;height:auto;border-radius:4px;"></div>' +
-        '<div style="margin-top:12px;"><a href="' + dataUrl + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a></div>';
-    };
-    img.src = dataUrl;
+    }
   } catch(e){
     out.innerHTML = '<div style="color:#ff4444;font-size:0.7rem;">Error: ' + e.message + '</div>';
   }
