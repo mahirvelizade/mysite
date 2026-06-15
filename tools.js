@@ -735,7 +735,7 @@ function openTool(toolId){
   var body = TOOL_PLACEHOLDER_BODIES[toolId] || (window._aiToolsData && window._aiToolsData[toolId]) || '<p class="tool-detail-placeholder">' + tool.name + ' — coming soon.</p>';
   detail.innerHTML =
     '<button class="tool-detail-back" onclick="window.closeTool()">← Back to Tools</button>' +
-    '<h3 class="tool-detail-title"><span class="iconify" data-icon="' + tool.icon + '" data-width="32" data-height="32" style="vertical-align:middle;margin-right:8px;"></span>' + tool.name + '</h3>' +
+    '<h3 class="tool-detail-title">' + tool.name + '</h3>' +
     '<div class="tool-detail-body">' + body + '</div>';
   if(window.location.hash !== '#tools-' + toolId) window.location.hash = 'tools-' + toolId;
   updateToolMeta(tool);
