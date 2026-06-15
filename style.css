@@ -638,6 +638,7 @@ nav.scrolled {
     position: relative;
     z-index: 1;
     transition: transform var(--transition);
+    color: var(--green);
 }
 .tool-card:hover .tool-icon { transform: scale(1.15); }
 .tool-name {
