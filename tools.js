@@ -65,7 +65,6 @@ const TOOLS = [
   { id:'ai-ocr',             name:'AI Image to Text (OCR)',icon:'👁️',cat:'ai' },
   { id:'object-remover',     name:'Object Remover',      icon:'🧹', cat:'ai' },
   { id:'image-cleanup',      name:'Image Cleanup Tool',  icon:'✨', cat:'ai' },
-  { id:'comfytv',            name:'ComfyTV Canvas',      icon:'📺', cat:'ai' },
 ];
 
 const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter', ai:'AI' };
@@ -660,33 +659,6 @@ const TOOL_PLACEHOLDER_BODIES = {
 
     '<div id="aig-output" style="display:none;"></div>',
 
-  'comfytv':
-    '<div style="display:flex;flex-direction:column;gap:24px;">' +
-    '<div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;line-height:1.8;">' +
-    'ComfyTV is a <strong style="color:var(--text);">canvas-based AI generation app</strong> that turns ComfyUI into a TapNow/LibTV-style visual workflow. ' +
-    'Supports text-to-image, image-to-image, video generation, image editing, inpaint/outpaint, upscale, 360° panorama, and more — all running locally on your own models.' +
-    '</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:24px;">' +
-    '<div style="flex:1;min-width:200px;padding:20px;background:var(--bg);border:1px solid var(--green-border);border-radius:8px;">' +
-    '<div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:12px;">Key Features</div>' +
-    '<ul style="font-size:0.6rem;color:var(--muted);line-height:2;list-style:none;padding:0;margin:0;">' +
-    '<li>✦ Per-node Run — each stage runs independently</li>' +
-    '<li>✦ Custom workflow import (JSON)</li>' +
-    '<li>✦ Rich in-node editors (mask, crop, HDRI viewer, A/B compare)</li>' +
-    '<li>✦ Seamless ComfyUI ecosystem integration</li>' +
-    '<li>✦ Project-centric with persistent outputs</li>' +
-    '</ul></div>' +
-    '<div style="flex:1;min-width:200px;padding:20px;background:var(--bg);border:1px solid var(--green-border);border-radius:8px;">' +
-    '<div style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:12px;">Requirements</div>' +
-    '<ul style="font-size:0.6rem;color:var(--muted);line-height:2;list-style:none;padding:0;margin:0;">' +
-    '<li>✦ ComfyUI installed locally</li>' +
-    '<li>✦ Installed as a custom_node</li>' +
-    '<li>✦ Compatible model files</li>' +
-    '</ul></div></div>' +
-    '<div style="text-align:center;padding:16px;border-top:1px solid var(--green-border);">' +
-    '<a href="https://github.com/jtydhr88/ComfyTV" target="_blank" style="display:inline-block;padding:12px 28px;background:var(--green);color:#000;text-decoration:none;font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;border-radius:4px;transition:var(--transition);">' +
-    'Open on GitHub →</a>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">Free &amp; open-source (MIT)</div></div></div>',
 };
 
 var _activeCategory = 'all';
@@ -780,7 +752,6 @@ function updateToolMeta(tool){
   else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files in your browser. Reduces file size with Ghostscript WASM. Free, private, no upload required.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
   else if(tool.id === 'ai-image-generator') desc = 'Generate AI images with FLUX.1-schnell. Powered by HuggingFace Inference API. Free online AI image generator.';
-  else if(tool.id === 'comfytv') desc = 'ComfyTV — canvas-based AI generation app for ComfyUI. Text-to-image, video, 360° panorama, and more, all running locally.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
   if(md) md.setAttribute('content', desc);
