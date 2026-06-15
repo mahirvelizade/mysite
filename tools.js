@@ -1303,26 +1303,30 @@ window.copyPassword = function(){
   document.execCommand('copy');
 };
 
-/* ─── QR CODE GENERATOR (via qrcode library) ─── */
+/* ─── QR CODE GENERATOR (via qrcode-generator library) ─── */
 
 var _qrLibLoaded = false;
+var _qrLoading = false;
 
 function loadQRLib(cb){
-  if(window.QRCode){
+  if(window.qrcode){
     _qrLibLoaded = true;
     if(cb) cb();
     return;
   }
+  if(_qrLoading) return;
+  _qrLoading = true;
   var s = document.createElement('script');
-  s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
   s.onload = function(){
     _qrLibLoaded = true;
+    _qrLoading = false;
     if(cb) cb();
   };
   s.onerror = function(){
-    // Fallback: try another CDN
+    _qrLoading = false;
     var s2 = document.createElement('script');
-    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s2.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js';
     s2.onload = function(){ _qrLibLoaded = true; if(cb) cb(); };
     document.head.appendChild(s2);
   };
@@ -1341,30 +1345,23 @@ window.generateQR = function(){
     return;
   }
 
-  var cv = document.createElement('canvas');
+  var qr = qrcode(0, 'L');
+  qr.addData(txt);
+  qr.make();
+
+  var cell = 4;
+  var qrSize = qr.getModuleCount() * cell;
+  var cv = qr.createCanvas(cell);
   cv.style.maxWidth = '100%';
   cv.style.height = 'auto';
   cv.style.borderRadius = '4px';
 
-  QRCode.toCanvas(cv, txt, {
-    width: 400,
-    margin: 2,
-    color: {
-      dark: '#000000',
-      light: '#FFFFFF'
-    }
-  }, function(err){
-    if(err){
-      out.innerHTML = '<div style="color:#ff4444;font-size:0.7rem;">Error: ' + err.message + '</div>';
-      return;
-    }
-    out.appendChild(cv);
-    var dl = document.createElement('div');
-    dl.style.marginTop = '12px';
-    dl.innerHTML =
-      '<a href="' + cv.toDataURL() + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a>';
-    out.appendChild(dl);
-  });
+  out.appendChild(cv);
+  var dl = document.createElement('div');
+  dl.style.marginTop = '12px';
+  dl.innerHTML =
+    '<a href="' + cv.toDataURL() + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a>';
+  out.appendChild(dl);
 };
 
 
