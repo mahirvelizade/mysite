@@ -124,7 +124,7 @@ const TOOL_PLACEHOLDER_BODIES = {
     '<div style="display:flex;gap:12px;margin-bottom:16px;">' +
     '<input id="qr-input" type="text" placeholder="Enter text or URL..." value="https://mahirvelizade.com" style="flex:1;background:var(--bg);border:1px solid var(--green-border);color:var(--text);font-family:var(--mono);font-size:0.75rem;padding:12px 16px;outline:none;">' +
     '<button onclick="window.generateQR()" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 20px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;">Generate</button></div>' +
-    '<div id="qr-output" style="text-align:center;padding:24px;background:var(--bg);border:1px solid var(--green-border);border-radius:8px;"></div></div>',
+    '<div id="qr-output" style="text-align:center;padding:24px;background:var(--bg);border:1px solid var(--green-border);border-radius:8px;overflow:hidden;"></div></div>',
 
   'json-formatter': '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">' +
     '<div><div style="font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">Input</div>' +
@@ -1303,373 +1303,69 @@ window.copyPassword = function(){
   document.execCommand('copy');
 };
 
-/* ─── QR CODE GENERATOR (proper QR spec — pure JS, no deps) ─── */
+/* ─── QR CODE GENERATOR (via qrcode library) ─── */
 
-// GF(256) with primitive poly 0x11D (x⁸+x⁴+x³+x²+1)
-var _qrGL=[],_qrGE=[];
-(function(){
-  for(var i=0,p=1;i<256;i++){ _qrGE[i]=p; p=(p<<1)^(p&0x80?0x11D:0); }
-  for(var i=0;i<255;i++) _qrGL[_qrGE[i]]=i;
-  _qrGE[255]=_qrGE[0];
-})();
-function qrG(a,b){ return a&&b?_qrGE[(_qrGL[a]+_qrGL[b])%255]:0; }
-function qrGP(t){
-  var p=[1];
-  for(var i=0;i<t;i++){
-    var a=_qrGE[i],r=new Array(p.length+1).fill(0);
-    for(var j=0;j<p.length;j++){ r[j]^=qrG(p[j],a); r[j+1]^=p[j]; }
-    p=r;
+var _qrLibLoaded = false;
+
+function loadQRLib(cb){
+  if(window.QRCode){
+    _qrLibLoaded = true;
+    if(cb) cb();
+    return;
   }
-  return p;
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
+  s.onload = function(){
+    _qrLibLoaded = true;
+    if(cb) cb();
+  };
+  s.onerror = function(){
+    // Fallback: try another CDN
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s2.onload = function(){ _qrLibLoaded = true; if(cb) cb(); };
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
 }
-function qrRS(d,t){
-  var g=qrGP(t),gr=g.slice().reverse(),b=d.slice();
-  for(var i=0;i<t;i++) b.push(0);
-  for(var i=0;i<d.length;i++){
-    if(!b[i]) continue;
-    var L=_qrGL[b[i]];
-    for(var j=0;j<=t;j++) b[i+j]^=_qrGE[(L+_qrGL[gr[j]])%255];
-  }
-  return b.slice(d.length);
-}
-
-// Version capacity: [size, totalCW, dataCW(L,M,Q,H)]
-var QV=[
-  [0,0,0,0,0,0],[21,26,19,16,13,9],[25,44,34,28,22,16],
-  [29,70,55,44,34,26],[33,100,80,64,48,36],[37,134,108,86,62,46],
-  [41,172,136,108,76,60],[45,196,156,124,92,74],[49,242,194,154,110,86],
-  [53,292,232,182,132,100],[57,346,274,216,154,122],
-];
-
-// Alignment centers for v2-6
-var QAL={
-  2:[[6,18]],3:[[6,22]],4:[[6,26]],5:[[6,30]],6:[[6,34]],
-  7:[[6,22,38]],8:[[6,24,42]],9:[[6,26,46]],10:[[6,28,50]],
-};
-
-// Finder pattern 7x7
-var QF7=[
-  [1,1,1,1,1,1,1],[1,0,0,0,0,0,1],[1,0,1,1,1,0,1],
-  [1,0,1,1,1,0,1],[1,0,1,1,1,0,1],[1,0,0,0,0,0,1],[1,1,1,1,1,1,1],
-];
 
 window.generateQR = function(){
-  var txt=document.getElementById('qr-input').value.trim();
-  if(!txt){ return; }
-  var out=document.getElementById('qr-output'); out.innerHTML='';
+  var txt = document.getElementById('qr-input').value.trim();
+  if(!txt) return;
+  var out = document.getElementById('qr-output');
+  out.innerHTML = '';
 
-  // Find minimum version (ECC L)
-  var ver=0,len=txt.length,dcap=0;
-  for(var v=1;v<=10;v++){ if(len<=QV[v][3]){ ver=v; dcap=QV[v][3]; break; } }
-  if(!ver){ out.innerHTML='<div style="color:#ff4444;font-size:0.7rem;">Text too long for QR (max ~120 chars).</div>'; return; }
+  if(!_qrLibLoaded){
+    out.innerHTML = '<div style="padding:20px;font-size:0.65rem;color:var(--muted);">Loading QR library...</div>';
+    loadQRLib(function(){ window.generateQR(); });
+    return;
+  }
 
-  // Encode in byte mode
-  var bits=[];
-  // Mode 0100 (4 bits), count (8 bits for v1-9), data (8 bits per byte)
-  var bc=4; var bi=0;
-  for(var i=3;i>=0;i--) bits[bi++]=(bc>>i)&1;
-  for(var i=7;i>=0;i--) bits[bi++]=(len>>i)&1;
-  for(var i=0;i<len;i++) for(var j=7;j>=0;j--) bits[bi++]=(txt.charCodeAt(i)>>j)&1;
-  // Terminator + pad to byte
-  for(var i=0;i<4;i++) bits[bi++]=0;
-  while(bi%8) bits[bi++]=0;
-  // Pad to capacity
-  var pd=[0xEC,0x11];
-  while(bi/8<dcap){ var bv=pd[(bi/8)&1]; for(var j=7;j>=0;j--) bits[bi++]=(bv>>j)&1; }
+  var cv = document.createElement('canvas');
+  cv.style.maxWidth = '100%';
+  cv.style.height = 'auto';
+  cv.style.borderRadius = '4px';
 
-  // Data bytes
-  var data=[]; for(var i=0;i<bi;i+=8){ var bv=0; for(var j=0;j<8;j++) bv=(bv<<1)|(bits[i+j]||0); data.push(bv); }
-  data=data.slice(0,dcap);
-
-  // RS encode
-  var total=QV[ver][1], ecc=qrRS(data,total-dcap);
-  var all=data.concat(ecc);
-
-  // Build matrix
-  var n=QV[ver][0];
-  var mat=[]; for(var i=0;i<n;i++){ mat[i]=[]; for(var j=0;j<n;j++) mat[i][j]=-1; }
-
-  // Fixed patterns
-  // Finders
-  function putF(r,c){
-    for(var y=0;y<7;y++) for(var x=0;x<7;x++) mat[r+y][c+x]=QF7[y][x];
-    for(var y=-1;y<8;y++) for(var x=-1;x<8;x++){
-      if(y>=0&&y<7&&x>=0&&x<7) continue;
-      var yy=r+y,xx=c+x; if(yy>=0&&yy<n&&xx>=0&&xx<n&&mat[yy][xx]===-1) mat[yy][xx]=0;
+  QRCode.toCanvas(cv, txt, {
+    width: 400,
+    margin: 2,
+    color: {
+      dark: '#000000',
+      light: '#FFFFFF'
     }
-  }
-  putF(0,0); putF(0,n-7); putF(n-7,0);
-
-  // Timing
-  for(var i=8;i<n-8;i++){ mat[6][i]=mat[i][6]=(i+1)&1; }
-
-  // Dark module
-  mat[n-8][8]=1;
-
-  // Alignment
-  var al=QAL[ver]||[];
-  for(var a=0;a<al.length;a++) for(var b=0;b<al.length;b++){
-    if(a===0&&b===0||a===0&&b===al.length-1||a===al.length-1&&b===0) continue;
-    var cy=al[a],cx=al[b];
-    for(var y=-2;y<=2;y++) for(var x=-2;x<=2;x++){
-      var vv=(Math.abs(y)===2||Math.abs(x)===2||(y===0&&x===0))?1:0;
-      var yy=cy+y,xx=cx+x; if(yy>=0&&yy<n&&xx>=0&&xx<n&&mat[yy][xx]===-1) mat[yy][xx]=vv;
+  }, function(err){
+    if(err){
+      out.innerHTML = '<div style="color:#ff4444;font-size:0.7rem;">Error: ' + err.message + '</div>';
+      return;
     }
-  }
-
-  // Place data bits in interleaved columns (up/down zigzag)
-  var bi2=0;
-  for(var col=n-1;col>0;col-=2){
-    if(col===6) col=5;
-    var up=((n-1-col)/2)%2===0?false:true; // alternate direction per column pair
-    // Actually, QR standard: column pairs, right to left, up then down
-    // Column pair (col, col-1): first column goes up, second goes down
-    // But we process column by column, so we alternate per pair
-    // For simplicity, use the standard QR "maze" pattern:
-    // Rightmost two columns: up on right, down on left (of the pair)
-    // Next pair: up on right, down on left
-    // Actually, version 1: col=20(rightmost): go UP, col=19: go DOWN
-    // After timing column (col=6), continue
-
-    // Let me simplify - column scan:
-    // For each column pair (c, c-1 starting from rightmost):
-    //   Right column: bottom to top (if col%4===0) or top to bottom
-    // Wait, QR spec says:
-    // - Rightmost column of each pair: bottom to top
-    // - Left column of each pair: top to bottom
-    // But this alternates based on the column pair index
-
-    // Simpler: just use the standard QR column traversal
-    // Rightmost 2 columns: column 20 (up), column 19 (down)
-    // Next 2: column 18 (up), column 17 (down)
-    // ...
-    // After timing (column 6): column 5 (down), column 4 (up), column 3 (down), column 2 (up), column 1 (down)
-
-    var goUp=((n-1-col)/2)%2===0;
-    // Actually, let me think about it differently
-    // Column pairs: (n-1, n-2), (n-3, n-4), ..., (3, 2), (1, 0 but skip col 0)
-    // For each pair, right column scans bottom→top, left column scans top→bottom
-
-    // Hmm, this is getting confusing. Let me look at this differently.
-    // Actually, the standard: columns processed right to left, skipping column 6.
-    // Within each column pair (c, c-1 where c is odd):
-    //   column c: bottom to top
-    //   column c-1: top to bottom
-  }
-
-  // I need a simpler traversal. Let me use the known QR column traversal:
-  // Process columns right to left, alternating direction
-  // column n-1: upward (bottom→top)
-  // column n-2: downward (top→bottom)
-  // column n-3: upward
-  // column n-4: downward
-  // ...
-  // Skip column 6 completely
-
-  // Place data bits in QR zigzag pattern (one column at a time, alternating direction)
-  bi2=0; var allBits=all.length*8;
-  var upward=true; // rightmost column goes upward
-  for(var col=n-1;col>=1;col--){
-    if(col===6) continue;
-    if(upward){
-      for(var row=n-1;row>=0;row--){
-        if(mat[row][col]===-1){
-          mat[row][col]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
-          bi2++;
-        }
-      }
-    } else {
-      for(var row=0;row<n;row++){
-        if(mat[row][col]===-1){
-          mat[row][col]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0;
-          bi2++;
-        }
-      }
-    }
-    upward=!upward;
-  }
-
-  // Remaining bits fill remaining -1 cells
-  for(var y=0;y<n;y++) for(var x=0;x<n;x++){
-    if(mat[y][x]===-1) mat[y][x]=bi2<allBits?((all[Math.floor(bi2/8)]>>(7-(bi2%8)))&1):0,bi2++;
-  }
-
-  // Find best mask
-  var bestM=0,bestS=Infinity;
-  for(var m=0;m<8;m++){
-    var mm=applyMaskQR(mat.slice(),m,n,ver);
-    if(!mm) continue;
-    var sc=evalPenalty(mm,n);
-    if(sc<bestS){ bestS=sc; bestM=m; }
-  }
-
-  var finalMat=applyMaskQR(mat.slice(),bestM,n,ver);
-  if(!finalMat) finalMat=mat;
-
-  // Render to canvas (with 4-module quiet zone)
-  var cell=10,pad=cell*4,s=n*cell+pad*2;
-  var cv=document.createElement('canvas'); cv.width=s; cv.height=s;
-  var cx=cv.getContext('2d');
-  cx.fillStyle='#FFFFFF'; cx.fillRect(0,0,s,s);
-  cx.fillStyle='#000000';
-  for(var y=0;y<n;y++) for(var x=0;x<n;x++){
-    if(finalMat[y][x]) cx.fillRect(pad+x*cell,pad+y*cell,cell,cell);
-  }
-
-  out.appendChild(cv);
-  var dl=document.createElement('div');
-  dl.style.marginTop='12px';
-  dl.innerHTML='<a href="'+cv.toDataURL()+'" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a> ' +
-    '<span style="font-size:0.55rem;color:var(--muted);">Version ' + ver + ' · ' + n + '×' + n + ' · ECC L</span>';
-  out.appendChild(dl);
+    out.appendChild(cv);
+    var dl = document.createElement('div');
+    dl.style.marginTop = '12px';
+    dl.innerHTML =
+      '<a href="' + cv.toDataURL() + '" download="qrcode.png" style="color:var(--green);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border:1px solid var(--green-border);padding:8px 16px;display:inline-block;">Download PNG</a>';
+    out.appendChild(dl);
+  });
 };
-
-function applyMaskQR(m,mask,n,ver){
-  // BCH(15,5) for format info: EC L=01, mask=3 bits, gen=0x537, XOR=0x5412
-  var ec=[1,0,3,2]; // L=01, M=00, Q=11, H=10 as format bits
-  var fmt=(ec[0]<<13)|(mask<<10);
-  var bch=fmt;
-  for(var i=4;i>=0;i--){ if(bch&(1<<(14-i))) bch^=0x537<<(4-i); }
-  fmt=(fmt&0x7C00)|(bch&0x3FF);
-  fmt^=0x5412;
-
-  // Determine reserved cells
-  function isRes(y,x){
-    // Finder + separator (3 corners)
-    if(y<8&&x<8) return true;
-    if(y<8&&x>=n-7) return y<7||x>n-8?true:(y===7||x===n-8)?true:false;
-    // Hmm, this is getting complex. Let me simplify.
-    
-    // Finder: (0,0), (0,n-7), (n-7,0) - 7x7
-    if(y<7&&x<7) return true;
-    if(y<7&&x>=n-7) return true;
-    if(y>=n-7&&x<7) return true;
-    
-    // Separator: 8th row/col around finders (white border)
-    if(y===7&&x<8) return true;
-    if(x===7&&y<8) return true;
-    if(y===7&&x>=n-8) return true;
-    if(x===n-8&&y<8) return true;
-    if(y>=n-8&&x===7) return true;
-    if(y===n-8&&x<7) return true;
-    
-    // Timing: row 6 and column 6
-    if(y===6||x===6) return true;
-    
-    // Format info: row 8 (cols 0-8, n-8 to n-1), col 8 (rows 0-8, n-8 to n-1)
-    if(y===8&&x<=8) return true;
-    if(y===8&&x>=n-8) return true;
-    if(x===8&&y<=8) return true;
-    if(x===8&&y>=n-8) return true;
-    
-    // Dark module
-    if(y===n-8&&x===8) return true;
-    
-    // Alignment patterns
-    var al=(QAL[ver]||[]);
-    for(var a=0;a<al.length;a++) for(var b=0;b<al.length;b++){
-      if(a===0&&b===0||a===0&&b===al.length-1||a===al.length-1&&b===0) continue;
-      var cy=al[a],cx=al[b];
-      if(Math.abs(y-cy)<=2&&Math.abs(x-cx)<=2) return true;
-    }
-    
-    return false;
-  }
-
-  // Place format info
-  function pf(r,c,b){ if(r>=0&&r<n&&c>=0&&c<n&&!isRes(r,c)) m[r][c]=(fmt>>b)&1; }
-  for(var i=0;i<=8;i++){ pf(8,14-i,14-i); pf(i,8,14-i); } // Wait, format positions...
-  // Format info positions according to spec:
-  // Top-left area (horizontal): row 8, cols 0-8 → bits 14 down to 7
-  // Actually, let me use the standard positions:
-  // Row 8, cols 0-8 (excluding reserved): 30, 29, 28, 27, 26, 25, 24, 23, 22
-  // Wait, the format module numbers are:
-  // 0: (8,0) timing... no, (8,0) is timing (column 0)
-  // Let me use the standard format info placement:
-  
-  // Clear and redo format
-  // Actually, the issue is that many of these positions are already taken by timing, etc.
-  // The standard says:
-  // Horizontal format: row 8, columns 0-8 (except column 6 which is timing) and columns n-8 to n-1
-  // Vertical format: column 8, rows 0-8 (except row 6 which is timing) and rows n-8 to n-1
-  
-  // Let me just set the known format positions:
-  var fmtPos=[
-    [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],           // horizontal top (skip 6=timing)
-    [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],                  // vertical left (skip 6=timing)
-    [8,n-8],[8,n-7],[8,n-6],[8,n-5],[8,n-4],[8,n-3],[8,n-2],[8,n-1], // horizontal right
-    [n-7,8],[n-6,8],[n-5,8],[n-4,8],[n-3,8],[n-2,8],[n-1,8],   // vertical bottom
-  ];
-  for(var i=0;i<fmtPos.length;i++){
-    var r=fmtPos[i][0],c=fmtPos[i][1];
-    if(r>=0&&r<n&&c>=0&&c<n) m[r][c]=(fmt>>(14-i))&1;
-  }
-
-  // Mask data modules
-  for(var y=0;y<n;y++) for(var x=0;x<n;x++){
-    if(isRes(y,x)) continue;
-    var mv=false;
-    switch(mask){
-      case 0: mv=((y+x)&1)===0; break;
-      case 1: mv=(y&1)===0; break;
-      case 2: mv=x%3===0; break;
-      case 3: mv=(y+x)%3===0; break;
-      case 4: mv=((Math.floor(y/2)+Math.floor(x/3))&1)===0; break;
-      case 5: mv=((y*x)&1)+((y*x)%3)===0; break;
-      case 6: mv=(((y*x)&1)+((y*x)%3))%2===0; break;
-      case 7: mv=(((y*x)%3)+((y+x)&1))%2===0; break;
-    }
-    if(mv) m[y][x]^=1;
-  }
-  return m;
-}
-
-// Penalty scoring (simplified - just penalty 1, 2, 3)
-function evalPenalty(m,n){
-  var s=0;
-  // Penalty 1: Adjacent modules in row/col
-  for(var y=0;y<n;y++) for(var x=0;x<n-4;x++){
-    for(var l=5;x+l<=n;l++){
-      var same=true;
-      for(var k=1;k<l;k++) if(m[y][x+k]!==m[y][x]){ same=false; break; }
-      if(same&&l>=5) s+=l-2;
-      else break;
-    }
-  }
-  for(var x=0;x<n;x++) for(var y=0;y<n-4;y++){
-    for(var l=5;y+l<=n;l++){
-      var same=true;
-      for(var k=1;k<l;k++) if(m[y+k][x]!==m[y][x]){ same=false; break; }
-      if(same&&l>=5) s+=l-2;
-      else break;
-    }
-  }
-  // Penalty 2: 2×2 blocks
-  for(var y=0;y<n-1;y++) for(var x=0;x<n-1;x++){
-    var v=m[y][x];
-    if(m[y][x+1]===v&&m[y+1][x]===v&&m[y+1][x+1]===v) s+=3;
-  }
-  // Penalty 3: finder-like patterns
-  var fp1=[1,0,1,1,1,0,1,0,0,0,0];
-  var fp2=[0,0,0,0,1,0,1,1,1,0,1];
-  for(var y=0;y<n;y++) for(var x=0;x<n-10;x++){
-    var hit1=true,hit2=true;
-    for(var k=0;k<11;k++){
-      if(m[y][x+k]!==fp1[k]) hit1=false;
-      if(m[y][x+k]!==fp2[k]) hit2=false;
-    }
-    if(hit1||hit2) s+=40;
-  }
-  for(var x=0;x<n;x++) for(var y=0;y<n-10;y++){
-    var hit1=true,hit2=true;
-    for(var k=0;k<11;k++){
-      if(m[y+k][x]!==fp1[k]) hit1=false;
-      if(m[y+k][x]!==fp2[k]) hit2=false;
-    }
-    if(hit1||hit2) s+=40;
-  }
-  return s;
-}
 
 
 /* ─── JSON FORMATTER ─── */
