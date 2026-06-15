@@ -3444,7 +3444,7 @@ window.generateTtvVideo = function(){
 
   var numFrames = parseInt(document.getElementById('ttv-frames').value) || 25;
 
-  fetch('https://router.huggingface.co/hf-inference/models/dataautogpt3/OpenDramaVideo', {
+  fetch('https://router.huggingface.co/fal-ai/models/Wan-AI/Wan2.1-T2V-1.3B', {
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + _aigKey,
