@@ -65,7 +65,6 @@ const TOOLS = [
   { id:'ai-ocr',             name:'AI Image to Text (OCR)',icon:'👁️',cat:'ai' },
   { id:'object-remover',     name:'Object Remover',      icon:'🧹', cat:'ai' },
   { id:'image-cleanup',      name:'Image Cleanup Tool',  icon:'✨', cat:'ai' },
-  { id:'text-to-video',      name:'Text to Video',       icon:'🎬', cat:'ai' },
 ];
 
 const CATEGORY_LABELS = { pdf:'PDF', image:'Image', dev:'Dev', converter:'Converter', ai:'AI' };
@@ -660,23 +659,6 @@ const TOOL_PLACEHOLDER_BODIES = {
 
     '<div id="aig-output" style="display:none;"></div>',
 
-  'text-to-video':
-    '<div style="margin-bottom:20px;">' +
-    '<p style="font-size:0.65rem;color:var(--muted);letter-spacing:0.05em;line-height:1.8;margin-bottom:16px;">' +
-    'Generate a short video from a text prompt. Powered by HF Inference API.</p>' +
-    '<div style="display:flex;flex-direction:column;gap:12px;">' +
-    '<textarea id="ttv-prompt" rows="3" placeholder="Describe the video you want to generate..." style="width:100%;background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.65rem;padding:12px;outline:none;resize:vertical;border-radius:4px;"></textarea>' +
-    '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">' +
-    '<div><label style="font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:6px;">Frames</label>' +
-    '<select id="ttv-frames" style="background:var(--bg);color:var(--text);border:1px solid var(--green-border);font-family:var(--mono);font-size:0.6rem;padding:8px 12px;outline:none;">' +
-    '<option value="16">16</option><option value="25" selected>25</option><option value="49">49</option></select></div>' +
-    '<div><button onclick="window.generateTtvVideo()" id="ttv-gen-btn" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.6rem;padding:10px 24px;cursor:none;letter-spacing:0.15em;text-transform:uppercase;transition:var(--transition);">Generate</button></div></div></div>' +
-    '<div id="ttv-loading" style="display:none;text-align:center;padding:40px;">' +
-    '<div class="loader-ring" style="margin:0 auto 20px;"></div>' +
-    '<div style="font-size:0.65rem;color:var(--green);letter-spacing:0.1em;">Generating video... <span id="ttv-progress">0%</span></div>' +
-    '<div style="font-size:0.55rem;color:var(--muted);margin-top:8px;">This may take 1–3 minutes</div></div>' +
-    '<div id="ttv-error" style="display:none;padding:12px 16px;background:var(--bg);border:1px solid #ff4444;color:#ff4444;font-size:0.65rem;border-radius:8px;margin-bottom:16px;"></div>' +
-    '<div id="ttv-output" style="display:none;text-align:center;"></div>',
 };
 
 var _activeCategory = 'all';
@@ -770,7 +752,6 @@ function updateToolMeta(tool){
   else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files in your browser. Reduces file size with Ghostscript WASM. Free, private, no upload required.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
   else if(tool.id === 'ai-image-generator') desc = 'Generate AI images with FLUX.1-schnell. Powered by HuggingFace Inference API. Free online AI image generator.';
-  else if(tool.id === 'text-to-video') desc = 'Generate AI videos from text prompts. Free online text-to-video generator powered by HuggingFace.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
   if(md) md.setAttribute('content', desc);
@@ -3422,86 +3403,6 @@ window.aigDownloadAll = function(){
     a.download = 'ai_images.zip';
     a.click();
   });
-};
-
-/* ─── TEXT TO VIDEO (HF Inference API) ─── */
-var _ttvGenerating = false;
-
-window.generateTtvVideo = function(){
-  if(_ttvGenerating) return;
-  var prompt = document.getElementById('ttv-prompt').value.trim();
-  if(!prompt){
-    document.getElementById('ttv-error').textContent = 'Please enter a prompt.';
-    document.getElementById('ttv-error').style.display = 'block';
-    return;
-  }
-  document.getElementById('ttv-error').style.display = 'none';
-  document.getElementById('ttv-gen-btn').disabled = true;
-  document.getElementById('ttv-gen-btn').style.opacity = '0.5';
-  document.getElementById('ttv-loading').style.display = 'block';
-  document.getElementById('ttv-output').style.display = 'none';
-  _ttvGenerating = true;
-
-  var numFrames = parseInt(document.getElementById('ttv-frames').value) || 25;
-
-  fetch('https://api-inference.huggingface.co/models/Wan-AI/Wan2.1-T2V-1.3B', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + _aigKey,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: {
-        num_frames: numFrames,
-        guidance_scale: 7,
-        num_inference_steps: 25,
-      }
-    })
-  }).then(function(res){
-    if(!res.ok){
-      if(res.status === 503){
-        document.getElementById('ttv-loading').querySelector('div:last-child').textContent = 'Model is loading... please wait';
-        return new Promise(function(resolve){
-          setTimeout(function(){
-            window.generateTtvVideo();
-            resolve();
-          }, 10000);
-        });
-      }
-      return res.text().then(function(text){ throw new Error('API error: ' + res.status + ' ' + text); });
-    }
-    return res.blob();
-  }).then(function(blob){
-    if(!blob) return;
-    var url = URL.createObjectURL(blob);
-    document.getElementById('ttv-loading').style.display = 'none';
-    var output = document.getElementById('ttv-output');
-    output.style.display = 'block';
-    output.innerHTML =
-      '<video controls style="max-width:100%;max-height:480px;border-radius:4px;border:1px solid var(--green-border);background:#000;">' +
-      '<source src="' + url + '" type="video/mp4">' +
-      'Your browser does not support video playback.</video>' +
-      '<div style="margin-top:12px;">' +
-      '<button onclick="window.ttvDownload(this)" data-url="' + url + '" style="background:var(--green);color:#000;border:none;font-family:var(--mono);font-size:0.65rem;padding:10px 24px;cursor:none;letter-spacing:0.1em;text-transform:uppercase;border-radius:4px;">Download Video</button></div>';
-    _ttvGenerating = false;
-    document.getElementById('ttv-gen-btn').disabled = false;
-    document.getElementById('ttv-gen-btn').style.opacity = '1';
-  }).catch(function(err){
-    _ttvGenerating = false;
-    document.getElementById('ttv-gen-btn').disabled = false;
-    document.getElementById('ttv-gen-btn').style.opacity = '1';
-    document.getElementById('ttv-loading').style.display = 'none';
-    document.getElementById('ttv-error').textContent = err.message;
-    document.getElementById('ttv-error').style.display = 'block';
-  });
-};
-
-window.ttvDownload = function(btn){
-  var a = document.createElement('a');
-  a.href = btn.getAttribute('data-url');
-  a.download = 'ai_video.mp4';
-  a.click();
 };
 
 buildGrid();
