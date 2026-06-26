@@ -751,7 +751,7 @@ function updateToolMeta(tool){
   else if(tool.id === 'image-to-pdf') desc = 'Convert images to PDF files instantly in your browser. Free, no upload required.';
   else if(tool.id === 'pdf-compressor') desc = 'Compress PDF files in your browser. Reduces file size with Ghostscript WASM. Free, private, no upload required.';
   else if(tool.id === 'qr-code-generator') desc = 'Generate QR codes for free in your browser. No upload, no tracking.';
-  else if(tool.id === 'ai-image-generator') desc = 'Generate AI images with FLUX.1-schnell. Powered by HuggingFace Inference API. Free online AI image generator.';
+  else if(tool.id === 'ai-image-generator') desc = 'Generate AI images with FLUX. Free online AI image generator. Powered by Pollinations.ai.';
   else desc = 'Free online ' + tool.name.toLowerCase() + ' tool. Works entirely in your browser.';
   var md = document.querySelector('meta[name="description"]');
   if(md) md.setAttribute('content', desc);
@@ -2840,11 +2840,10 @@ window.makeProfilePhoto = function(){
   img.src = URL.createObjectURL(file);
 };
 
-/* ─── AI IMAGE GENERATOR (FLUX.1-schnell via HuggingFace) ─── */
+/* ─── AI IMAGE GENERATOR (FLUX via Pollinations.ai — free, no key) ─── */
 var _aigGenerating = false;
 var _aigLastPrompt = '';
 var _aigLastStyle = '';
-var _aigKey = '__HF_TOKEN__';
 
 var AIG_STYLES = {
   'none': '',
@@ -2931,43 +2930,12 @@ window.generateAigImages = function(){
     document.getElementById('aig-progress').textContent = completed + '/' + count;
   }
 
-  function generateOne(){
+  function generateOne(seed){
     if(!_aigGenerating){ pending = 0; return maybeFinish(); }
-    fetch(
-      'https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell',
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + _aigKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inputs: finalPrompt,
-          parameters: {
-            width: width,
-            height: height,
-            num_inference_steps: 4,
-          }
-        })
-      }
-    ).then(function(res){
+    var url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(finalPrompt) +
+      '?width=' + width + '&height=' + height + '&seed=' + seed + '&nologo=true';
+    fetch(url).then(function(res){
       if(!res.ok){
-        if(res.status === 503){
-          // Model loading - retry after delay (pending stays same - retry replaces this slot)
-          return new Promise(function(resolve){
-            setTimeout(function(){
-              generateOne().then(resolve);
-            }, 5000);
-          });
-        }
-        if(res.status === 429){
-          errors.push('Rate limited (429). Please wait and try again.');
-          completed++;
-          pending--;
-          updateProgress();
-          maybeFinish();
-          return;
-        }
         return res.text().then(function(text){
           errors.push('API error (' + res.status + '): ' + text.slice(0, 100));
           completed++;
@@ -3013,9 +2981,9 @@ window.generateAigImages = function(){
     renderAigResults(results, prompt, styleKey);
   }
 
-  // Start exactly count requests; nothing schedules extras
+  // Start exactly count requests with random seeds; nothing schedules extras
   for(var i=0;i<count;i++){
-    setTimeout(generateOne, i * 500);
+    (function(s){ setTimeout(function(){ generateOne(s); }, i * 500); })(Math.floor(Math.random() * 999999));
   }
 };
 

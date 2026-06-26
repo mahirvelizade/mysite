@@ -680,26 +680,29 @@ window.runOcr = function(){
     ctx.drawImage(img, 0, 0);
     var dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
-    fetch('https://router.huggingface.co/hf-inference/models/tesseract-ocr/tesseract-ocr', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + (_aigKey || '__HF_TOKEN__'),
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ inputs: dataUrl })
-    }).then(function(r){
-      if(!r.ok) throw new Error('OCR failed (HTTP ' + r.status + ')');
-      return r.json();
-    }).then(function(data){
-      showLoading('ocr', false);
-      var text = data && data.text ? data.text : (data[0] && data[0].text ? data[0].text : 'No text detected.');
-      var out = document.getElementById('ocr-output');
-      if(out) out.value = text;
-      showResult('ocr');
-    }).catch(function(err){
-      showLoading('ocr', false);
-      showError('ocr', err.message || 'OCR failed. Make sure the image has clear text.');
-    });
+    if(typeof Tesseract === 'undefined'){
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      s.onload = function(){ runOcr(dataUrl); };
+      s.onerror = function(){ showLoading('ocr',false); showError('ocr','Failed to load Tesseract.js. Check internet connection.'); };
+      document.head.appendChild(s);
+      return;
+    }
+    runOcr(dataUrl);
+    function runOcr(url){
+      Tesseract.recognize(url, 'eng', { logger: function(m){
+        if(m.status === 'recognizing text') document.querySelector('#ocr-loading span').textContent = Math.round(m.progress * 100) + '%';
+      }}).then(function(r){
+        showLoading('ocr', false);
+        var text = r.data.text || 'No text detected.';
+        var out = document.getElementById('ocr-output');
+        if(out) out.value = text;
+        showResult('ocr');
+      }).catch(function(err){
+        showLoading('ocr', false);
+        showError('ocr', err.message || 'OCR failed. Make sure the image has clear text.');
+      });
+    }
   };
   img.src = _ocrImgData;
 };

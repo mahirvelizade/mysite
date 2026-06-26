@@ -11,6 +11,7 @@
 - **AI widget overlap fix**: `.tool-detail` gets `pointer-events: auto`, FAB keeps `pointer-events: auto`, chats container gets `pointer-events: none`
 - **HTML Viewer widened**: `max-width: 800px` removed from `.tool-detail` CSS, added "↗ Open in New Tab" button
 - **Version**: v4.6, commit `8c088c5`
+- **26 Jun 2026 — HF krediti bitdi → Pollinations.ai-yə keçid (pulsuz, API key tələb etmir)** — AI Image Generator + OCR
 
 ## 🗺️ Session Summary (05 Jun 2026)
 - **English-only chat**: `detectLang` always returns `'en'`, SYSTEM prompt AZ/RU təlimatları silindi
