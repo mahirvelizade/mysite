@@ -256,3 +256,29 @@
   - `95e946d` — fix: load tools-ai.js (was missing from HTML)
   - `3ceb8be` — fix: real prompt enhancement (was template passthrough)
   - `f1e5e5b` — fix: use .active class for mode detection (was matching all buttons)
+
+## Session (26 Jun 2026) — HF credits depleted → free alternatives
+
+### AI Image Generator — HuggingFace → Pollinations.ai
+- **Problem**: HF Inference API credits depleted → `402 Payment Required`
+- **Fix**: Switched from `router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell` to `image.pollinations.ai/prompt/...`
+- **Key changes**:
+  - Removed `_aigKey` / `__HF_TOKEN__` — Pollinations is free, no key required
+  - Changed from POST (JSON body) to GET (URL params: prompt, width, height, seed, nologo)
+  - Each request uses a unique random seed for varied results
+  - Removed HuggingFace-specific error handling (503 retry, 429 rate limit)
+- **Files**: `tools.js`
+
+### OCR (AI Image to Text) — HuggingFace → Tesseract.js
+- **Problem**: Same HF credit depletion + `_aigKey` removed
+- **Fix**: Replaced `router.huggingface.co/hf-inference/models/tesseract-ocr/...` with client-side Tesseract.js (loaded dynamically from CDN)
+- **Key changes**:
+  - No API key, no server call — runs entirely in browser
+  - Shows recognition progress percentage
+  - Dynamic script loading via CDN
+- **Files**: `tools-ai.js`
+
+### Security
+- **Cleaned**: Removed exposed HF token `hf_ZVigycC...` from `ai-image-generator-notes.md`
+- **Commit**: `665537a`
+- **Version**: v4.7 (unchanged)

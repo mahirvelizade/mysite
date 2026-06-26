@@ -28,7 +28,10 @@ Maintain and optimize Mahir Velizade's portfolio site at https://mahirvelizade.s
 - Google Fonts preconnect for faster load
 - Index.html reduced from 2046 → 1235 lines (~40% smaller)
 
-## Last Session (30 May 2026)
+## Last Session (26 Jun 2026)
+- **AI Image Generator**: HuggingFace (credits depleted) → Pollinations.ai (free, no key)
+- **OCR**: HuggingFace → Tesseract.js (client-side, no server)
+- **Commit**: `665537a`
 - **Mobile nav click fix**: About/Contact unclickable on iOS — 3D WebGL canvas intercepted touch events through menu overlay. Fix: `pointer-events: none` on `#canvas-3d` when menu opens.
 - **Nav reverted to v4.1 design**: `<a href="#" data-page="...">` + delegated `[data-page]` click listener. No body-move, no inline onclick.
 - **Menu visual**: full-height overlay (`bottom: 0`), `1.2rem` link font, centered layout
