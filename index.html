@@ -633,12 +633,8 @@ setInterval(function(){
         function attachGyro(){ window.addEventListener('deviceorientation',onOrient,true); window.addEventListener('deviceorientationabsolute',onOrient,true); }
 
         if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-            var hint=document.createElement('div');
-            hint.textContent='Tap to enable motion';
-            hint.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);font-family:monospace;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(57,255,20,0.7);pointer-events:none;z-index:9980;white-space:nowrap;background:rgba(0,0,0,0.6);padding:6px 12px;';
-            document.body.appendChild(hint);
             document.addEventListener('touchstart',function(){
-                DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted'){attachGyro();hint.remove();}}).catch(function(){});
+                DeviceOrientationEvent.requestPermission().then(function(s){if(s==='granted'){attachGyro();}}).catch(function(){});
             },{once:true});
         } else { attachGyro(); }
 
