@@ -546,7 +546,7 @@ setInterval(function(){
         dracoLoader.setDecoderConfig({ type: 'js' });
         const loader = new GLTFLoader();
         loader.setDRACOLoader(dracoLoader);
-        loader.load('santa.glb', (gltf) => {
+        loader.load('3D.glb', (gltf) => {
             mainObject = gltf.scene;
             const box = new THREE.Box3().setFromObject(mainObject);
             const center = box.getCenter(new THREE.Vector3());
